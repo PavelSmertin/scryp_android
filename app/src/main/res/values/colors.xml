@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4A4B5B</color>
+    <color name="colorPrimaryDark">#3A3C47</color>
+    <color name="colorAccent">#4FD9E0</color>
+
+
+    <color name="colorUpValue">@color/colorAccent</color>
+    <color name="colorDownValue">#C575B8</color>
+
+
+    <color name="colorItems">#FF000000</color>
+    <color name="colorTextPrimary">#FFFFFFFF</color>
+
+    <color name="colorTextLabel2">#FF696769</color>
+    <color name="colorTextLabel">#FF888888</color>
+
+
+    <color name="button_primary">#FF4FD9E0</color>
+    <color name="button_primary_pressed">#AA4FD9E0</color>
+    <color name="button_primary_disabled">#424f4f4f</color>
+
+    <color name="button_pink">#FFC575B8</color>
+    <color name="button_pink_pressed">#AAC575B8</color>
+
+    <color name="button_alfa">#44009688</color>
+    <color name="button_alfa_pressed">#4427a79a</color>
+    <color name="button_alfa_disabled">#224f4f4f</color>
+
+</resources>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/conversation_list_row"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+
+    android:paddingStart="8dp"
+    android:paddingTop="1.5dp"
+    android:paddingBottom="1.5dp"
+    android:layout_margin="5dp"
+    android:background="@drawable/item_bg">
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/line_1"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.35"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/line_2"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.70"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/line_3"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="BTC"
+        android:id="@+id/coin_symbol"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/coin_original"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/line_1"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="org"
+        style="@style/AppLabelStyle"
+        android:layout_marginTop="5dp"
+        android:id="@+id/coin_original"
+
+        app:layout_constraintTop_toBottomOf="@+id/coin_symbol"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="bal"
+        style="@style/AppLabelStyle"
+        android:id="@+id/coin_original_balance"
+
+        app:layout_constraintBaseline_toBaselineOf="@+id/coin_original"
+        app:layout_constraintLeft_toRightOf="@+id/coin_original"
+        android:layout_marginLeft="10dp"
+        />
+
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="8500(+10%)"
+        android:gravity="start"
+        android:id="@+id/coin_price"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/coin_holdings"
+        app:layout_constraintLeft_toRightOf="@+id/line_1"
+        app:layout_constraintRight_toLeftOf="@+id/line_2"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="345 987 USD"
+        android:gravity="start"
+        style="@style/AppLabelStyle"
+        android:layout_marginTop="5dp"
+        android:id="@+id/coin_holdings"
+
+        app:layout_constraintTop_toBottomOf="@+id/coin_price"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/line_1"
+        app:layout_constraintRight_toLeftOf="@+id/line_2"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="$654"
+        android:id="@+id/coin_profit"
+        android:layout_gravity="center_vertical"
+        android:gravity="end"
+        android:textColor="@color/colorUpValue"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/line_2"
+        app:layout_constraintRight_toLeftOf="@+id/line_3"
+        />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_margin="12dp"
+        android:id="@+id/add_notification"
+
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/line_3"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        android:background="@drawable/ic_notifications_black_24dp"
+        >
+
+    </ImageView>
+
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="transaction_types">
+        <item>@string/buy</item>
+        <item>@string/sell</item>
+        <item>@string/correct</item>
+    </string-array>
+</resources>

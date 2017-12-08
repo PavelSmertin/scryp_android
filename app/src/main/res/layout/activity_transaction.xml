@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.start.crypto.android.TransactionActivity"
+    >
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        >
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:labelFor="@+id/exchange_complete"
+            android:text="@string/exchange"
+            android:id="@+id/exchange_select_label"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+        <AutoCompleteTextView
+            android:id="@+id/exchange_complete"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            style="@style/AppEditTextStyle"
+            android:imeOptions="actionSearch"
+            android:inputType="textFilter|textNoSuggestions"
+            android:lines="1"
+            android:maxLines="1"
+            tools:ignore="RtlSymmetry"
+            app:layout_constraintTop_toBottomOf="@id/exchange_select_label"
+            app:layout_constraintLeft_toLeftOf="@id/exchange_select_label"
+            app:layout_constraintRight_toRightOf="@id/exchange_select_label"
+            />
+        <ImageView
+            android:id="@+id/clear_exchange_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/all_clear_text"
+            android:padding="6dp"
+            android:layout_marginBottom="10dp"
+            app:srcCompat="@drawable/ic_close_white_24dp"
+            app:layout_constraintRight_toRightOf="@+id/exchange_complete"
+            app:layout_constraintTop_toTopOf="@+id/exchange_complete"
+            app:layout_constraintBottom_toBottomOf="@+id/exchange_complete"
+            />
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/exchange_select"
+            style="@style/AppSpinner"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:spinnerMode="dialog"
+            android:visibility="gone"
+            />
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@+id/currentey_select"
+            android:text="@string/pair"
+            android:id="@+id/currentey_select_label"
+            app:layout_constraintTop_toBottomOf="@id/exchange_complete"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/type_select_label"
+            app:layout_constraintHorizontal_weight="1"
+            />
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/currentey_select"
+            style="@style/AppSpinner"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:spinnerMode="dialog"
+            app:layout_constraintTop_toBottomOf="@id/currentey_select_label"
+            app:layout_constraintLeft_toLeftOf="@id/currentey_select_label"
+            app:layout_constraintRight_toRightOf="@id/currentey_select_label"
+            />
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@+id/type_select"
+            android:text="@string/type_of_transaction"
+            android:id="@+id/type_select_label"
+            app:layout_constraintBaseline_toBaselineOf="@+id/currentey_select_label"
+            app:layout_constraintLeft_toRightOf="@id/currentey_select_label"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            />
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/type_select"
+            style="@style/AppSpinner"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:spinnerMode="dialog"
+            app:layout_constraintTop_toBottomOf="@id/type_select_label"
+            app:layout_constraintRight_toRightOf="@id/type_select_label"
+            app:layout_constraintLeft_toLeftOf="@id/type_select_label"
+            />
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@+id/price"
+            android:text="@string/price_of_coin"
+            android:id="@+id/price_label"
+            app:layout_constraintTop_toBottomOf="@id/currentey_select"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/amount_label"
+            app:layout_constraintHorizontal_weight="1"
+            />
+        <EditText
+            android:id="@+id/price"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:inputType="numberDecimal"
+            app:layout_constraintTop_toBottomOf="@id/price_label"
+            app:layout_constraintLeft_toLeftOf="@id/price_label"
+            app:layout_constraintRight_toRightOf="@id/price_label"
+            />
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@+id/amount"
+            android:text="@string/amount"
+            android:id="@+id/amount_label"
+            app:layout_constraintBaseline_toBaselineOf="@+id/price_label"
+            app:layout_constraintLeft_toRightOf="@+id/price_label"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            />
+        <EditText
+            android:id="@+id/amount"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:inputType="numberDecimal"
+            app:layout_constraintTop_toBottomOf="@id/amount_label"
+            app:layout_constraintRight_toRightOf="@id/amount_label"
+            app:layout_constraintLeft_toLeftOf="@id/amount_label"
+            />
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@+id/date"
+            android:text="@string/date"
+            android:id="@+id/date_label"
+            app:layout_constraintTop_toBottomOf="@id/price"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            />
+        <EditText
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:inputType="date"
+            android:focusable="false"
+            app:layout_constraintTop_toBottomOf="@id/date_label"
+            app:layout_constraintLeft_toLeftOf="@id/date_label"
+            app:layout_constraintRight_toRightOf="@id/date_label"
+            />
+
+
+
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:labelFor="@+id/describtion"
+            android:text="@string/description"
+            android:id="@+id/describtion_label"
+            app:layout_constraintTop_toBottomOf="@+id/date"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+        <EditText
+            android:id="@+id/describtion"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:inputType="textMultiLine"
+            app:layout_constraintTop_toBottomOf="@id/describtion_label"
+            app:layout_constraintLeft_toLeftOf="@id/describtion_label"
+            app:layout_constraintRight_toRightOf="@id/describtion_label"
+            />
+
+
+
+        <Button
+            android:id="@+id/add_transaction"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/title_activity_transaction"
+            app:layout_constraintTop_toBottomOf="@+id/describtion"
+            style="@style/AppButton"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+</ScrollView>
+
+

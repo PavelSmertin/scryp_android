@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+    android:id="@+id/conversation_list_row"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="1.5dp"
+    android:paddingBottom="1.5dp"
+    android:layout_margin="5dp"
+    android:background="@drawable/item_bg"
+    >
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="Bittrex"
+        style="@style/AppLabelStyle"
+        android:id="@+id/exchange"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/coin_threshold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/active"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="1 BTC > 44,400,1 LTC"
+        android:layout_marginTop="5dp"
+        android:id="@+id/coin_threshold"
+
+        app:layout_constraintTop_toBottomOf="@+id/exchange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/active"
+        />
+
+
+
+    <Switch
+        android:id="@+id/active"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+
+</android.support.constraint.ConstraintLayout>

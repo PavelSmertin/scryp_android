@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.start.crypto.android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:name=".CryptoApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="4d97e2d44e4bae844d86c4d8ab033d9347b8d054" />
+
+        <activity
+            android:name=".TransactionActivity"
+            android:label="@string/title_activity_transaction" />
+        <activity
+            android:name=".AutocompleteActivity"
+            android:label="@string/title_activity_autocomplete"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+
+        <provider
+            android:name=".data.CryptoProvider"
+            android:authorities="crypto.contract"
+            android:exported="false" />
+
+        <activity
+            android:name=".PieActivity"
+            android:label="@string/title_activity_pie" />
+
+        <activity
+            android:name=".NotificationsActivity"
+            android:label="@string/title_notifications" />
+
+        <activity
+            android:name=".NotificationFormActivity"
+            android:label="@string/title_activity_notification"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+
+        <activity
+            android:name=".AuthActivity"
+            android:label="@string/title_activity_auth"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            />
+        <activity
+            android:name=".SignupActivity"
+            android:label="@string/title_activity_signup"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            />
+        <activity
+            android:name=".PortfoliosActivity"
+            android:label="@string/title_activity_portfolios"
+            />
+    </application>
+
+</manifest>
