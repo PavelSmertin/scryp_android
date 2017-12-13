@@ -1,5 +1,7 @@
 package com.start.crypto.android.api;
 
+import com.start.crypto.android.api.model.ApiInterceptor;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -11,7 +13,8 @@ public enum RestClientMainApi {
 
     INSTANCE;
     private static final String BASE_URL = "http://cards.ff.ru/";
-    private final MainApiService mMainApiService;
+    private  MainApiService mMainApiService;
+    private ApiInterceptor mMainApiInterceptor;
 
     RestClientMainApi() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -19,7 +22,9 @@ public enum RestClientMainApi {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(logging)
+                .addInterceptor(mMainApiInterceptor)
                 .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -33,5 +38,8 @@ public enum RestClientMainApi {
         return mMainApiService;
     }
 
+    public void setApiInterceptor(ApiInterceptor interceptor) {
+        mMainApiInterceptor = interceptor;
+    }
 }
 

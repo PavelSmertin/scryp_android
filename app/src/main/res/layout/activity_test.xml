@@ -222,7 +222,8 @@
             android:layout_gravity="bottom|start"
             android:layout_margin="16dp"
             app:layout_anchorGravity="bottom|left|start"
-            app:srcCompat="@drawable/ic_remove_black_24px"
+            app:srcCompat="@drawable/ic_user_default_black"
+
             />
 
 

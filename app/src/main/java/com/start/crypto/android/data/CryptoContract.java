@@ -38,7 +38,14 @@ public final class CryptoContract {
                     CryptoPortfolios.COLUMN_NAME_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_PRICE_NOW + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_PRICE_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolios.COLUMN_NAME_PRICE_24H + REAL_TYPE + REAL_TYPE_DEFAULT +
+                    CryptoPortfolios.COLUMN_NAME_PRICE_24H + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
+
+                    CryptoPortfolios.COLUMN_NAME_COINS_COUNT + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolios.COLUMN_NAME_USER_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolios.COLUMN_NAME_USERNAME + TEXT_TYPE + TEXT_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolios.COLUMN_NAME_PROFIT24H + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolios.COLUMN_NAME_PROFIT7D + REAL_TYPE + REAL_TYPE_DEFAULT +
+
                     " )";
 
     public static final String SQL_DELETE_PORTFOLIOS =
@@ -164,6 +171,12 @@ public final class CryptoContract {
         public static final String COLUMN_NAME_PRICE_ORIGINAL   = "price_original";
         public static final String COLUMN_NAME_PRICE_24H        = "price_24h";
 
+        public static final String COLUMN_NAME_COINS_COUNT      = "coins_count";
+        public static final String COLUMN_NAME_USER_ID          = "user_id";
+        public static final String COLUMN_NAME_USERNAME         = "user_name";
+        public static final String COLUMN_NAME_PROFIT24H        = "profit_24h";
+        public static final String COLUMN_NAME_PROFIT7D         = "profit_7d";
+
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 CryptoPortfolios._ID,
                 CryptoPortfolios.COLUMN_NAME_BASE_COIN_ID,
@@ -171,7 +184,14 @@ public final class CryptoContract {
                 CryptoPortfolios.COLUMN_NAME_ORIGINAL,
                 CryptoPortfolios.COLUMN_NAME_PRICE_NOW,
                 CryptoPortfolios.COLUMN_NAME_PRICE_ORIGINAL,
-                CryptoPortfolios.COLUMN_NAME_PRICE_24H
+                CryptoPortfolios.COLUMN_NAME_PRICE_24H,
+
+                CryptoPortfolios.COLUMN_NAME_COINS_COUNT,
+                CryptoPortfolios.COLUMN_NAME_USER_ID,
+                CryptoPortfolios.COLUMN_NAME_USERNAME,
+                CryptoPortfolios.COLUMN_NAME_PROFIT24H,
+                CryptoPortfolios.COLUMN_NAME_PROFIT7D
+
         };
     }
 
@@ -302,7 +322,7 @@ public final class CryptoContract {
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL,
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
         };
     }
 

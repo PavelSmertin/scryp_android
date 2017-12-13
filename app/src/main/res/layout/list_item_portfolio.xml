@@ -17,16 +17,111 @@
     >
 
 
-    <TextView
-        android:layout_width="0dp"
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="1 BTC > 44,400,1 LTC"
+        tools:text="0"
         android:layout_marginTop="5dp"
-        android:id="@+id/coin_threshold"
+        android:id="@+id/user_logo"
+        app:srcCompat="@drawable/ic_user_default"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/user_name"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="User Name"
+        android:id="@+id/user_name"
+        android:layout_marginStart="15dp"
+        app:layout_constraintHorizontal_weight="2"
+
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/coins_count"
+        app:layout_constraintLeft_toRightOf="@+id/user_logo"
+        app:layout_constraintRight_toLeftOf="@+id/profit_24h"
+        app:layout_constraintVertical_chainStyle="packed"
+
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="127 coins"
+        android:id="@+id/coins_count"
+        android:layout_marginStart="15dp"
+        app:layout_constraintHorizontal_weight="2"
+
+
+        app:layout_constraintTop_toBottomOf="@+id/user_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/user_logo"
+        app:layout_constraintRight_toLeftOf="@+id/profit_24h"
+        />
+
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/portfolio_profit_24h"
+        android:id="@+id/profit_24h_label"
+        android:gravity="center"
+        style="@style/AppLabelStyle"
+        app:layout_constraintHorizontal_weight="1"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/profit_24h"
+        app:layout_constraintLeft_toRightOf="@+id/coins_count"
+        app:layout_constraintRight_toLeftOf="@+id/profit_7d"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="+35%"
+        android:id="@+id/profit_24h"
+        android:gravity="center"
+        android:textColor="@color/colorUpValue"
+        app:layout_constraintHorizontal_weight="1"
+
+        app:layout_constraintTop_toBottomOf="@+id/profit_24h_label"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/coins_count"
+        app:layout_constraintRight_toLeftOf="@+id/profit_7d"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/portfolio_profit_7d"
+        android:id="@+id/profit_7d_label"
+        android:gravity="center"
+        style="@style/AppLabelStyle"
+        app:layout_constraintHorizontal_weight="1"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/profit_7d"
+        app:layout_constraintLeft_toRightOf="@+id/profit_24h"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="+15%"
+        android:id="@+id/profit_7d"
+        android:gravity="center"
+        android:textColor="@color/colorUpValue"
+        app:layout_constraintHorizontal_weight="1"
+
+        app:layout_constraintTop_toBottomOf="@+id/profit_7d_label"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/profit_24h"
         app:layout_constraintRight_toRightOf="parent"
         />
 

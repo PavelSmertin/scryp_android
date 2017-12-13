@@ -2,6 +2,9 @@ package com.start.crypto.android;
 
 
 import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -23,11 +26,15 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jakewharton.rxbinding2.view.RxView;
+import com.start.crypto.android.api.MainApiService;
+import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.CoinResponse;
 import com.start.crypto.android.api.model.CoinsResponse;
@@ -64,6 +71,7 @@ import java.util.Set;
 
 import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
@@ -96,15 +104,21 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private ArrayList<ContentProviderOperation> mOperations = new ArrayList<>();
 
 
+    // An account type, in the form of a domain name
+    public static final String ACCOUNT_TYPE = "cards.ff.ru";
+    // The account name
+    public static final String ACCOUNT = "user_account";
+    // Instance fields
+    private Account mAccount;
+    private AccountManager mAccountManager;
+
+
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-                        PreferencesHelper preferencesHelper = PreferencesHelper.getInstance();
-                        if(preferencesHelper.isAuth()) {
-                            startActivity(new Intent(this, PortfoliosActivity.class));
-                            return true;
-                        }
-                        startActivity(new Intent(this, SignupActivity.class));
+                        startActivity(new Intent(this, PortfoliosActivity.class));
                         return true;
                     case R.id.navigation_dashboard:
                         Intent intent = new Intent(this, PieActivity.class);
@@ -131,6 +145,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
+
         mAdapter = new PortfolioCoinsListAdapter(this, null);
         mLayoutManager = new LinearLayoutManager(this);
 
@@ -154,13 +169,33 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         getSupportLoaderManager().restartLoader(0, null, this);
 
         RxView.clicks(addTransactionView).subscribe(success -> startActivity(new Intent(this, AutocompleteActivity.class)));
-        RxView.clicks(preInsertView).subscribe(success -> importDB());
+        RxView.clicks(preInsertView).subscribe(success -> addNewAccount(ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS));
+
+
+
+
+        Cursor cursor = getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
+
+        if(cursor == null || cursor.getCount() == 0) {
+            importDB();
+            cursor.close();
+        }
 
 
         mNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         mSwipeRefresh.setOnRefreshListener(this);
 
+        mAccountManager = AccountManager.get(this);
+//        mAccount = createAccount();
+
+        Account[] accounts = mAccountManager.getAccountsByType( AuthActivity.ACCOUNT_TYPE);
+        if (accounts.length != 0) {
+            String token = mAccountManager.peekAuthToken(accounts[0], AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+            if (token != null) {
+                preInsertView.setVisibility(View.GONE);
+            }
+        }
 
 
     }
@@ -183,6 +218,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         data.moveToFirst();
         mAdapter.changeCursor(data);
+
+
     }
 
     private void calculatePortfolioValues(Cursor data) {
@@ -234,6 +271,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         double profit24h = valueHoldings - value24h;
         double profitAll = valueHoldings - valueAll;
 
+        double profit24hPercent = (valueHoldings - value24h) / valueHoldings;
+        double profitAllPercent = (valueHoldings - valueAll) / valueHoldings;
+
 
         mPortfolioCurrentValue.setText(new BigDecimal(valueHoldings).setScale(0, BigDecimal.ROUND_CEILING).toString());
         mPortfolioProfit24h.setText(new BigDecimal(profit24h).setScale(0, BigDecimal.ROUND_CEILING).toString());
@@ -251,6 +291,29 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             mPortfolioProfitAll.setTextColor(getResources().getColor(R.color.colorDownValue));
             mPortfolioProfitAllUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
         }
+
+
+
+        String login = "unregistered";
+        if(PreferencesHelper.getInstance().getLogin() != null) {
+            login = PreferencesHelper.getInstance().getLogin();
+        }
+
+        // push to server
+        compositeDisposable.add(
+                MainServiceGenerator.createService(MainApiService.class, this).pushPortfolio(login, data.getCount(), profit24h, profitAll)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                response -> {
+                                },
+                                error -> {
+                                    preInsertView.setVisibility(View.VISIBLE);
+//                                    Toast.makeText(getBaseContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                        )
+        );
+
     }
 
     @Override
@@ -261,6 +324,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         if (mAdapter != null) {
             mAdapter.changeCursor(null);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
     }
 
     private void insert() {
@@ -286,7 +355,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         Type collectionType = new TypeToken<HashMap<String, CoinResponse>>() {}.getType();
         HashMap<String, CoinResponse> coins = new Gson().fromJson(coinsJson, collectionType);
         refreshCoins(coins);
-
 
         // Exchanges
         ContentValues values = new ContentValues(1);
@@ -533,4 +601,59 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             return true;
         }
     }
+
+
+    private void addNewAccount(String accountType, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, this,
+                future1 -> {
+                    try {
+                        Bundle bnd = future1.getResult();
+                        Toast.makeText(getBaseContext(), "Account was created", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    }
+                }, null);
+    }
+
+    private void getTokenForAccountCreateIfNeeded(String accountType, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(accountType, authTokenType, null, this, null, null,
+                future1 -> {
+                    try {
+                        Bundle bnd = future1.getResult();
+                        final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                        Toast.makeText(getBaseContext(), (authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                , null);
+    }
+
+//    public Account createAccount() {
+//        // Create the account type and default account
+//        Account account = new Account(ACCOUNT, ACCOUNT_TYPE);
+//        // Get an instance of the Android account manager
+//        AccountManager accountManager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
+//        /*
+//         * Add the account and account type, no password or user data
+//         * If successful, return the Account object, otherwise report an error.
+//         */
+//        if (accountManager.addAccountExplicitly(account, null, null)) {
+//            /*
+//             * If you don't set android:syncable="true" in
+//             * in your <provider> element in the manifest,
+//             * then call context.setIsSyncable(account, AUTHORITY, 1)
+//             * here.
+//             */
+//        } else {
+//            /*
+//             * The account exists or some other error occurred. Log this, report it,
+//             * or handle it internally.
+//             */
+//        }
+//        return account;
+//    }
 }

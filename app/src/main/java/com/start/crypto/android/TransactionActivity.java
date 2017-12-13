@@ -30,6 +30,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import butterknife.BindView;
+import io.reactivex.disposables.CompositeDisposable;
 
 
 public class TransactionActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -77,6 +78,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     private double mBaseCoinPrice = 1;
     private double mBaseCurrenteyPrice = 1;
 
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
     @Override
@@ -223,6 +225,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
             getContentResolver().insert(CryptoContract.CryptoTransactions.CONTENT_URI, values);
 
 
+
             // insert coin to portfolio
             long portfolioCoinId = checkPortfolioCoins();
             long portfolioCurrenteyId = checkPortfolioCurrentey();
@@ -256,6 +259,12 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         });
         initLoaderManager();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
     }
 
     @Override
@@ -356,6 +365,23 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
             return cursor.getLong(columnsMap.mColumnId);
         }
         return -1;
+    }
+
+    private int getPortfolioCoinsCount() {
+        Cursor cursor = getContentResolver().query(
+                CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                CryptoContract.CryptoPortfolioCoins.DEFAULT_PROJECTION,
+                CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." +CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID + " = " + mPortfolioId,
+                null,
+                CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." + CryptoContract.CryptoPortfolioCoins._ID + " ASC");
+
+        if(cursor != null && cursor.getCount() > 0) {
+            int count = cursor.getCount();
+            cursor.close();
+            return count;
+        }
+
+        return 0;
     }
 
     private long checkPortfolioCurrentey() {

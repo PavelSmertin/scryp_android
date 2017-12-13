@@ -15,6 +15,11 @@ public class ColumnsPortfolio {
     private static final int COLUMN_PRICE_ORIGINAL     = 6;
     private static final int COLUMN_PRICE_24H          = 7;
 
+    private static final int COLUMN_COINS_COUNT         = 8;
+    private static final int COLUMN_USER_ID             = 9;
+    private static final int COLUMN_USERNAME            = 10;
+    private static final int COLUMN_PROFIT24H           = 11;
+    private static final int COLUMN_PROFIT7D            = 12;
 
     public static final int CACHE_SIZE         = 50;
 
@@ -30,6 +35,12 @@ public class ColumnsPortfolio {
         public int mColumnPriceOriginal;
         public int mColumnPrice24h;
 
+        public int mColumnCoinsCount;
+        public int mColumnUserId;
+        public int mColumnUsername;
+        public int mColumnProfit24h;
+        public int mColumnProfit7d;
+
 
         public ColumnsMap() {
             mColumnId               = COLUMN_ID;
@@ -39,6 +50,13 @@ public class ColumnsPortfolio {
             mColumnPriceNow         = COLUMN_PRICE_NOW;
             mColumnPriceOriginal    = COLUMN_PRICE_ORIGINAL;
             mColumnPrice24h         = COLUMN_PRICE_24H;
+
+            mColumnCoinsCount       = COLUMN_COINS_COUNT;
+            mColumnUserId           = COLUMN_USER_ID;
+            mColumnUsername         = COLUMN_USERNAME;
+            mColumnProfit24h        = COLUMN_PROFIT24H;
+            mColumnProfit7d         = COLUMN_PROFIT7D;
+
         }
 
 
@@ -85,6 +103,36 @@ public class ColumnsPortfolio {
 
             try {
                 mColumnPrice24h = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_PRICE_24H);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnCoinsCount = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_COINS_COUNT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnUserId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_USER_ID);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnUsername = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_USERNAME);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnProfit24h = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_PROFIT24H);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnProfit7d = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_PROFIT7D);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }

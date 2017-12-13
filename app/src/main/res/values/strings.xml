@@ -32,4 +32,9 @@
     <string name="price_threshold">Price threshold</string>
     <string name="title_activity_notification">Add notification</string>
 
+    <string name="portfolio_profit_24h">Profit 24h</string>
+    <string name="portfolio_profit_7d">Profit 7d</string>
+
+
+
 </resources>
