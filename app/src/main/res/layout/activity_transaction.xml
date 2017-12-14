@@ -60,65 +60,47 @@
             app:layout_constraintTop_toTopOf="@+id/exchange_complete"
             app:layout_constraintBottom_toBottomOf="@+id/exchange_complete"
             />
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/exchange_select"
-            style="@style/AppSpinner"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:spinnerMode="dialog"
-            android:visibility="gone"
-            />
-
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:labelFor="@+id/currentey_select"
+            android:labelFor="@+id/currentey_complete"
             android:text="@string/pair"
             android:id="@+id/currentey_select_label"
             app:layout_constraintTop_toBottomOf="@id/exchange_complete"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/type_select_label"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintHorizontal_weight="1"
             />
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/currentey_select"
-            style="@style/AppSpinner"
+        <AutoCompleteTextView
+            android:id="@+id/currentey_complete"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:spinnerMode="dialog"
+            style="@style/AppEditTextStyle"
+            android:imeOptions="actionSearch"
+            android:inputType="textFilter|textNoSuggestions"
+            android:lines="1"
+            android:maxLines="1"
+            tools:ignore="RtlSymmetry"
             app:layout_constraintTop_toBottomOf="@id/currentey_select_label"
             app:layout_constraintLeft_toLeftOf="@id/currentey_select_label"
             app:layout_constraintRight_toRightOf="@id/currentey_select_label"
             />
-
-
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:labelFor="@+id/type_select"
-            android:text="@string/type_of_transaction"
-            android:id="@+id/type_select_label"
-            app:layout_constraintBaseline_toBaselineOf="@+id/currentey_select_label"
-            app:layout_constraintLeft_toRightOf="@id/currentey_select_label"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintHorizontal_weight="1"
+        <ImageView
+            android:id="@+id/clear_coin_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/all_clear_text"
+            android:padding="6dp"
+            android:layout_marginBottom="10dp"
+            app:srcCompat="@drawable/ic_close_white_24dp"
+            app:layout_constraintRight_toRightOf="@+id/currentey_complete"
+            app:layout_constraintTop_toTopOf="@+id/currentey_complete"
+            app:layout_constraintBottom_toBottomOf="@+id/currentey_complete"
             />
-        <android.support.v7.widget.AppCompatSpinner
-            android:id="@+id/type_select"
-            style="@style/AppSpinner"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:spinnerMode="dialog"
-            app:layout_constraintTop_toBottomOf="@id/type_select_label"
-            app:layout_constraintRight_toRightOf="@id/type_select_label"
-            app:layout_constraintLeft_toLeftOf="@id/type_select_label"
-            />
-
-
 
         <TextView
             android:layout_width="0dp"
@@ -127,7 +109,7 @@
             android:labelFor="@+id/price"
             android:text="@string/price_of_coin"
             android:id="@+id/price_label"
-            app:layout_constraintTop_toBottomOf="@id/currentey_select"
+            app:layout_constraintTop_toBottomOf="@id/currentey_complete"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/amount_label"
             app:layout_constraintHorizontal_weight="1"

@@ -43,6 +43,7 @@ import com.start.crypto.android.data.ColumnsExchange;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.data.DBHelper;
+import com.start.crypto.android.utils.KeyboardHelper;
 import com.start.crypto.android.utils.PreferencesHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 
@@ -275,11 +276,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         double profitAllPercent = (valueHoldings - valueAll) / valueHoldings;
 
 
-        mPortfolioCurrentValue.setText(new BigDecimal(valueHoldings).setScale(0, BigDecimal.ROUND_CEILING).toString());
-        mPortfolioProfit24h.setText(new BigDecimal(profit24h).setScale(0, BigDecimal.ROUND_CEILING).toString());
+        mPortfolioCurrentValue.setText(KeyboardHelper.formatter.format(new BigDecimal(valueHoldings).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        mPortfolioProfit24h.setText(KeyboardHelper.formatter.format(new BigDecimal(profit24h).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
         mPortfolioProfit24hUnit.setText("USD");
-        mPortfolioOriginalValue.setText(new BigDecimal(valueAll).setScale(0, BigDecimal.ROUND_CEILING).toString());
-        mPortfolioProfitAll.setText(new BigDecimal(profitAll).setScale(0, BigDecimal.ROUND_CEILING).toString());
+        mPortfolioOriginalValue.setText(KeyboardHelper.formatter.format(new BigDecimal(valueAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        mPortfolioProfitAll.setText(KeyboardHelper.formatter.format(new BigDecimal(profitAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
         mPortfolioProfitAllUnit.setText("USD");
 
         if(profit24h < 0) {
