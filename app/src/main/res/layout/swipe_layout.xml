@@ -44,7 +44,7 @@
         android:paddingTop="1.5dp"
         android:paddingBottom="1.5dp"
         android:layout_margin="5dp"
-        android:background="@drawable/item_bg">
+        android:background="@color/colorPrimary">
 
 
         <android.support.constraint.Guideline
@@ -66,6 +66,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorTextPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"

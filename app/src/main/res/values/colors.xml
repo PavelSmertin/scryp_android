@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#4A4B5B</color>
-    <color name="colorPrimaryDark">#3A3C47</color>
-    <color name="colorAccent">#4FD9E0</color>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#15be0f</color>
 
 
     <color name="colorUpValue">@color/colorAccent</color>
-    <color name="colorDownValue">#C575B8</color>
+    <color name="colorDownValue">#ff2037</color>
 
 
     <color name="colorItems">#FF000000</color>
@@ -16,15 +16,15 @@
     <color name="colorTextLabel">#FF888888</color>
 
 
-    <color name="button_primary">#FF4FD9E0</color>
-    <color name="button_primary_pressed">#AA4FD9E0</color>
+    <color name="button_primary">#FF15be0f</color>
+    <color name="button_primary_pressed">#AA15be0f</color>
     <color name="button_primary_disabled">#424f4f4f</color>
 
-    <color name="button_pink">#FFC575B8</color>
-    <color name="button_pink_pressed">#AAC575B8</color>
+    <color name="button_pink">#FFff2037</color>
+    <color name="button_pink_pressed">#AAff2037</color>
 
-    <color name="button_alfa">#44009688</color>
-    <color name="button_alfa_pressed">#4427a79a</color>
+    <color name="button_alfa">#4415be0f</color>
+    <color name="button_alfa_pressed">#4415be0f</color>
     <color name="button_alfa_disabled">#224f4f4f</color>
 
 </resources>
