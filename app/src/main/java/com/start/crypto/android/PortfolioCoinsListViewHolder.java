@@ -2,6 +2,7 @@ package com.start.crypto.android;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -21,15 +22,16 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
     private TextView coinOriginalView;
     private TextView coinOriginalBalanceView;
 
-    public TextView     coinExchangeView;
-    public TextView     coinSymbolView;
-    public TextView     coinPriceView;
-    public TextView     coinProfitView;
-    public TextView     coinHoldingsView;
-    public SwipeLayout  swipeLayout;
-    public View         bottomWraper;
-    public Button       buyButton;
-    public Button       sellButton;
+    public TextView         coinExchangeView;
+    public TextView         coinSymbolView;
+    public TextView         coinPriceView;
+    public TextView         coinProfitView;
+    public TextView         coinHoldingsView;
+    public SwipeLayout      swipeLayout;
+    public View             bottomWraper;
+    public Button           buyButton;
+    public Button           sellButton;
+    public ConstraintLayout mListRow;
 
     public PortfolioCoinsListViewHolder(View itemView) {
         super(itemView);
@@ -44,6 +46,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         bottomWraper            = itemView.findViewById(R.id.bottom_wrapper);
         buyButton               = itemView.findViewById(R.id.buy);
         sellButton              = itemView.findViewById(R.id.sell);
+        mListRow                = itemView.findViewById(R.id.conversation_list_row);
 
     }
 
@@ -88,6 +91,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         coinHoldingsView.setText(KeyboardHelper.formatter.format(new BigDecimal(coinHolding).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
 
         long coinId         = data.getLong(columnsMap.mCoinId);
+        String coinSymbol   = data.getString(columnsCoinsMap.mColumnSymbol);
         long correspondId   = data.getLong(columnsMap.mCoinId);
 
 //        RxView.clicks(addNOtificationButton).subscribe(el -> NotificationFormActivity.startActivity(
@@ -99,8 +103,23 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 //                )
 //        );
 
+        mListRow.setOnClickListener(view -> {
+            if(swipeLayout.getOpenStatus() == SwipeLayout.Status.Close){
+                PortfolioCoinActivity.startActivity(
+                        context,
+                        coinId,
+                        coinSymbol,
+                        priceNow,
+                        original,
+                        priceOriginal,
+                        profit24h
+
+                );
+            }
+        });
+
         //set show mode.
-        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
 
         //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
         swipeLayout.addDrag(SwipeLayout.DragEdge.Left, bottomWraper);
@@ -137,8 +156,8 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             }
         });
 
-        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(context, coinId, data.getLong(columnsMap.mExchangeId), TransactionType.BUY));
-        RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, coinId, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
+        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.BUY));
+        RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
 
     }
 

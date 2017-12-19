@@ -26,10 +26,13 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jakewharton.rxbinding2.view.RxView;
@@ -46,6 +49,9 @@ import com.start.crypto.android.data.DBHelper;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.start.crypto.android.utils.PreferencesHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -74,6 +80,16 @@ import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import io.socket.client.Manager;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+import io.socket.engineio.client.Transport;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
 
 public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
@@ -104,6 +120,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private ArrayList<ContentProviderOperation> mOperations = new ArrayList<>();
 
+    private Socket mSocket;
+    private OkHttpClient mClient;
 
     // An account type, in the form of a domain name
     public static final String ACCOUNT_TYPE = "cards.ff.ru";
@@ -143,8 +161,18 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
+
+        mClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(new StethoInterceptor())
+                .build();
+
+        CryptoApp app = (CryptoApp) getApplication();
+        mSocket = app.getSocket();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+
+        toolbar.setTitle(null);
 
 
         mAdapter = new PortfolioCoinsListAdapter(this, null);
@@ -198,8 +226,81 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             }
         }
 
+        mSocket.on(Socket.EVENT_CONNECT, onConnect);
+        mSocket.on(Socket.EVENT_MESSAGE, onDisconnect);
+        mSocket.on("SubAdd", onSubAdd);
+        mSocket.on("message", onSubAdd);
+
+        mSocket.io().on(Manager.EVENT_TRANSPORT, args -> {
+            Transport transport = (Transport)args[0];
+
+            transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("DEBUG_INFO", "EVENT_REQUEST_HEADERS");
+//                        @SuppressWarnings("unchecked")
+//                        Map<String, List<String>> headers = (Map<String, List<String>>)args[0];
+//                        // modify request headers
+//                        headers.put("Cookie", Arrays.asList("foo=1;"));
+                }
+            });
+            transport.on(Transport.EVENT_PACKET, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("DEBUG_INFO", "EVENT_PACKET");
+//                        @SuppressWarnings("unchecked")
+//                        Map<String, List<String>> headers = (Map<String, List<String>>)args[0];
+//                        // modify request headers
+//                        headers.put("Cookie", Arrays.asList("foo=1;"));
+                }
+            });
+            transport.on(Transport.EVENT_CLOSE, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("DEBUG_INFO", "EVENT_CLOSE");
+//                        @SuppressWarnings("unchecked")
+//                        Map<String, List<String>> headers = (Map<String, List<String>>)args[0];
+//                        // modify request headers
+//                        headers.put("Cookie", Arrays.asList("foo=1;"));
+                }
+            });
+            transport.on(Transport.EVENT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("DEBUG_INFO", "EVENT_ERROR");
+//                        @SuppressWarnings("unchecked")
+//                        Map<String, List<String>> headers = (Map<String, List<String>>)args[0];
+//                        // modify request headers
+//                        headers.put("Cookie", Arrays.asList("foo=1;"));
+                }
+            });
+            transport.on(Transport.EVENT_DRAIN, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("DEBUG_INFO", "EVENT_DRAIN");
+//                        @SuppressWarnings("unchecked")
+//                        Map<String, List<String>> headers = (Map<String, List<String>>)args[0];
+//                        // modify request headers
+//                        headers.put("Cookie", Arrays.asList("foo=1;"));
+                }
+            });
+
+            transport.on(Transport.EVENT_RESPONSE_HEADERS, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("DEBUG_INFO", "EVENT_RESPONSE_HEADERS");
+//                        @SuppressWarnings("unchecked")
+//                        Map<String, List<String>> headers = (Map<String, List<String>>)args[0];
+//                        // access response headers
+//                        String cookie = headers.get("Set-Cookie").get(0);
+                }
+            });
+        });
+
+        //mSocket.connect();
 
     }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -308,10 +409,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                         .subscribe(
                                 response -> {
                                 },
-                                error -> {
-                                    preInsertView.setVisibility(View.VISIBLE);
-//                                    Toast.makeText(getBaseContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
+                                error -> preInsertView.setVisibility(View.VISIBLE)
                         )
         );
 
@@ -331,6 +429,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
+
+        mSocket.disconnect();
+        mSocket.off("SubAdd", onSubAdd);
+
     }
 
     private void insert() {
@@ -441,9 +543,23 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                         }
                 );
 
+
     }
 
     private void refreshPrices(HashMap<String, Double> prices) {
+        String message = "0~Poloniex~BTC~USD";
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("subs", message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        mSocket.emit("SubAdd", obj);
+
+        //start();
+
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, 1/currency.getValue());
@@ -633,6 +749,78 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 , null);
     }
 
+    private Emitter.Listener onConnect = args -> {
+        Log.d("DEBUG_INFO", "connect");
+    };
+
+    private Emitter.Listener onDisconnect = args -> {
+        Log.d("DEBUG_INFO", "EVENT_MESSAGE");
+    };
+
+    private void start() {
+
+        Request request = new Request.Builder().url("wss://streamer.cryptocompare.com").build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        WebSocket ws = mClient.newWebSocket(request, listener);
+
+        mClient.dispatcher().executorService().shutdown();
+    }
+
+    private Emitter.Listener onSubAdd = args -> {
+        Log.d("DEBUG_INFO", "onSubAdd");
+//        JSONObject data = (JSONObject) args[0];
+//        int numUsers;
+//        try {
+//            numUsers = data.getInt("numUsers");
+//        } catch (JSONException e) {
+//            return;
+//        }
+    };
+
+    private class EchoWebSocketListener extends WebSocketListener {
+        private static final int NORMAL_CLOSURE_STATUS = 1000;
+        @Override
+        public void onOpen(WebSocket webSocket, Response response) {
+            super.onOpen(webSocket, response);
+
+            Log.d("DEBUG_INFO", "onOpen");
+
+            //webSocket.send("0~Poloniex~BTC~USD");
+            webSocket.close(NORMAL_CLOSURE_STATUS, "Goodbye !");
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            super.onMessage(webSocket, text);
+            Log.d("DEBUG_INFO", "onMessage");
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            super.onMessage(webSocket, bytes);
+            Log.d("DEBUG_INFO", "onMessage2");
+        }
+
+        @Override
+        public void onClosing(WebSocket webSocket, int code, String reason) {
+            super.onClosing(webSocket, code, reason);
+            Log.d("DEBUG_INFO", "onClosing " + reason);
+        }
+
+        @Override
+        public void onClosed(WebSocket webSocket, int code, String reason) {
+            super.onClosed(webSocket, code, reason);
+            Log.d("DEBUG_INFO", "onClosed " + reason);
+        }
+
+        @Override
+        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+            super.onFailure(webSocket, t, response);
+            Log.d("DEBUG_INFO", "onFailure " + t.getMessage());
+
+        }
+    }
+
 //    public Account createAccount() {
 //        // Create the account type and default account
 //        Account account = new Account(ACCOUNT, ACCOUNT_TYPE);
@@ -657,4 +845,25 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 //        }
 //        return account;
 //    }
+
+
+//    class StethoWebSocketListener extends WebSocketListener {
+//        NetworkEventReporter mNetworkEventReporter = NetworkEventReporterImpl.get();
+//
+//        @Override
+//        public void onMessage(WebSocket webSocket, String text) {
+//            super.onMessage(webSocket, text);
+//            Log.d("DEBUG_INFO", "onMessage");
+//            mNetworkEventReporter.webSocketFrameReceived();
+//        }
+//
+//        @Override
+//        public void onMessage(WebSocket webSocket, ByteString bytes) {
+//            super.onMessage(webSocket, bytes);
+//            Log.d("DEBUG_INFO", "onMessage2");
+//            mNetworkEventReporter.webSocketFrameReceived();
+//        }
+//    }
+
+
 }

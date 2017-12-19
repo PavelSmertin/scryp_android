@@ -64,7 +64,28 @@ public abstract class BaseActivity extends RxAppCompatActivity implements BaseVi
     }
 
     @Override
+    public void startProgress(@StringRes int stringId) {
+//        if (mLoading != null && mLoading.getVisibility() != View.VISIBLE) {
+//            mLoading.setVisibility(View.VISIBLE);
+//        }
+    }
+
+    @Override
+    public void stopProgress() {
+//        if(mLoading != null) {
+//            mLoading.setVisibility(View.GONE);
+//        }
+    }
+
+
+    @Override
     public void startProgressDialog(@StringRes int stringId) {
+        mLoaderFragment = DialogFactory.showLoader(this);
+        try {
+            mLoaderFragment.show(getSupportFragmentManager(), getClass().getName());
+        }catch (IllegalStateException ex){
+            //ErrorReportHelper.report(ex);
+        }
     }
 
     @Override
@@ -80,19 +101,6 @@ public abstract class BaseActivity extends RxAppCompatActivity implements BaseVi
         }
     }
 
-    @Override
-    public void startProgress(@StringRes int stringId) {
-//        if (mLoading != null && mLoading.getVisibility() != View.VISIBLE) {
-//            mLoading.setVisibility(View.VISIBLE);
-//        }
-    }
-
-    @Override
-    public void stopProgress() {
-//        if(mLoading != null) {
-//            mLoading.setVisibility(View.GONE);
-//        }
-    }
 
     @Override
     public void onForbidden() {

@@ -2,6 +2,7 @@ package com.start.crypto.android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 
 import com.jakewharton.rxbinding2.view.RxView;
 import com.jakewharton.rxbinding2.widget.RxAutoCompleteTextView;
+import com.start.crypto.android.data.CryptoContract;
 
 import butterknife.BindView;
 import io.reactivex.disposables.CompositeDisposable;
@@ -27,6 +29,7 @@ public class AutocompleteActivity extends BaseActivity {
 
     private AutoTextCoinAdapter mAdapterCoin;
     private long mCoinId;
+    private String mCoinSymbol;
 
 
     public static void startActivity(Context context) {
@@ -52,15 +55,18 @@ public class AutocompleteActivity extends BaseActivity {
         mCoinSelect.setAdapter(mAdapterCoin);
         RxAutoCompleteTextView.itemClickEvents(mCoinSelect)
                 .retry()
-                .subscribe(placeDetailsResult -> {
-                    mCoinId = placeDetailsResult.id();
+                .subscribe(item -> {
+                    mCoinId = item.id();
+                    Cursor cursor = (Cursor) mAdapterCoin.getItem(item.position());
+                    int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL);
+                    mCoinSymbol = cursor.getString(itemColumnIndex);
                     mAddTransactionButton.setEnabled(true);
                 });
 
         compositeDisposable.add(RxView.clicks(mClearTextButton).subscribe(o -> mCoinSelect.setText("")));
 
         RxView.clicks(mAddTransactionButton).subscribe(success -> {
-            TransactionActivity.start(this, mCoinId);
+            TransactionActivity.start(this, mCoinId, mCoinSymbol);
             finish();
         });
     }

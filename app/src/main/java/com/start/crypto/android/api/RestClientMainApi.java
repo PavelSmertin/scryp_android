@@ -1,5 +1,6 @@
 package com.start.crypto.android.api;
 
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.start.crypto.android.api.model.ApiInterceptor;
 
 import okhttp3.OkHttpClient;
@@ -21,6 +22,7 @@ public enum RestClientMainApi {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addNetworkInterceptor(new StethoInterceptor())
                 .addInterceptor(logging)
                 .addInterceptor(mMainApiInterceptor)
                 .build();

@@ -209,6 +209,7 @@
             style="@style/AppButton"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            android:enabled="false"
             />
 
     </android.support.constraint.ConstraintLayout>

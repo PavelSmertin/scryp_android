@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimary">#222222</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#15be0f</color>
 
@@ -18,7 +18,7 @@
 
     <color name="button_primary">#FF15be0f</color>
     <color name="button_primary_pressed">#AA15be0f</color>
-    <color name="button_primary_disabled">#424f4f4f</color>
+    <color name="button_primary_disabled">#FF888888</color>
 
     <color name="button_pink">#FFff2037</color>
     <color name="button_pink_pressed">#AAff2037</color>

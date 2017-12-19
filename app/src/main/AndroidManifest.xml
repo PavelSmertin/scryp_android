@@ -8,10 +8,9 @@
         android:name="android.permission.MANAGE_ACCOUNTS"
         android:maxSdkVersion="22" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
     <application
         android:name=".CryptoApp"
@@ -52,52 +51,48 @@
         <activity
             android:name=".PieActivity"
             android:label="@string/title_activity_pie" />
-
         <activity
             android:name=".NotificationsActivity"
             android:label="@string/title_notifications" />
-
         <activity
             android:name=".NotificationFormActivity"
             android:label="@string/title_activity_notification"
             android:windowSoftInputMode="stateVisible|adjustResize" />
-
         <activity
             android:name=".AuthActivity"
             android:label="@string/title_activity_auth"
-            android:windowSoftInputMode="stateVisible|adjustResize"
-            />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".SignupActivity"
             android:label="@string/title_activity_signup"
-            android:windowSoftInputMode="stateVisible|adjustResize"
-            />
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".PortfoliosActivity"
-            android:label="@string/title_activity_portfolios"
-            />
+            android:label="@string/title_activity_portfolios" />
 
-        <service
-            android:name=".sync.AuthenticatorService">
+        <service android:name=".sync.AuthenticatorService">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
+
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-
         <service
             android:name=".sync.SyncService"
             android:exported="true"
             android:process=":sync">
             <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
+                <action android:name="android.content.SyncAdapter" />
             </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
 
+        <activity android:name=".PortfolioCoinActivity"></activity>
     </application>
 
 </manifest>

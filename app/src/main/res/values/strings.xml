@@ -2,6 +2,8 @@
     <string name="app_name">Easy crypt</string>
     <string name="all_next">Next</string>
     <string name="all_clear_text">Clear</string>
+    <string name="all_loading">Loading</string>
+
 
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
@@ -9,6 +11,7 @@
     <string name="title_activity_auth">Sign in</string>
     <string name="title_activity_signup">Sign up</string>
     <string name="title_activity_portfolios">Portfolios chart</string>
+    <string name="title_activity_main">Coins</string>
 
     <string name="title_home">Chart</string>
     <string name="title_settings">Pie</string>
@@ -37,6 +40,17 @@
 
     <string name="portfolio_coin_buy">Buy</string>
     <string name="portfolio_coin_sell">Sell</string>
+    <string name="portfolio_coin_general">General</string>
+    <string name="portfolio_coin_alerts">Alerts</string>
+    <string name="portfolio_coin_all_time">All time</string>
+    <string name="portfolio_coin_amount">Amount</string>
+    <string name="portfolio_coin_buy_price">Buy price</string>
+    <string name="portfolio_coin_current_value">Current value</string>
+    <string name="portfolio_coin_total_coast">Total coast</string>
+    <string name="portfolio_coin_acqusition_coast">Acqusition coast</string>
+    <string name="portfolio_coin_24h_change">24h change</string>
+
+    coin_general
 
 
 </resources>

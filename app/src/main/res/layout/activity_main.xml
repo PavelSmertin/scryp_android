@@ -62,7 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryDark"
         app:itemIconTint="@drawable/text"
         app:itemTextColor="@drawable/text"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

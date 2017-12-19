@@ -22,6 +22,7 @@ class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<PortfolioCoins
     @Override
     public void onBindViewHolder(PortfolioCoinsListViewHolder viewHolder, Cursor cursor) {
         cursor.moveToPosition(cursor.getPosition());
+        //viewHolder.itemView.setOnClickListener(v -> PortfolioCoinActivity.startActivity(mContext));
         viewHolder.bindData(mContext, cursor);
     }
 
