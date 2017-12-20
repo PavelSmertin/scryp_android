@@ -81,7 +81,8 @@ public final class CryptoContract {
                     CryptoTransactions.COLUMN_NAME_PROTFOLIO_BALANCE + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoTransactions.COLUMN_NAME_AMOUNT + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoTransactions.COLUMN_NAME_PRICE + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoTransactions.COLUMN_NAME_DATETIME + INTEGER_TYPE + INTEGER_TYPE_DEFAULT +
+                    CryptoTransactions.COLUMN_NAME_DATETIME + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoTransactions.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + TEXT_TYPE_DEFAULT +
                     " )";
 
     public static final String SQL_DELETE_TRANSACTIONS =
@@ -248,6 +249,7 @@ public final class CryptoContract {
         public static final String COLUMN_NAME_AMOUNT               = "amount";
         public static final String COLUMN_NAME_PRICE                = "price";
         public static final String COLUMN_NAME_DATETIME             = "datetime";
+        public static final String COLUMN_NAME_DESCRIPTION          = "description";
 
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
@@ -259,7 +261,8 @@ public final class CryptoContract {
                 CryptoTransactions.COLUMN_NAME_PROTFOLIO_BALANCE,
                 CryptoTransactions.COLUMN_NAME_AMOUNT,
                 CryptoTransactions.COLUMN_NAME_PRICE,
-                CryptoTransactions.COLUMN_NAME_DATETIME
+                CryptoTransactions.COLUMN_NAME_DATETIME,
+                CryptoTransactions.COLUMN_NAME_DESCRIPTION
         };
 
     }

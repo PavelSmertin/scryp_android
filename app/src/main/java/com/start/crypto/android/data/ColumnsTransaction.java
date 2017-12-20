@@ -15,6 +15,7 @@ public class ColumnsTransaction {
     private static final int COLUMN_AMOUNT              = 7;
     private static final int COLUMN_PRICE               = 8;
     private static final int COLUMN_DATETIME            = 9;
+    private static final int COLUMN_DESCRIPTION         = 10;
 
     public static final int CACHE_SIZE         = 50;
 
@@ -31,6 +32,7 @@ public class ColumnsTransaction {
         public int mColumnAmount;
         public int mColumnPrice;
         public int mColumnDatetime;
+        public int mColumnDescription;
 
 
         public ColumnsMap() {
@@ -43,6 +45,7 @@ public class ColumnsTransaction {
             mColumnAmount           = COLUMN_AMOUNT;
             mColumnPrice            = COLUMN_PRICE;
             mColumnDatetime         = COLUMN_DATETIME;
+            mColumnDescription      = COLUMN_DESCRIPTION;
         }
 
         @SuppressLint("InlinedApi")
@@ -99,6 +102,12 @@ public class ColumnsTransaction {
 
             try {
                 mColumnDatetime = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_DATETIME);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnDatetime = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_DESCRIPTION);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }

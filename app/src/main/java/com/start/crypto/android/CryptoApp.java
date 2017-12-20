@@ -2,11 +2,13 @@ package com.start.crypto.android;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.start.crypto.android.utils.PreferencesHelper;
 
 import java.net.URISyntaxException;
 
+import io.fabric.sdk.android.Fabric;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
@@ -29,6 +31,7 @@ public class CryptoApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
 
         // Create an InitializerBuilder
         Stetho.InitializerBuilder initializerBuilder =

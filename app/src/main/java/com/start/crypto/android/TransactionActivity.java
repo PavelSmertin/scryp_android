@@ -9,14 +9,18 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jakewharton.rxbinding2.InitialValueObservable;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.jakewharton.rxbinding2.widget.RxAutoCompleteTextView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
@@ -29,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import io.reactivex.Observable;
@@ -48,6 +53,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     private static final String DEFAULT_SYMBOL      = "USDT";
     private static final String DEFAULT_EXCHANGE    = "CCCAGG";
 
+    @BindView(R.id.currentey_select)        Spinner mCurrenteySelect;
     @BindView(R.id.currentey_complete)      AutoCompleteTextView mCurrenteyComplete;
     @BindView(R.id.clear_coin_button)       ImageView mClearCoinButton;
     @BindView(R.id.exchange_complete)       AutoCompleteTextView mExchangeComplete;
@@ -58,8 +64,10 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     @BindView(R.id.describtion)             EditText mDescribtionView;
     @BindView(R.id.add_transaction)         Button mAddTransactionButton;
     @BindView(R.id.currentey_select_label)  TextView mCurrenteyLabelView;
+    @BindView(R.id.scroll_view)             ScrollView mScrollView;
 
-    private AutoTextCoinAdapter     mAdapterCoin;
+    private AutoTextCoinAdapter     mAdapterCoinComplete;
+    private SimpleCursorAdapter     mAdapterCoinSpinner;
     private AutoTextExchangeAdapter mAdapterExchangeComplete;
 
     private Calendar myCalendar;
@@ -77,7 +85,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     private double  mAmount;
     private double  mPrice;
     private long    mDate;
-    private String  mDescribtion;
+    private String  mDescription;
 
     private double mPortfolioCoinOriginal;
     private double mPortfolioCoinPriceOriginal;
@@ -86,9 +94,11 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     private double mBaseCoinPrice = 1;
     private double mBaseCurrenteyPrice = 1;
 
-    BehaviorSubject<Long> mPairFieldObservable      = BehaviorSubject.create();
-    BehaviorSubject<Long> mExchangesFieldObservable = BehaviorSubject.create();
-    BehaviorSubject<Long> mDateFieldObservable      = BehaviorSubject.create();
+    BehaviorSubject<Long> mPairFieldObservable          = BehaviorSubject.create();
+    BehaviorSubject<Long> mExchangesFieldObservable     = BehaviorSubject.create();
+    BehaviorSubject<Long> mDateFieldObservable          = BehaviorSubject.create();
+    BehaviorSubject<Double> mPriceFieldObservable       = BehaviorSubject.create();
+    BehaviorSubject<Double> mAmountFieldObservable      = BehaviorSubject.create();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
@@ -129,6 +139,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
             finish();
             return;
         }
+        setTitle(mCoinSymbol);
 
 
         // Transaction type
@@ -138,26 +149,62 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
 
         // Coin pair (Currentey)
-        mAdapterCoin = new AutoTextCoinAdapter(this);
-        mCurrenteyComplete.setAdapter(mAdapterCoin);
-        compositeDisposable.add(RxAutoCompleteTextView.itemClickEvents(mCurrenteyComplete)
-                .retry()
-                .subscribe(item -> {
-                    mCurrenteyId = item.id();
-                    Cursor cursor = (Cursor) mAdapterCoin.getItem(item.position());
+        if(mTrasactionType != TransactionType.BUY) {
+            mAdapterCoinComplete = new AutoTextCoinAdapter(this);
+            mCurrenteyComplete.setAdapter(mAdapterCoinComplete);
+            compositeDisposable.add(RxAutoCompleteTextView.itemClickEvents(mCurrenteyComplete)
+                    .retry()
+                    .subscribe(item -> {
+                        mCurrenteyId = item.id();
+                        Cursor cursor = (Cursor) mAdapterCoinComplete.getItem(item.position());
+                        int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL);
+                        mCurrenteySymbol = cursor.getString(itemColumnIndex);
+                        mPairFieldObservable.onNext(item.id());
+                    })
+            );
+            compositeDisposable.add(RxView.clicks(mClearCoinButton)
+                    .subscribe(o -> {
+                        mCurrenteyId = 0;
+                        mCurrenteySymbol = null;
+                        mCurrenteyComplete.setText("");
+                        mPairFieldObservable.onNext(0L);
+                    })
+            );
+            mScrollView.post(() -> mScrollView.scrollTo(0, mCurrenteyComplete.getBottom()));
+        }
+
+        if(mTrasactionType == TransactionType.BUY) {
+
+            mCurrenteyComplete.setVisibility(View.GONE);
+            mClearCoinButton.setVisibility(View.GONE);
+            mCurrenteySelect.setVisibility(View.VISIBLE);
+
+            mAdapterCoinSpinner = new SimpleCursorAdapter(this,
+                    android.R.layout.simple_spinner_item,
+                    null,
+                    new String[]{CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL},
+                    new int[]{android.R.id.text1}, 0);
+
+            mAdapterCoinSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mCurrenteySelect.setAdapter(mAdapterCoinSpinner);
+
+            mCurrenteySelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    mCurrenteyId = id;
+                    Cursor cursor = (Cursor) mAdapterCoinSpinner.getItem(position);
                     int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL);
                     mCurrenteySymbol = cursor.getString(itemColumnIndex);
-                    mPairFieldObservable.onNext(item.id());
-                })
-        );
-        compositeDisposable.add(RxView.clicks(mClearCoinButton)
-                .subscribe(o -> {
-                    mCurrenteyId = 0;
-                    mCurrenteySymbol = null;
-                    mCurrenteyComplete.setText("");
-                    mPairFieldObservable.onNext(0L);
-                })
-        );
+                    mPairFieldObservable.onNext(id);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        }
+
 
         // Exchange
         mExchangeId = getIntent().getLongExtra(EXTRA_EXCHANGE_ID, 0);
@@ -180,10 +227,34 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         );
 
         // Price
-        InitialValueObservable<CharSequence> priceFieldObservable = RxTextView.textChanges(mPriceView);
+        RxTextView.textChanges(mPriceView)
+                .debounce(100, TimeUnit.MILLISECONDS)
+                .subscribe(price -> {
+                    double priceDouble = 0;
+                    try{
+                        priceDouble = Double.parseDouble(price.toString());
+                    }catch(NumberFormatException e){
+                        // not double
+                    } finally {
+                        mPrice = priceDouble;
+                        mPriceFieldObservable.onNext(priceDouble);
+                    }
+                });
 
         // Amount
-        InitialValueObservable<CharSequence> amountFieldObservable = RxTextView.textChanges(mAmountView);
+        RxTextView.textChanges(mAmountView)
+                .debounce(100, TimeUnit.MILLISECONDS)
+                .subscribe(amount -> {
+                    double amountDouble = 0;
+                    try{
+                        amountDouble = Double.parseDouble(amount.toString());
+                    } catch(NumberFormatException e){
+                        // not double
+                    } finally {
+                        mAmount = amountDouble;
+                        mAmountFieldObservable.onNext(amountDouble);
+                    }
+                });
         mAmountView.setText(String.format(Locale.US, "%.02f", 0D));
 
 
@@ -208,7 +279,8 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         );
         updateDateOfTransaction();
 
-
+        // Description
+        mDescription = mDescribtionView.getText().toString();
 
         // Combine validators
         compositeDisposable.add(Observable.combineLatest(
@@ -228,7 +300,15 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
                 mExchangesFieldObservable,
                 mPairFieldObservable,
                 mDateFieldObservable,
-                (exchange, pair, dateInMillis) -> exchange > 0 && pair > 0 && dateInMillis > 0)
+                mPriceFieldObservable,
+                mAmountFieldObservable,
+                (exchange, pair, dateInMillis, price, amount) ->
+                        exchange > 0 &&
+                        pair > 0 &&
+                        dateInMillis > 0 &&
+                        Double.parseDouble(price.toString()) >= 0 &&
+                        Double.parseDouble(amount.toString()) >= 0)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(res -> {
                     mAddTransactionButton.setEnabled(res);
                 })
@@ -259,6 +339,10 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
+        if (id == CryptoContract.LOADER_PORTFOLIO_COINS) {
+            return getPortfolioCoinsLoader();
+        }
+
         if (id == CryptoContract.LOADER_COINS) {
             return getCoinsLoader();
         }
@@ -271,6 +355,13 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if (loader.getId() == CryptoContract.LOADER_PORTFOLIO_COINS) {
+            if(mAdapterCoinSpinner != null && data.getCount() > 0) {
+                mAdapterCoinSpinner.changeCursor(data);
+            }
+            return;
+        }
 
         if (loader.getId() == CryptoContract.LOADER_COINS) {
             if(data.getCount() > 0) {
@@ -300,11 +391,27 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        if (loader.getId() == CryptoContract.LOADER_PORTFOLIO_COINS) {
+            mAdapterCoinSpinner.changeCursor(null);
+        }
     }
 
     private void initLoaderManager() {
+        if(mTrasactionType == TransactionType.BUY) {
+            getSupportLoaderManager().restartLoader(CryptoContract.LOADER_PORTFOLIO_COINS, null, this);
+        }
         getSupportLoaderManager().restartLoader(CryptoContract.LOADER_COINS, null, this);
         getSupportLoaderManager().restartLoader(CryptoContract.LOADER_EXCHANGES, null, this);
+    }
+    private Loader<Cursor> getPortfolioCoinsLoader() {
+        return new CursorLoader(
+                this,
+                CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                null,
+                CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL + " != '" + mCoinSymbol + "'",
+                null,
+                null
+        );
     }
     private Loader<Cursor> getCoinsLoader() {
         return new CursorLoader(
@@ -347,8 +454,6 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     }
 
     private void addTransaction() {
-        mAmount = Double.valueOf(mAmountView.getText().toString());
-        mPrice = Double.valueOf(mPriceView.getText().toString());
         if(mCurrenteyId <= 0) {
             throw new IllegalStateException("not selsected pair for transaction");
         }
@@ -362,6 +467,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_AMOUNT, mAmount);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PRICE, mPrice);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_DATETIME, mDate);
+        values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_DESCRIPTION, mDescription);
         getContentResolver().insert(CryptoContract.CryptoTransactions.CONTENT_URI, values);
 
         // insert coin to portfolio
