@@ -23,16 +23,18 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
     private TextView coinOriginalView;
     private TextView coinOriginalBalanceView;
 
-    public TextView         coinExchangeView;
-    public TextView         coinSymbolView;
-    public TextView         coinPriceView;
-    public TextView         coinProfitView;
-    public TextView         coinHoldingsView;
-    public SwipeLayout      swipeLayout;
-    public View             bottomWraper;
-    public Button           buyButton;
-    public Button           sellButton;
-    public ConstraintLayout mListRow;
+    private TextView         coinExchangeView;
+    private TextView         coinSymbolView;
+    private TextView         coinPriceView;
+    private TextView         coinProfitView;
+    private TextView         coinHoldingsView;
+    private SwipeLayout      swipeLayout;
+    private View             bottomWraper;
+    private Button           buyButton;
+    private Button           sellButton;
+    private ConstraintLayout mListRow;
+
+    private double mOriginal;
 
     public PortfolioCoinsListViewHolder(View itemView) {
         super(itemView);
@@ -58,13 +60,13 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(data);
         ColumnsExchange.ColumnsMap columnsExchangesMap  = new ColumnsExchange.ColumnsMap(data);
 
-        double original = data.getDouble(columnsMap.mOriginal);
+        mOriginal = data.getDouble(columnsMap.mOriginal);
         double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
         double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
         double price24h = data.getDouble(columnsMap.mColumnPrice24h);
 
-        double profit24h = original * (priceNow - price24h);
-        double coinHolding = original * priceNow;
+        double profit24h = mOriginal * (priceNow - price24h);
+        double coinHolding = mOriginal * priceNow;
 
         coinExchangeView.setText(data.getString(columnsExchangesMap.mColumnName));
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
@@ -113,7 +115,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
                         coinId,
                         coinSymbol,
                         priceNow,
-                        original,
+                        mOriginal,
                         priceOriginal,
                         profit24h
 
@@ -160,7 +162,13 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         });
 
         RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.BUY));
-        RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
+
+        if(mOriginal <=0 ) {
+            sellButton.setEnabled(false);
+        } else {
+            sellButton.setEnabled(true);
+            RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
+        }
 
     }
 

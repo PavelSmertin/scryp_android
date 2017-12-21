@@ -15,7 +15,7 @@ class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<PortfolioCoins
 
     @Override
     public PortfolioCoinsListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.swipe_layout, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_portfolio_coins, parent, false);
         return new PortfolioCoinsListViewHolder(v);
     }
 

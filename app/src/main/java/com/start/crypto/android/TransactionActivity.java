@@ -52,6 +52,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
     private static final String DEFAULT_SYMBOL      = "USDT";
     private static final String DEFAULT_EXCHANGE    = "CCCAGG";
+    private static final int MAX_DESCRIPTION_LENGTH = 160;
 
     @BindView(R.id.currentey_select)        Spinner mCurrenteySelect;
     @BindView(R.id.currentey_complete)      AutoCompleteTextView mCurrenteyComplete;
@@ -95,11 +96,12 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     private double mBaseCoinPrice = 1;
     private double mBaseCurrenteyPrice = 1;
 
-    BehaviorSubject<Long> mPairFieldObservable          = BehaviorSubject.create();
-    BehaviorSubject<Long> mExchangesFieldObservable     = BehaviorSubject.create();
-    BehaviorSubject<Long> mDateFieldObservable          = BehaviorSubject.create();
-    BehaviorSubject<Double> mPriceFieldObservable       = BehaviorSubject.create();
-    BehaviorSubject<Double> mAmountFieldObservable      = BehaviorSubject.create();
+    BehaviorSubject<Long> mPairFieldObservable              = BehaviorSubject.create();
+    BehaviorSubject<Long> mExchangesFieldObservable         = BehaviorSubject.create();
+    BehaviorSubject<Long> mDateFieldObservable              = BehaviorSubject.create();
+    BehaviorSubject<Double> mPriceFieldObservable           = BehaviorSubject.create();
+    BehaviorSubject<Double> mAmountFieldObservable          = BehaviorSubject.create();
+    BehaviorSubject<Integer> mDescribtionFieldObservable    = BehaviorSubject.create();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
@@ -200,6 +202,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
                     int amountColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL);
                     mAmountMax = cursor.getDouble(amountColumnIndex);
+
                     mAmount = cursor.getDouble(amountColumnIndex);
                     mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
                 }
@@ -250,12 +253,17 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         // Amount
         RxTextView.textChanges(mAmountView)
                 .debounce(100, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(amount -> {
                     double amountDouble = 0;
                     try{
                         amountDouble = Double.parseDouble(amount.toString());
+                        // Нельзя продать монет больше, чем их в портфеле
+                        if(mAmountMax > 0 && amountDouble > mAmountMax) {
+                            mAmountView.setError(getString(R.string.transaction_amount_error));
+                        }
                     } catch(NumberFormatException e){
-                        // not double
+                        mAmountView.setError(getString(R.string.transaction_amount_error_parse));
                     } finally {
                         mAmount = amountDouble;
                         mAmountFieldObservable.onNext(amountDouble);
@@ -288,8 +296,14 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         // Description
         RxTextView.textChanges(mDescribtionView)
                 .debounce(100, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(description -> {
                     mDescription = mDescribtionView.getText().toString();
+                    if (mDescription.length() > MAX_DESCRIPTION_LENGTH) {
+                        mDescribtionView.setError(getString(R.string.transaction_description_error));
+                    }
+                    mDescribtionFieldObservable.onNext(mDescription.length());
+
                 });
 
         // Combine validators
@@ -312,12 +326,14 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
                 mDateFieldObservable,
                 mPriceFieldObservable,
                 mAmountFieldObservable,
-                (exchange, pair, dateInMillis, price, amount) ->
-                        exchange > 0 &&
-                        pair > 0 &&
-                        dateInMillis > 0 &&
-                        Double.parseDouble(price.toString()) >= 0 &&
-                        Double.parseDouble(amount.toString()) >= 0)
+                mDescribtionFieldObservable,
+                (exchange, pair, dateInMillis, price, amount, descriptionLength) ->
+                                exchange > 0 &&
+                                pair > 0 &&
+                                dateInMillis > 0 &&
+                                Double.parseDouble(price.toString()) >= 0 &&
+                                Double.parseDouble(amount.toString()) >= 0 && (Double.parseDouble(amount.toString()) <= mAmountMax || mAmountMax <= 0) &&
+                                descriptionLength < MAX_DESCRIPTION_LENGTH)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(res -> {
                     mAddTransactionButton.setEnabled(res);
@@ -485,7 +501,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         long portfolioCurrenteyId = checkPortfolioCurrentey();
 
         // create portfolio coin
-        if (portfolioCoinId <= 0) {
+        if (mTrasactionType == TransactionType.ADD) {
             insertCoin();
         }
         if (portfolioCurrenteyId <= 0 && mTrasactionType != TransactionType.ADD) {
