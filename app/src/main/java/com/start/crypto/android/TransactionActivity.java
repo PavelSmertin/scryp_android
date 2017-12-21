@@ -50,7 +50,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     public static final String EXTRA_EXCHANGE_ID    = "exchange_id";
     public static final String EXTRA_TYPE           = "type";
 
-    private static final String DEFAULT_SYMBOL      = "USDT";
+    public static final String DEFAULT_SYMBOL      = "USDT";
     private static final String DEFAULT_EXCHANGE    = "CCCAGG";
     private static final int MAX_DESCRIPTION_LENGTH = 160;
 
@@ -306,7 +306,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
                 });
 
-        // Combine validators
+        // retrive price
         compositeDisposable.add(Observable.combineLatest(
                 mExchangesFieldObservable,
                 mPairFieldObservable,
@@ -320,6 +320,8 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
                     }
                 })
         );
+
+        // Combine validators
         compositeDisposable.add(Observable.combineLatest(
                 mExchangesFieldObservable,
                 mPairFieldObservable,
@@ -655,6 +657,24 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
     private void retrivePrice() {
         startProgressDialog(R.string.all_loading);
+        if(Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
+            RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, mCurrenteySymbol, null)
+                    .compose(bindUntilEvent(ActivityEvent.PAUSE))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            response -> {
+                                stopProgressDialog();
+                                mPriceView.setText(String.format(Locale.US, "%.2f", response.get(mCurrenteySymbol)));
+                            },
+                            e -> {
+                                stopProgressDialog();
+                                Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                    );
+            return;
+        }
+
         RestClientMinApi.INSTANCE.getClient().pricesHistorical(mCoinSymbol, mCurrenteySymbol, Long.toString(mDate), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
                 .subscribeOn(Schedulers.io())

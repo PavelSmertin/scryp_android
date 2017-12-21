@@ -63,9 +63,8 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String symbol = "USD";
 
-        mCoinId             = getIntent().getLongExtra("COIN_ID", 0);
+        mCoinId                 = getIntent().getLongExtra("COIN_ID", 0);
         double priceNow         = getIntent().getDoubleExtra("PRICE_NOW", 0);
         double original         = getIntent().getDoubleExtra("ORIGINAL", 0);
         double priceOriginal    = getIntent().getDoubleExtra("PRICE_ORIGINAL", 0);
@@ -75,13 +74,13 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
         setTitle(coinName);
 
         mAllTimeProfitView.setText(String.format(Locale.US, "%.2f", original * (priceNow - priceOriginal)));
-        mSymbolAllTimeProfitView .setText(symbol);
+        mSymbolAllTimeProfitView .setText(TransactionActivity.DEFAULT_SYMBOL);
         mAmountView.setText(String.format(Locale.US, "%f %s", original, coinName));
-        mBuyPriceView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, symbol));
-        mCurrentView.setText(String.format(Locale.US, "%.2f %s", priceNow, symbol));
-        mTotalCostView.setText(String.format(Locale.US, "%.2f %s", priceNow * original, symbol));
-        mAcqusitionCoastView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, symbol));
-        m24hChangeView.setText(String.format(Locale.US, "%.2f %s", profit24h, symbol));
+        mBuyPriceView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, TransactionActivity.DEFAULT_SYMBOL));
+        mCurrentView.setText(String.format(Locale.US, "%.2f %s", priceNow, TransactionActivity.DEFAULT_SYMBOL));
+        mTotalCostView.setText(String.format(Locale.US, "%.2f %s", priceNow * original, TransactionActivity.DEFAULT_SYMBOL));
+        mAcqusitionCoastView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, TransactionActivity.DEFAULT_SYMBOL));
+        m24hChangeView.setText(String.format(Locale.US, "%.2f %s", profit24h, TransactionActivity.DEFAULT_SYMBOL));
 
 
         mAdapter = new TransactionsListAdapter(this, null);

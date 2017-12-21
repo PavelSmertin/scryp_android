@@ -394,10 +394,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         mPortfolioCurrentValue.setText(KeyboardHelper.formatter.format(new BigDecimal(valueHoldings).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
         mPortfolioProfit24h.setText(KeyboardHelper.formatter.format(new BigDecimal(profit24h).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
-        mPortfolioProfit24hUnit.setText("USD");
+        mPortfolioProfit24hUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
         mPortfolioOriginalValue.setText(KeyboardHelper.formatter.format(new BigDecimal(valueAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
         mPortfolioProfitAll.setText(KeyboardHelper.formatter.format(new BigDecimal(profitAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
-        mPortfolioProfitAllUnit.setText("USD");
+        mPortfolioProfitAllUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
 
         if(profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));
@@ -528,7 +528,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void refreshPrices() {
-        RestClientMinApi.INSTANCE.getClient().prices("USD", implode(mCoins), null)
+        RestClientMinApi.INSTANCE.getClient().prices(TransactionActivity.DEFAULT_SYMBOL, implode(mCoins), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
 
                 .subscribeOn(Schedulers.io())
@@ -547,13 +547,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         cal.add(Calendar.DAY_OF_YEAR, -1);
 
 
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical("USD", implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
-                            write24hPrices(response.get("USD"));
+                            write24hPrices(response.get(TransactionActivity.DEFAULT_SYMBOL));
                             mSwipeRefresh.setRefreshing(false);
                         },
                         error -> {
