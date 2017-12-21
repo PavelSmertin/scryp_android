@@ -2,15 +2,23 @@ package com.start.crypto.android;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
+
+import com.start.crypto.android.data.CryptoContract;
 
 import java.util.Locale;
 
 import butterknife.BindView;
 
 
-public class PortfolioCoinActivity extends BaseActivity {
+public class PortfolioCoinActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>  {
 
 
     @BindView(R.id.value_all_time)              TextView mAllTimeProfitView;
@@ -21,6 +29,13 @@ public class PortfolioCoinActivity extends BaseActivity {
     @BindView(R.id.value_total_coast)           TextView mTotalCostView;
     @BindView(R.id.value_acqusition_coast)      TextView mAcqusitionCoastView;
     @BindView(R.id.value_24h_change)            TextView m24hChangeView;
+
+    @BindView(R.id.transactions)                RecyclerView mRecyclerView;
+
+    private TransactionsListAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+
+    private long mCoinId;
 
     public static void startActivity(Context context,
                                      long coinId,
@@ -50,7 +65,7 @@ public class PortfolioCoinActivity extends BaseActivity {
 
         String symbol = "USD";
 
-        long coinId             = getIntent().getLongExtra("COIN_ID", 0);
+        mCoinId             = getIntent().getLongExtra("COIN_ID", 0);
         double priceNow         = getIntent().getDoubleExtra("PRICE_NOW", 0);
         double original         = getIntent().getDoubleExtra("ORIGINAL", 0);
         double priceOriginal    = getIntent().getDoubleExtra("PRICE_ORIGINAL", 0);
@@ -67,9 +82,46 @@ public class PortfolioCoinActivity extends BaseActivity {
         mTotalCostView.setText(String.format(Locale.US, "%.2f %s", priceNow * original, symbol));
         mAcqusitionCoastView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, symbol));
         m24hChangeView.setText(String.format(Locale.US, "%.2f %s", profit24h, symbol));
+
+
+        mAdapter = new TransactionsListAdapter(this, null);
+        mLayoutManager = new LinearLayoutManager(this);
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+
+        getSupportLoaderManager().restartLoader(0, null, this);
     }
 
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if(id != 0) {
+            throw new IllegalArgumentException("no id handled!");
+        }
+        return new CursorLoader(this, CryptoContract.CryptoTransactions.CONTENT_URI, null, CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_ID + "=" + mCoinId, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(loader.getId() != 0) {
+            throw new IllegalArgumentException("no id handled!");
+        }
+
+        data.moveToFirst();
+        mAdapter.changeCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if(loader.getId() != 0) {
+            throw new IllegalArgumentException("no id handled!");
+        }
+        if (mAdapter != null) {
+            mAdapter.changeCursor(null);
+        }
+    }
 
 
 }

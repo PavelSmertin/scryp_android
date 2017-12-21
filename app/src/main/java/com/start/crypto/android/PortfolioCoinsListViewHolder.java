@@ -16,6 +16,7 @@ import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.utils.KeyboardHelper;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
@@ -67,12 +68,14 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         coinExchangeView.setText(data.getString(columnsExchangesMap.mColumnName));
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
-        coinOriginalView.setText(data.getString(columnsMap.mOriginal));
-        coinOriginalBalanceView.setText(
-                KeyboardHelper.formatter.format(
-                        new BigDecimal(
-                                data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal)
-                        ).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        String originalPrice = data.getString(columnsMap.mOriginal);
+        String originalBalance = KeyboardHelper.formatter.format(
+                new BigDecimal(
+                        data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal)
+                ).setScale(2, BigDecimal.ROUND_CEILING).doubleValue());
+
+        coinOriginalView.setText(String.format(Locale.US, "%s @ %s", originalPrice, originalBalance));
+
         coinPriceView.setText(
                 KeyboardHelper.formatter.format(
                         new BigDecimal(

@@ -198,18 +198,26 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         getSupportLoaderManager().restartLoader(0, null, this);
 
         RxView.clicks(addTransactionView).subscribe(success -> startActivity(new Intent(this, AutocompleteActivity.class)));
-        RxView.clicks(preInsertView).subscribe(success -> addNewAccount(ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS));
+        RxView.clicks(preInsertView).subscribe(success ->
+//                {
+//                    mSwipeRefresh.setRefreshing(true);
+//                    reset();
+//                    mSwipeRefresh.setRefreshing(false);
+//                }
+                addNewAccount(ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS)
+        );
 
 
 
 
         Cursor cursor = getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
 
-        if(cursor == null || cursor.getCount() == 0) {
-            importDB();
+        if(cursor != null) {
+            if(cursor.getCount() == 0) {
+                importDB();
+            }
             cursor.close();
         }
-
 
         mNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -301,6 +309,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSwipeRefresh.post(() -> mSwipeRefresh.setRefreshing(true));
+        refreshPrices();
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -509,7 +524,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public void onRefresh() {
+        refreshPrices();
+    }
 
+    private void refreshPrices() {
         RestClientMinApi.INSTANCE.getClient().prices("USD", implode(mCoins), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
 
@@ -517,7 +535,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
-                            refreshPrices(response);
+                            writePrices(response);
                             mSwipeRefresh.setRefreshing(false);
                         },
                         error -> {
@@ -535,18 +553,16 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
-                            refresh24hPrices(response.get("USD"));
+                            write24hPrices(response.get("USD"));
                             mSwipeRefresh.setRefreshing(false);
                         },
                         error -> {
                             mSwipeRefresh.setRefreshing(false);
                         }
                 );
-
-
     }
 
-    private void refreshPrices(HashMap<String, Double> prices) {
+    private void writePrices(HashMap<String, Double> prices) {
         String message = "0~Poloniex~BTC~USD";
 
         JSONObject obj = new JSONObject();
@@ -568,7 +584,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     }
 
-    private void refresh24hPrices(HashMap<String, Double> prices) {
+    private void write24hPrices(HashMap<String, Double> prices) {
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1/currency.getValue());
@@ -675,7 +691,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         if (isExternalStorageWritable()) {
             File currentDB = getDatabasePath(CryptoContract.DATABASE_NAME);
-            File backupDB = new File(sd, CryptoContract.DATABASE_NAME);
+            File backupDB = new File(sd, Calendar.getInstance().getTimeInMillis() + "_" + CryptoContract.DATABASE_NAME);
             try {
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();

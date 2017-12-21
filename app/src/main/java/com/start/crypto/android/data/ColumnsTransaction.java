@@ -107,7 +107,7 @@ public class ColumnsTransaction {
             }
 
             try {
-                mColumnDatetime = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_DESCRIPTION);
+                mColumnDescription = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_DESCRIPTION);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }

@@ -83,6 +83,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     private TransactionType mTrasactionType = TransactionType.ADD;
 
     private double  mAmount;
+    private double  mAmountMax;
     private double  mPrice;
     private long    mDate;
     private String  mDescription;
@@ -193,9 +194,14 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     mCurrenteyId = id;
                     Cursor cursor = (Cursor) mAdapterCoinSpinner.getItem(position);
-                    int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL);
-                    mCurrenteySymbol = cursor.getString(itemColumnIndex);
+                    int symbolColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL);
+                    mCurrenteySymbol = cursor.getString(symbolColumnIndex);
                     mPairFieldObservable.onNext(id);
+
+                    int amountColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL);
+                    mAmountMax = cursor.getDouble(amountColumnIndex);
+                    mAmount = cursor.getDouble(amountColumnIndex);
+                    mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
                 }
 
                 @Override
@@ -280,7 +286,11 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         updateDateOfTransaction();
 
         // Description
-        mDescription = mDescribtionView.getText().toString();
+        RxTextView.textChanges(mDescribtionView)
+                .debounce(100, TimeUnit.MILLISECONDS)
+                .subscribe(description -> {
+                    mDescription = mDescribtionView.getText().toString();
+                });
 
         // Combine validators
         compositeDisposable.add(Observable.combineLatest(
