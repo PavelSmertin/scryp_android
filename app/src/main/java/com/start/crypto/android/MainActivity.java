@@ -197,7 +197,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         getSupportLoaderManager().restartLoader(0, null, this);
 
-        RxView.clicks(addTransactionView).subscribe(success -> startActivity(new Intent(this, AutocompleteActivity.class)));
+        RxView.clicks(addTransactionView).subscribe(success -> AutocompleteActivity.start(this));
         RxView.clicks(preInsertView).subscribe(success ->
 //                {
 //                    mSwipeRefresh.setRefreshing(true);

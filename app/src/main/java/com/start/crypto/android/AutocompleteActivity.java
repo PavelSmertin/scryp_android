@@ -32,7 +32,7 @@ public class AutocompleteActivity extends BaseActivity {
     private String mCoinSymbol;
 
 
-    public static void startActivity(Context context) {
+    public static void start(Context context) {
         Intent intent = new Intent(context, AutocompleteActivity.class);
         context.startActivity(intent);
     }
@@ -48,7 +48,6 @@ public class AutocompleteActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         mAdapterCoin = new AutoTextCoinAdapter(this);
 

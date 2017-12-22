@@ -35,6 +35,8 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
     private ConstraintLayout mListRow;
 
     private double mOriginal;
+    private long mPortfolioCoinId;
+
 
     public PortfolioCoinsListViewHolder(View itemView) {
         super(itemView);
@@ -60,6 +62,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(data);
         ColumnsExchange.ColumnsMap columnsExchangesMap  = new ColumnsExchange.ColumnsMap(data);
 
+        mPortfolioCoinId = data.getLong(columnsMap.mColumnId);
         mOriginal = data.getDouble(columnsMap.mOriginal);
         double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
         double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
@@ -161,13 +164,13 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             }
         });
 
-        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.BUY));
+        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(context, mPortfolioCoinId, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.BUY));
 
         if(mOriginal <=0 ) {
             sellButton.setEnabled(false);
         } else {
             sellButton.setEnabled(true);
-            RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
+            RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, mPortfolioCoinId, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
         }
 
     }
