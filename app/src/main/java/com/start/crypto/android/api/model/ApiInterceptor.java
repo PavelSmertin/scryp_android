@@ -35,28 +35,34 @@ public class ApiInterceptor implements Interceptor {
                     .build();
         }
 
-        Response response = chain.proceed(request);
-        return response;
+        return chain.proceed(request);
     }
 
     private String getAuthToken() {
+        if(mPreferencesHelper.getLogin() != null) {
+            return null;
+        }
+
         AccountManager accountManager = AccountManager.get(mContext);
+
         Account[] accounts = accountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE);
         if (accounts.length != 0) {
-            return accountManager.peekAuthToken(getStoredAccount(accounts), AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
-        } return null;
+            Account currentAccount = getStoredAccount(accounts);
+            if(currentAccount == null) {
+                return null;
+            }
+            return accountManager.peekAuthToken(currentAccount, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+        }
+        return null;
     }
 
     private Account getStoredAccount(Account[] accounts) {
-        Account account = null;
-        if(mPreferencesHelper.getLogin() != null) {
-            for(Account a : accounts) {
-                if(a.name.equalsIgnoreCase(mPreferencesHelper.getLogin())) {
-                    account = a;
-                }
+        for(Account a : accounts) {
+            if(a.name.equalsIgnoreCase(mPreferencesHelper.getLogin())) {
+                return a;
             }
         }
-        return account;
+        return null;
     }
 
 
