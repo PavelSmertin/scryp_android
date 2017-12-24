@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.util.Log;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     // Global variables
@@ -49,6 +50,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             String authority,
             ContentProviderClient provider,
             SyncResult syncResult) {
-
+        Log.d("DEBUG_INFO", "onPerformSync");
     }
 }

@@ -31,7 +31,7 @@ public class AuthActivity extends AccountAuthenticatorActivity {
     public final static String ARG_ACCOUNT_NAME = "account_name";
     public final static String ARG_IS_ADDING_NEW_ACCOUNT = "is_adding_account";
 
-    public static final String ACCOUNT_TYPE = "cards.ff.ru";
+    public static final String ACCOUNT_TYPE = "com.start.crypto.android.sync";
     public final static String  AUTHTOKEN_TYPE_FULL_ACCESS = "full_access";
 
     public final static String PARAM_USER_PASS = "user_pass";

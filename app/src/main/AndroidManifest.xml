@@ -7,6 +7,9 @@
     <uses-permission
         android:name="android.permission.MANAGE_ACCOUNTS"
         android:maxSdkVersion="22" />
+    <uses-permission
+        android:name="android.permission.USE_CREDENTIALS"
+        android:maxSdkVersion="22" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
@@ -43,11 +46,6 @@
             android:label="@string/title_activity_autocomplete"
             android:windowSoftInputMode="stateVisible|adjustResize" />
 
-        <provider
-            android:name=".data.CryptoProvider"
-            android:authorities="crypto.contract"
-            android:exported="false" />
-
         <activity
             android:name=".PieActivity"
             android:label="@string/title_activity_pie" />
@@ -70,6 +68,11 @@
             android:name=".PortfoliosActivity"
             android:label="@string/title_activity_portfolios" />
 
+        <provider
+            android:name=".data.CryptoProvider"
+            android:authorities="com.start.crypto.android.sync"
+            android:exported="false" />
+
         <service android:name=".sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -82,7 +85,7 @@
         <service
             android:name=".sync.SyncService"
             android:exported="true"
-            android:process=":sync">
+            >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -92,7 +95,7 @@
                 android:resource="@xml/syncadapter" />
         </service>
 
-        <activity android:name=".PortfolioCoinActivity"></activity>
+        <activity android:name=".PortfolioCoinActivity" />
     </application>
 
 </manifest>

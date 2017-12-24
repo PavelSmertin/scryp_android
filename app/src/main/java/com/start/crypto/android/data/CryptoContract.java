@@ -12,7 +12,7 @@ public final class CryptoContract {
     public static final int LOADER_PORTFOLIO_COINS  = 105;
     public static final int LOADER_NOTIFICATIONS    = 106;
 
-    public static final String AUTHORITY = "crypto.contract";
+    public static final String AUTHORITY = "com.start.crypto.android.sync";
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "crypto.db";

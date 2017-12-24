@@ -5,24 +5,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import java.util.HashMap;
-import java.util.Map;
 
 public class PreferencesHelper {
 
     public static final String NAME_CRYPT = "crypt";
-    public static final String KEY_AUTH_TOKEN = "authToken";
-    public static final String KEY_AUTH_STATE = "authState";
-    public static final String KEY_USER = "user";
     public static final String KEY_LOGIN = "login";
 
-
-    public static final int WAITING_INIT_EMAIL_REQUEST = 7;
-    public static final String INIT_EMAIL_LAST_REQUEST = "init_email_last_request";
-
     private static volatile PreferencesHelper instance;
-
-    private static Map<String, String> systemErrorMessages = new HashMap<>();
 
     private Context context;
     private SharedPreferences sharedPreferences;
@@ -46,20 +35,6 @@ public class PreferencesHelper {
         sharedPreferences = context.getSharedPreferences(NAME_CRYPT, Context.MODE_PRIVATE);
     }
 
-    public void setAuthToken(String token) {
-        Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_AUTH_TOKEN, token);
-        editor.apply();
-    }
-
-    public String getAuthToken() {
-        return sharedPreferences.getString(KEY_AUTH_TOKEN, null);
-    }
-
-    public boolean isAuth() {
-        return getAuthToken() != null;
-    }
-
     public void setLogin(String login) {
         Editor editor = sharedPreferences.edit();
         editor.putString(KEY_LOGIN, login);
@@ -72,9 +47,7 @@ public class PreferencesHelper {
 
     public void logout() {
         Editor editor = sharedPreferences.edit();
-        editor.remove(KEY_AUTH_TOKEN);
-        editor.remove(KEY_AUTH_STATE);
-        editor.remove(KEY_USER);
+        editor.remove(KEY_LOGIN);
         editor.apply();
     }
 

@@ -5,7 +5,9 @@ import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
+import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.OperationApplicationException;
@@ -27,8 +29,10 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -80,6 +84,7 @@ import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 import io.socket.client.Manager;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -93,6 +98,7 @@ import okio.ByteString;
 
 public class MainActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
+    private static final String STATE_DIALOG = "state_dialog";
 
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;
     @BindView(R.id.add_transaction)             FloatingActionButton addTransactionView;
@@ -109,6 +115,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @BindView(R.id.portfolio_profit_all)        TextView mPortfolioProfitAll;
     @BindView(R.id.portfolio_profit_all_unit)   TextView mPortfolioProfitAllUnit;
 
+    private AlertDialog mAlertDialog;
 
     private PortfolioCoinsListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -123,15 +130,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private Socket mSocket;
     private OkHttpClient mClient;
 
-    // An account type, in the form of a domain name
-    public static final String ACCOUNT_TYPE = "cards.ff.ru";
-    // The account name
-    public static final String ACCOUNT = "user_account";
-    // Instance fields
-    private Account mAccount;
     private AccountManager mAccountManager;
+    private String mLogin = null;
 
-
+    private PublishSubject<Boolean> mAuthButtonSubject = PublishSubject.create();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
@@ -160,6 +162,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(PreferencesHelper.getInstance().getLogin() != null) {
+            mLogin = PreferencesHelper.getInstance().getLogin();
+        }
 
 
         mClient = new OkHttpClient.Builder()
@@ -204,8 +210,21 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 //                    reset();
 //                    mSwipeRefresh.setRefreshing(false);
 //                }
-                addNewAccount(ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS)
+                {
+                    if(mLogin == null) {
+//                        if(mAccountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE).length > 0) {
+//                            showAccountPicker(AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+//                        } else {
+//                            addNewAccount(AuthActivity.ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+//                        }
+                        getTokenForAccountCreateIfNeeded(AuthActivity.ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+                    }
+                }
         );
+
+        if(mLogin != null) {
+            preInsertView.setVisibility(View.GONE);
+        }
 
 
 
@@ -224,7 +243,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mSwipeRefresh.setOnRefreshListener(this);
 
         mAccountManager = AccountManager.get(this);
-//        mAccount = createAccount();
 
         Account[] accounts = mAccountManager.getAccountsByType( AuthActivity.ACCOUNT_TYPE);
         if (accounts.length != 0) {
@@ -233,6 +251,24 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 preInsertView.setVisibility(View.GONE);
             }
         }
+
+        if (savedInstanceState != null) {
+            boolean showDialog = savedInstanceState.getBoolean(STATE_DIALOG);
+            if (showDialog) {
+                showAccountPicker(AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+            }
+        }
+
+        compositeDisposable.add(
+                mAuthButtonSubject.observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(res -> {
+                            if(!res) {
+                                preInsertView.setVisibility(View.GONE);
+                            } else {
+                                preInsertView.setVisibility(View.VISIBLE);
+                            }
+                        })
+        );
 
         mSocket.on(Socket.EVENT_CONNECT, onConnect);
         mSocket.on(Socket.EVENT_MESSAGE, onDisconnect);
@@ -411,20 +447,18 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
 
 
-        String login = "unregistered";
-        if(PreferencesHelper.getInstance().getLogin() != null) {
-            login = PreferencesHelper.getInstance().getLogin();
-        }
 
         // push to server
         compositeDisposable.add(
-                MainServiceGenerator.createService(MainApiService.class, this).pushPortfolio(login, data.getCount(), profit24h, profitAll)
+        MainServiceGenerator.createService(MainApiService.class, this).pushPortfolio(mLogin == null ? "unregistered" : mLogin, data.getCount(), profit24h, profitAll)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 response -> {
                                 },
-                                error -> preInsertView.setVisibility(View.VISIBLE)
+                                error -> {
+                                    logout();
+                                }
                         )
         );
 
@@ -524,10 +558,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public void onRefresh() {
+        triggerRefresh();
         refreshPrices();
     }
 
     private void refreshPrices() {
+
+
         RestClientMinApi.INSTANCE.getClient().prices(TransactionActivity.DEFAULT_SYMBOL, implode(mCoins), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
 
@@ -736,12 +773,27 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
 
+
+
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mAlertDialog != null && mAlertDialog.isShowing()) {
+            outState.putBoolean(STATE_DIALOG, true);
+        }
+    }
+
     private void addNewAccount(String accountType, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, this,
                 future1 -> {
                     try {
                         Bundle bnd = future1.getResult();
                         Toast.makeText(getBaseContext(), "Account was created", Toast.LENGTH_SHORT).show();
+                        final String accountName = bnd.getString(AccountManager.KEY_ACCOUNT_NAME);
+                        PreferencesHelper.getInstance().setLogin(accountName);
+                        mAuthButtonSubject.onNext(false);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -750,19 +802,122 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 }, null);
     }
 
+    private void invalidateAuthToken(final Account account, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null,null);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Bundle bnd = future.getResult();
+
+                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                    mAccountManager.invalidateAuthToken(account.type, authtoken);
+                    showMessage(account.name + " invalidated");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showMessage(e.getMessage());
+                }
+            }
+        }).start();
+    }
+
     private void getTokenForAccountCreateIfNeeded(String accountType, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(accountType, authTokenType, null, this, null, null,
                 future1 -> {
                     try {
                         Bundle bnd = future1.getResult();
                         final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                        final String accountName = bnd.getString(AccountManager.KEY_ACCOUNT_NAME);
                         Toast.makeText(getBaseContext(), (authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL", Toast.LENGTH_SHORT).show();
+                        PreferencesHelper.getInstance().setLogin(accountName);
+                        mAuthButtonSubject.onNext(false);
                     } catch (Exception e) {
                         e.printStackTrace();
                         Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
                 , null);
+    }
+
+    private void getExistingAccountAuthToken(Account account, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null, null);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Bundle bnd = future.getResult();
+
+                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                    showMessage((authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL");
+                    PreferencesHelper.getInstance().setLogin(account.name);
+                    mAuthButtonSubject.onNext(false);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showMessage(e.getMessage());
+                }
+            }
+        }).start();
+    }
+
+    private void showAccountPicker(final String authTokenType) {
+        final Account availableAccounts[] = mAccountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE);
+
+        if (availableAccounts.length == 0) {
+            Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
+        } else {
+            String name[] = new String[availableAccounts.length];
+            for (int i = 0; i < availableAccounts.length; i++) {
+                name[i] = availableAccounts[i].name;
+            }
+
+            // Account picker
+            mAlertDialog = new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+                    .setTitle("Pick Account")
+                    .setAdapter(
+                            new ArrayAdapter<>(getBaseContext(),
+                            android.R.layout.simple_list_item_1, name),
+                            (dialog, which) -> getExistingAccountAuthToken(availableAccounts[which], authTokenType))
+                    .create();
+            mAlertDialog.show();
+        }
+    }
+
+    private void logout() {
+        PreferencesHelper.getInstance().logout();
+        Account[] accounts = mAccountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE);
+        if (accounts.length != 0) {
+            for(Account a : accounts) {
+                invalidateAuthToken(a, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+            }
+        }
+        mLogin = null;
+        preInsertView.setVisibility(View.VISIBLE);
+    }
+
+    private void triggerRefresh() {
+        Bundle b = new Bundle();
+        // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        ContentResolver.requestSync(
+                new Account(mLogin, AuthActivity.ACCOUNT_TYPE),
+                CryptoContract.AUTHORITY,
+                b);
+    }
+
+    private void showMessage(final String msg) {
+        if (TextUtils.isEmpty(msg))
+            return;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private Emitter.Listener onConnect = args -> {
