@@ -76,12 +76,10 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         coinExchangeView.setText(data.getString(columnsExchangesMap.mColumnName));
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
         String originalPrice = data.getString(columnsMap.mOriginal);
-        String originalBalance = KeyboardHelper.formatter.format(
-                new BigDecimal(
-                        data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal)
-                ).setScale(2, BigDecimal.ROUND_CEILING).doubleValue());
+        String originalBalance = KeyboardHelper.format(data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
 
-        coinOriginalView.setText(String.format(Locale.US, "%s @ %s", originalPrice, originalBalance));
+        coinOriginalView.setText(String.format(Locale.US, "%s @ %s", KeyboardHelper.formatter.format(
+                new BigDecimal(originalPrice).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()), originalBalance));
 
         coinPriceView.setText(
                 KeyboardHelper.formatter.format(
@@ -93,12 +91,12 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             return;
         }
 
-        coinProfitView.setText(KeyboardHelper.formatter.format(new BigDecimal(profit24h).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        coinProfitView.setText(KeyboardHelper.format(profit24h));
         if(profit24h < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
-        coinHoldingsView.setText(KeyboardHelper.formatter.format(new BigDecimal(coinHolding).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        coinHoldingsView.setText(KeyboardHelper.format(coinHolding));
 
         long portfolioCoinId    = data.getLong(columnsMap.mColumnId);
         long coinId             = data.getLong(columnsMap.mCoinId);

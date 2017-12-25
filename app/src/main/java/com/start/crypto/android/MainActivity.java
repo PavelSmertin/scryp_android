@@ -74,7 +74,6 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -434,11 +433,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         double profitAllPercent = (valueHoldings - valueAll) / valueHoldings;
 
 
-        mPortfolioCurrentValue.setText(KeyboardHelper.formatter.format(new BigDecimal(valueHoldings).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
-        mPortfolioProfit24h.setText(KeyboardHelper.formatter.format(new BigDecimal(profit24h).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        mPortfolioCurrentValue.setText(KeyboardHelper.format(valueHoldings));
+        mPortfolioProfit24h.setText(KeyboardHelper.format(profit24h));
         mPortfolioProfit24hUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
-        mPortfolioOriginalValue.setText(KeyboardHelper.formatter.format(new BigDecimal(valueAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
-        mPortfolioProfitAll.setText(KeyboardHelper.formatter.format(new BigDecimal(profitAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+        mPortfolioOriginalValue.setText(KeyboardHelper.format(valueAll));
+        mPortfolioProfitAll.setText(KeyboardHelper.format(profitAll));
         mPortfolioProfitAllUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
 
         if (profit24h < 0) {
