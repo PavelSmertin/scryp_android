@@ -363,7 +363,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         if(id != 0) {
             throw new IllegalArgumentException("no id handled!");
         }
-        return new CursorLoader(this, CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " ASC");
+        return new CursorLoader(this, CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC");
     }
 
     @Override
