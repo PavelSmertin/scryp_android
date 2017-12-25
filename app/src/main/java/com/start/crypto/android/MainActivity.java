@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,10 +51,12 @@ import com.start.crypto.android.data.ColumnsExchange;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.data.DBHelper;
+import com.start.crypto.android.sync.SyncAdapter;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.start.crypto.android.utils.PreferencesHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -133,7 +136,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private OkHttpClient mClient;
 
     private AccountManager mAccountManager;
-    private String mLogin = null;
 
     private PublishSubject<Boolean> mAuthButtonSubject = PublishSubject.create();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -164,11 +166,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if(PreferencesHelper.getInstance().getLogin() != null) {
-            mLogin = PreferencesHelper.getInstance().getLogin();
-        }
-
 
         mClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor())
@@ -213,13 +210,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 //                    mSwipeRefresh.setRefreshing(false);
 //                }
                 {
-                    if(mLogin == null) {
+                    if(PreferencesHelper.getInstance().getLogin() == null) {
                         getTokenForAccountCreateIfNeeded(AuthActivity.ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
                     }
                 }
         );
 
-        if(mLogin != null) {
+        if(PreferencesHelper.getInstance().getLogin() != null) {
             preInsertView.setVisibility(View.GONE);
         }
 
@@ -253,13 +250,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         mAccountManager = AccountManager.get(this);
 
-        Account[] accounts = mAccountManager.getAccountsByType( AuthActivity.ACCOUNT_TYPE);
-        if (accounts.length != 0) {
-            String token = mAccountManager.peekAuthToken(accounts[0], AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
-            if (token != null) {
-                preInsertView.setVisibility(View.GONE);
-            }
-        }
+//        Account[] accounts = mAccountManager.getAccountsByType( AuthActivity.ACCOUNT_TYPE);
+//        if (accounts.length != 0) {
+//            String token = mAccountManager.peekAuthToken(accounts[0], AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+//            if (token != null && PreferencesHelper.getInstance().getLogin() != null) {
+//                preInsertView.setVisibility(View.GONE);
+//            }
+//        }
 
         if (savedInstanceState != null) {
             boolean showDialog = savedInstanceState.getBoolean(STATE_DIALOG);
@@ -400,9 +397,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         String symbol;
         String exchange;
-        mPieData =  new HashMap<>();
+        mPieData = new HashMap<>();
 
-        data.moveToFirst();
         while (data.moveToNext()) {
             double original = data.getDouble(columnsMap.mOriginal);
             double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
@@ -415,19 +411,19 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
             symbol = data.getString(columnsCoinsMap.mColumnSymbol);
             long coinId = data.getLong(columnsMap.mCoinId);
-            if(!mCoins.containsKey(symbol)) {
+            if (!mCoins.containsKey(symbol)) {
                 mCoins.put(symbol, coinId);
             }
 
             exchange = data.getString(columnsExchangeMap.mColumnName);
-            if(!mExchanges.contains(exchange)) {
+            if (!mExchanges.contains(exchange)) {
                 mExchanges.add(exchange);
             }
 
             mPieData.put(data.getString(columnsCoinsMap.mColumnSymbol), original * priceNow);
         }
 
-        if(Double.isInfinite(valueHoldings)) {
+        if (Double.isInfinite(valueHoldings)) {
             return;
         }
 
@@ -445,32 +441,32 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mPortfolioProfitAll.setText(KeyboardHelper.formatter.format(new BigDecimal(profitAll).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
         mPortfolioProfitAllUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
 
-        if(profit24h < 0) {
+        if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));
             mPortfolioProfit24hUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
         }
 
-        if(profitAll < 0) {
+        if (profitAll < 0) {
             mPortfolioProfitAll.setTextColor(getResources().getColor(R.color.colorDownValue));
             mPortfolioProfitAllUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
         }
 
 
-
-
         // push to server
-        compositeDisposable.add(
-        MainServiceGenerator.createService(MainApiService.class, this).pushPortfolio(mLogin == null ? "unregistered" : mLogin, data.getCount(), profit24h, profitAll)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                response -> {
-                                },
-                                error -> {
-                                    logout();
-                                }
-                        )
-        );
+        if (PreferencesHelper.getInstance().getLogin() != null && data.getCount() > 0 && profit24h > 0 && profitAll > 0) {
+            compositeDisposable.add(
+                    MainServiceGenerator.createService(MainApiService.class, this).pushPortfolio(PreferencesHelper.getInstance().getLogin(), data.getCount(), profit24h, profitAll)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    response -> {
+                                    },
+                                    error -> {
+                                        logout();
+                                    }
+                            )
+            );
+        }
 
     }
 
@@ -568,7 +564,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     public void onRefresh() {
-        triggerRefresh();
         refreshPrices();
     }
 
@@ -584,6 +579,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                         response -> {
                             writePrices(response);
                             mSwipeRefresh.setRefreshing(false);
+                            triggerRefresh();
                         },
                         error -> {
                             mSwipeRefresh.setRefreshing(false);
@@ -842,12 +838,33 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                         Toast.makeText(getBaseContext(), (authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL", Toast.LENGTH_SHORT).show();
                         PreferencesHelper.getInstance().setLogin(accountName);
                         mAuthButtonSubject.onNext(false);
+
+
+                        compositeDisposable.add(
+                                MainServiceGenerator.createService(MainApiService.class, this).syncDownload()
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(
+                                                succ -> doSync(succ.string()),
+                                                error -> {
+                                                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                                }
+                                        )
+                        );
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 }
                 , null);
+    }
+
+    private void doSync(String response) {
+        clearDb();
+
+            saveJsonCollections(response);
+
     }
 
     private void getExistingAccountAuthToken(Account account, String authTokenType) {
@@ -903,12 +920,11 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 invalidateAuthToken(a, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
             }
         }
-        mLogin = null;
         preInsertView.setVisibility(View.VISIBLE);
     }
 
     private void triggerRefresh() {
-        if(mLogin == null) {
+        if(PreferencesHelper.getInstance().getLogin() == null) {
             return;
         }
         Bundle b = new Bundle();
@@ -916,7 +932,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(
-                new Account(mLogin, AuthActivity.ACCOUNT_TYPE),
+                new Account(PreferencesHelper.getInstance().getLogin(), AuthActivity.ACCOUNT_TYPE),
                 CryptoContract.AUTHORITY,
                 b);
     }
@@ -931,6 +947,80 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
                 Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+
+    private void clearDb() {
+        getContentResolver().delete(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null);
+        getContentResolver().delete(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null);
+        getContentResolver().delete(CryptoContract.CryptoTransactions.CONTENT_URI, null, null);
+        getContentResolver().delete(CryptoContract.CryptoNotifications.CONTENT_URI, null, null);
+    }
+
+    private void saveJsonCollections(String response) {
+        try {
+            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_PORTFOLIOS);
+            JSONArray jsonPortfolios = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIOS);
+            saveJsonToDatabase(CryptoContract.CryptoPortfolios.CONTENT_URI, jsonPortfolios, CryptoContract.CryptoPortfolios.DEFAULT_PROJECTION);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_PORTFOLIO_COINS);
+            JSONArray jsonPortfolioCoins = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIO_COINS);
+            saveJsonToDatabase(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, jsonPortfolioCoins, CryptoContract.CryptoPortfolioCoins.DEFAULT_PROJECTION_SIMPLE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_TRANSACTIONS);
+            JSONArray jsonTransactions = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_TRANSACTIONS);
+            saveJsonToDatabase(CryptoContract.CryptoTransactions.CONTENT_URI, jsonTransactions, CryptoContract.CryptoTransactions.DEFAULT_PROJECTION);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_NOTIFICATIONS);
+            JSONArray jsonNotifications = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_NOTIFICATIONS);
+            saveJsonToDatabase(CryptoContract.CryptoNotifications.CONTENT_URI, jsonNotifications, CryptoContract.CryptoNotifications.DEFAULT_PROJECTION);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveJsonToDatabase(Uri uri, JSONArray jsonPortfolios, String[] projection) {
+
+        for (int i = 0; i < jsonPortfolios.length(); i++) {
+            JSONObject row;
+            try {
+                row = jsonPortfolios.getJSONObject(i);
+                ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(uri);
+                for( String field : projection) {
+                    builder.withValue(field, row.getString(field));
+                }
+                builder.withYieldAllowed(true);
+                mOperations.add(builder.withYieldAllowed(true).build());
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            try {
+                getContentResolver().applyBatch(CryptoContract.AUTHORITY, mOperations);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } catch (OperationApplicationException e) {
+                e.printStackTrace();
+            }
+
+
+            mOperations.clear();
+        }
     }
 
     private Emitter.Listener onConnect = args -> {

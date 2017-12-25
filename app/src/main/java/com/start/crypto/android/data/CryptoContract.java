@@ -357,6 +357,19 @@ public final class CryptoContract {
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
         };
+        public static final String[] DEFAULT_PROJECTION_SIMPLE = new String[] {
+                CryptoPortfolioCoins._ID,
+                CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_COIN_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
+
+                CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
+                CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
+        };
     }
 
     public static final class CryptoNotifications implements BaseColumns {

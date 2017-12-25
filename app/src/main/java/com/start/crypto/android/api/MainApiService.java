@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Observable;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
@@ -37,6 +39,15 @@ public interface MainApiService {
           @Query("portfolio[profit_24h]") double profit24h,
           @Query("portfolio[profit_7d]") double profit7d
 
+  );
+
+
+  @GET("sync")
+  Observable<ResponseBody> syncDownload();
+
+  @POST("sync")
+  Call<Object> syncUpload(
+          @Query("data") String userName
   );
 
 }

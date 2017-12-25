@@ -4,6 +4,7 @@ package com.start.crypto.android.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 
 public class PreferencesHelper {
@@ -36,6 +37,7 @@ public class PreferencesHelper {
     }
 
     public void setLogin(String login) {
+        Log.d("DEBUG_INFO", "setLogin: " + login);
         Editor editor = sharedPreferences.edit();
         editor.putString(KEY_LOGIN, login);
         editor.apply();
@@ -46,6 +48,8 @@ public class PreferencesHelper {
     }
 
     public void logout() {
+        Log.d("DEBUG_INFO", "logout");
+
         Editor editor = sharedPreferences.edit();
         editor.remove(KEY_LOGIN);
         editor.apply();

@@ -39,7 +39,7 @@ public class ApiInterceptor implements Interceptor {
     }
 
     private String getAuthToken() {
-        if(mPreferencesHelper.getLogin() != null) {
+        if(mPreferencesHelper.getLogin() == null) {
             return null;
         }
 

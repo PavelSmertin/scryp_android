@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.model.Auth;
-import com.start.crypto.android.utils.PreferencesHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -115,7 +114,6 @@ public class AuthActivity extends AccountAuthenticatorActivity {
                             Intent res = new Intent();
                             res.putExtras(data);
 
-                            PreferencesHelper.getInstance().setLogin(userName);
                             finishLogin(res);
                         },
                         error -> {
