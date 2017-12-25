@@ -18,6 +18,9 @@ public class ColumnsNotifications {
     private static final int COLUMN_ACTIVE                  = 10;
     private static final int COLUMN_COMPARE                 = 11;
 
+    private static final int COLUMN_CREATED_AT              = 12;
+    private static final int COLUMN_UPDATED_AT              = 13;
+
     public static final int CACHE_SIZE         = 50;
 
     public static class ColumnsMap {
@@ -36,6 +39,10 @@ public class ColumnsNotifications {
         public int mColumnActive;
         public int mColumnCompare;
 
+        public int mColumnCreatedAt;
+        public int mColumnUpdatedAt;
+
+
         public ColumnsMap() {
             mColumnId               = COLUMN_ID;
             mColumnCoinId           = COLUMN_COIN_ID;
@@ -48,6 +55,9 @@ public class ColumnsNotifications {
             mColumnType             = COLUMN_TYPE;
             mColumnActive           = COLUMN_ACTIVE;
             mColumnCompare          = COLUMN_COMPARE;
+
+            mColumnCreatedAt        = COLUMN_CREATED_AT;
+            mColumnUpdatedAt        = COLUMN_UPDATED_AT;
 
         }
 
@@ -121,6 +131,20 @@ public class ColumnsNotifications {
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
+
+
+            try {
+                mColumnCreatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoNotifications.COLUMN_NAME_CREATED_AT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnUpdatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoNotifications.COLUMN_NAME_UPDATED_AT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
 
         }
     }

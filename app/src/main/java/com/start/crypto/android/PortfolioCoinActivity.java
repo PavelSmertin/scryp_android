@@ -20,6 +20,12 @@ import butterknife.BindView;
 
 public class PortfolioCoinActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>  {
 
+    public static final String EXTRA_PORTFOLIO_COIN_ID  = "portfolio_coin_id";
+    public static final String EXTRA_COIN_NAME          = "coin_name";
+    public static final String EXTRA_PRICE_NOW          = "price_now";
+    public static final String EXTRA_ORIGINAL           = "original";
+    public static final String EXTRA_PRICE_ORIGINAL     = "price_original";
+    public static final String EXTRA_24H_PROFIT         = "24h_profit";
 
     @BindView(R.id.value_all_time)              TextView mAllTimeProfitView;
     @BindView(R.id.symbol_all_time)             TextView mSymbolAllTimeProfitView;
@@ -35,22 +41,22 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
     private TransactionsListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
-    private long mCoinId;
+    private long argPortfolioCoinId;
 
     public static void startActivity(Context context,
-                                     long coinId,
+                                     long portfolioCoinId,
                                      String name,
                                      double priceNow,
                                      double original,
                                      double priceOriginal,
                                      double profit24h) {
         Intent intent = new Intent(context, PortfolioCoinActivity.class);
-        intent.putExtra("COIN_ID", coinId);
-        intent.putExtra("COIN_NAME", name);
-        intent.putExtra("PRICE_NOW", priceNow);
-        intent.putExtra("ORIGINAL", original);
-        intent.putExtra("PRICE_ORIGINAL", priceOriginal);
-        intent.putExtra("24H_PROFIT", profit24h);
+        intent.putExtra(EXTRA_PORTFOLIO_COIN_ID,    portfolioCoinId);
+        intent.putExtra(EXTRA_COIN_NAME,            name);
+        intent.putExtra(EXTRA_PRICE_NOW,            priceNow);
+        intent.putExtra(EXTRA_ORIGINAL,             original);
+        intent.putExtra(EXTRA_PRICE_ORIGINAL,       priceOriginal);
+        intent.putExtra(EXTRA_24H_PROFIT,           profit24h);
         context.startActivity(intent);
     }
 
@@ -64,12 +70,12 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
         super.onCreate(savedInstanceState);
 
 
-        mCoinId                 = getIntent().getLongExtra("COIN_ID", 0);
-        double priceNow         = getIntent().getDoubleExtra("PRICE_NOW", 0);
-        double original         = getIntent().getDoubleExtra("ORIGINAL", 0);
-        double priceOriginal    = getIntent().getDoubleExtra("PRICE_ORIGINAL", 0);
-        double profit24h        = getIntent().getDoubleExtra("24H_PROFIT", 0);
-        String coinName         = getIntent().getStringExtra("COIN_NAME");
+        argPortfolioCoinId = getIntent().getLongExtra(EXTRA_PORTFOLIO_COIN_ID, 0);
+        double priceNow         = getIntent().getDoubleExtra(EXTRA_PRICE_NOW, 0);
+        double original         = getIntent().getDoubleExtra(EXTRA_ORIGINAL, 0);
+        double priceOriginal    = getIntent().getDoubleExtra(EXTRA_PRICE_ORIGINAL, 0);
+        double profit24h        = getIntent().getDoubleExtra(EXTRA_24H_PROFIT, 0);
+        String coinName         = getIntent().getStringExtra(EXTRA_COIN_NAME);
 
         setTitle(coinName);
 
@@ -99,7 +105,7 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
         if(id != 0) {
             throw new IllegalArgumentException("no id handled!");
         }
-        return new CursorLoader(this, CryptoContract.CryptoTransactions.CONTENT_URI, null, CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_ID + "=" + mCoinId, null, null);
+        return new CursorLoader(this, CryptoContract.CryptoTransactions.CONTENT_URI, null, CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID + " = " + argPortfolioCoinId, null, null);
     }
 
     @Override

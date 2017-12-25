@@ -35,6 +35,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
     private ConstraintLayout mListRow;
 
     private double mOriginal;
+    private long mPortfolioId;
     private long mPortfolioCoinId;
 
 
@@ -62,6 +63,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(data);
         ColumnsExchange.ColumnsMap columnsExchangesMap  = new ColumnsExchange.ColumnsMap(data);
 
+        mPortfolioId = data.getLong(columnsMap.mPortfolioId);
         mPortfolioCoinId = data.getLong(columnsMap.mColumnId);
         mOriginal = data.getDouble(columnsMap.mOriginal);
         double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
@@ -98,9 +100,10 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         coinHoldingsView.setText(KeyboardHelper.formatter.format(new BigDecimal(coinHolding).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
 
-        long coinId         = data.getLong(columnsMap.mCoinId);
-        String coinSymbol   = data.getString(columnsCoinsMap.mColumnSymbol);
-        long correspondId   = data.getLong(columnsMap.mCoinId);
+        long portfolioCoinId    = data.getLong(columnsMap.mColumnId);
+        long coinId             = data.getLong(columnsMap.mCoinId);
+        String coinSymbol       = data.getString(columnsCoinsMap.mColumnSymbol);
+        long correspondId       = data.getLong(columnsMap.mCoinId);
 
 //        RxView.clicks(addNOtificationButton).subscribe(el -> NotificationFormActivity.startActivity(
 //                        context,
@@ -115,7 +118,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             if(swipeLayout.getOpenStatus() == SwipeLayout.Status.Close){
                 PortfolioCoinActivity.startActivity(
                         context,
-                        coinId,
+                        portfolioCoinId,
                         coinSymbol,
                         priceNow,
                         mOriginal,
@@ -164,13 +167,29 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             }
         });
 
-        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(context, mPortfolioCoinId, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.BUY));
+        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(
+                context,
+                mPortfolioId,
+                mPortfolioCoinId,
+                coinId,
+                coinSymbol,
+                data.getLong(columnsMap.mExchangeId),
+                TransactionType.BUY)
+        );
 
         if(mOriginal <=0 ) {
             sellButton.setEnabled(false);
         } else {
             sellButton.setEnabled(true);
-            RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(context, mPortfolioCoinId, coinId, coinSymbol, data.getLong(columnsMap.mExchangeId), TransactionType.SELL));
+            RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(
+                    context,
+                    mPortfolioId,
+                    mPortfolioCoinId,
+                    coinId,
+                    coinSymbol,
+                    data.getLong(columnsMap.mExchangeId),
+                    TransactionType.SELL)
+            );
         }
 
     }

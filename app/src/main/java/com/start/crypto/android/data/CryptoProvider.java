@@ -406,7 +406,7 @@ public class CryptoProvider extends ContentProvider {
                 );
 
                 qb.setProjectionMap(PORTFOLIO_COINS_PROJECTION_MAP);
-                orderBy = CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." + CryptoContract.CryptoPortfolioCoins.DEFAULT_SORT_ORDER;
+                orderBy = CryptoContract.CryptoPortfolioCoins.DEFAULT_SORT_ORDER;
                 break;
             case PORTFOLIO_COINS_ID:
                 qb.setTables(
@@ -427,7 +427,7 @@ public class CryptoProvider extends ContentProvider {
                                 ")"
                 );
                 qb.setProjectionMap(PORTFOLIO_COINS_PROJECTION_MAP);
-                qb.appendWhere(CryptoContract.CryptoPortfolioCoins._ID + "=" + uri.getPathSegments().get(CryptoContract.CryptoPortfolioCoins.PORTFOLIO_COINS_ID_PATH_POSITION));
+                qb.appendWhere(CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." + CryptoContract.CryptoPortfolioCoins._ID + "=" + uri.getPathSegments().get(CryptoContract.CryptoPortfolioCoins.PORTFOLIO_COINS_ID_PATH_POSITION));
                 orderBy = CryptoContract.CryptoPortfolioCoins.DEFAULT_SORT_ORDER;
                 break;
 
@@ -458,7 +458,7 @@ public class CryptoProvider extends ContentProvider {
                         ")"
                 );
                 qb.setProjectionMap(NOTIFICATIONS_PROJECTION_MAP);
-                orderBy = CryptoContract.CryptoNotifications.TABLE_NAME + "." + CryptoContract.CryptoNotifications.DEFAULT_SORT_ORDER;
+                orderBy = CryptoContract.CryptoNotifications.DEFAULT_SORT_ORDER;
                 break;
             case NOTIFICATIONS_ID:
                 qb.setTables(
@@ -486,7 +486,7 @@ public class CryptoProvider extends ContentProvider {
                         ")"
                 );
                 qb.setProjectionMap(NOTIFICATIONS_PROJECTION_MAP);
-                qb.appendWhere(CryptoContract.CryptoNotifications._ID + "=" + uri.getPathSegments().get(CryptoContract.CryptoNotifications.NOTIFICATIONS_ID_PATH_POSITION));
+                qb.appendWhere(CryptoContract.CryptoNotifications.TABLE_NAME + "." + CryptoContract.CryptoNotifications._ID + "=" + uri.getPathSegments().get(CryptoContract.CryptoNotifications.NOTIFICATIONS_ID_PATH_POSITION));
                 orderBy = CryptoContract.CryptoNotifications.DEFAULT_SORT_ORDER;
                 break;
 

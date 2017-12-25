@@ -21,6 +21,11 @@ public class ColumnsPortfolio {
     private static final int COLUMN_PROFIT24H           = 11;
     private static final int COLUMN_PROFIT7D            = 12;
 
+    private static final int COLUMN_CREATED_AT          = 13;
+    private static final int COLUMN_UPDATED_AT          = 14;
+
+
+
     public static final int CACHE_SIZE         = 50;
 
     public static class ColumnsMap {
@@ -41,6 +46,9 @@ public class ColumnsPortfolio {
         public int mColumnProfit24h;
         public int mColumnProfit7d;
 
+        public int mColumnCreatedAt;
+        public int mColumnUpdatedAt;
+
 
         public ColumnsMap() {
             mColumnId               = COLUMN_ID;
@@ -56,6 +64,9 @@ public class ColumnsPortfolio {
             mColumnUsername         = COLUMN_USERNAME;
             mColumnProfit24h        = COLUMN_PROFIT24H;
             mColumnProfit7d         = COLUMN_PROFIT7D;
+
+            mColumnCreatedAt        = COLUMN_CREATED_AT;
+            mColumnUpdatedAt        = COLUMN_UPDATED_AT;
 
         }
 
@@ -136,6 +147,20 @@ public class ColumnsPortfolio {
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
+
+
+            try {
+                mColumnCreatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_CREATED_AT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnUpdatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_UPDATED_AT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
         }
     }
 }

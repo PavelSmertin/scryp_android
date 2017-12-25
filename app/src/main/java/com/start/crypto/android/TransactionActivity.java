@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -41,14 +42,15 @@ import io.reactivex.subjects.BehaviorSubject;
 
 public class TransactionActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String EXTRA_PORTFOLIO_COIN_ID  = "portfolio_coin_id";
-    public static final String EXTRA_COIN_ID            = "coin_id";
-    public static final String EXTRA_COIN_SYMBOL        = "coin_symbol";
-    public static final String EXTRA_EXCHANGE_ID        = "exchange_id";
-    public static final String EXTRA_TYPE               = "type";
+    public static final String EXTRA_PORTFOLIO_ID               = "portfolio_id";
+    public static final String EXTRA_PORTFOLIO_COIN_ID          = "portfolio_coin_id";
+    public static final String EXTRA_COIN_ID                    = "coin_id";
+    public static final String EXTRA_COIN_SYMBOL                = "coin_symbol";
+    public static final String EXTRA_EXCHANGE_ID                = "exchange_id";
+    public static final String EXTRA_TYPE                       = "type";
 
     public static final String DEFAULT_SYMBOL       = "USDT";
-    private static final String DEFAULT_EXCHANGE    = "CCCAGG";
+    public static final String DEFAULT_EXCHANGE    = "CCCAGG";
     private static final int MAX_DESCRIPTION_LENGTH = 160;
 
     @BindView(R.id.currentey_complete)      AutoCompleteTextView mCurrenteyComplete;
@@ -105,16 +107,18 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
 
     // Транзакция на добавление монеты
-    public static void start(Context context, long coinId, String coinSymbol) {
+    public static void start(Context context, long portfolioId, long coinId, String coinSymbol) {
         Intent starter = new Intent(context, TransactionActivity.class);
+        starter.putExtra(TransactionActivity.EXTRA_PORTFOLIO_ID, portfolioId);
         starter.putExtra(TransactionActivity.EXTRA_COIN_ID, coinId);
         starter.putExtra(TransactionActivity.EXTRA_COIN_SYMBOL, coinSymbol);
         context.startActivity(starter);
     }
 
     // Транзакция на Buy/Sell
-    public static void start(Context context, long portfolioCoinId, long coinId, String coinSymbol, long exchangeId, TransactionType type) {
+    public static void start(Context context, long portfolioId, long portfolioCoinId, long coinId, String coinSymbol, long exchangeId, TransactionType type) {
         Intent starter = new Intent(context, TransactionActivity.class);
+        starter.putExtra(EXTRA_PORTFOLIO_ID, portfolioId);
         starter.putExtra(EXTRA_PORTFOLIO_COIN_ID, portfolioCoinId);
         starter.putExtra(EXTRA_COIN_ID, coinId);
         starter.putExtra(EXTRA_COIN_SYMBOL, coinSymbol);
@@ -122,6 +126,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         starter.putExtra(EXTRA_TYPE, type);
         context.startActivity(starter);
     }
+
 
     @Override
     protected void setupLayout() {
@@ -131,6 +136,13 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Portfolio
+        argPortfolioId = getIntent().getLongExtra(EXTRA_PORTFOLIO_ID, 0);
+        if (argPortfolioId == 0) {
+            finish();
+            return;
+        }
 
         // Coin
         argCoinId = getIntent().getLongExtra(EXTRA_COIN_ID, 0);
@@ -313,7 +325,8 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         //
         RxView.clicks(mAddTransactionButton).subscribe(v -> {
             mAddTransactionButton.setEnabled(false);
-            addTransaction();
+            updatePortfolioByTransaction();
+            createTransaction();
             finish();
         });
 
@@ -452,15 +465,11 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         mDateFieldObservable.onNext(mDate);
     }
 
-    private void addTransaction() {
-        if(mCurrenteyId <= 0) {
-            throw new IllegalStateException("not selsected pair for transaction");
-        }
-
-        createTransaction();
+    private void updatePortfolioByTransaction() {
 
         if (argTrasactionType == TransactionType.ADD) {
-            insertCoin();
+            Uri uriPortfoloioCoin = insertCoin();
+            argPortfolioCoinId = newPortfolioCoin(uriPortfoloioCoin);
             return;
         }
 
@@ -470,11 +479,12 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         }
 
         if (argTrasactionType == TransactionType.SELL ) {
-            selectPortfolioCurrentey();
             updateCoin();
 
+            selectPortfolioCurrentey();
             if (mPortfolioCurrenteyId <= 0) {
-                insertCurrentey();
+                Uri uriPortfoloioCoin = insertCurrentey();
+                mPortfolioCurrenteyId = newPortfolioCoin(uriPortfoloioCoin);
             } else {
                 updateCurrentey();
             }
@@ -482,20 +492,46 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
 
     }
 
+    private long newPortfolioCoin(Uri uriPortfoloioCoin) {
+        Cursor cursor = getContentResolver().query(
+                uriPortfoloioCoin,
+                null,
+                null,
+                null,
+                null
+        );
+        if(cursor != null) {
+            cursor.moveToFirst();
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins._ID);
+                return cursor.getLong(itemColumnIndex);
+            }
+            cursor.close();
+        }
+        throw new IllegalStateException("illegal new coin");
+    }
+
     private void createTransaction() {
         ContentValues values = new ContentValues();
+        values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID, argPortfolioCoinId);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_ID, argCoinId);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_ID, argPortfolioId);
-        values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID, mCurrenteyId);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_EXCHANGE_ID, argExchangeId);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_AMOUNT, mAmount);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PRICE, mPrice);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_DATETIME, mDate);
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_DESCRIPTION, mDescription);
+
+        if(argTrasactionType == TransactionType.SELL) {
+            values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID, mCurrenteyId);
+            values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID, mPortfolioCurrenteyId);
+        }
+
         getContentResolver().insert(CryptoContract.CryptoTransactions.CONTENT_URI, values);
     }
 
-    private void insertCoin() {
+    private Uri insertCoin() {
         ContentValues values = new ContentValues();
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID, argCoinId);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID, argPortfolioId);
@@ -504,7 +540,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, mPrice * mBaseCurrenteyPrice);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, mPrice * mBaseCurrenteyPrice);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, mPrice * mBaseCurrenteyPrice);
-        getContentResolver().insert(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values);
+        return getContentResolver().insert(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values);
     }
     private void updateCoin() {
         ContentValues values = new ContentValues();
@@ -523,19 +559,22 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
                 CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." + CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCurrenteyId +
                         " AND " + CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." +CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID + " = " + argPortfolioId,
                 null,
-                CryptoContract.CryptoPortfolioCoins.TABLE_NAME + "." + CryptoContract.CryptoPortfolioCoins._ID + " ASC");
+                null);
 
-        if(cursor != null && cursor.getCount() > 0) {
-            cursor.moveToNext();
-            ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(cursor);
+        if(cursor != null) {
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(cursor);
 
-            mPortfolioCurrenteyOriginal = cursor.getDouble(columnsMap.mOriginal);
-            mPortfolioCurrenteyPriceOriginal = cursor.getDouble(columnsMap.mColumnPriceOriginal);
-            mBaseCurrenteyPrice = cursor.getDouble(columnsMap.mColumnPriceNow);
-            mPortfolioCurrenteyId = cursor.getLong(columnsMap.mColumnId);
+                mPortfolioCurrenteyOriginal = cursor.getDouble(columnsMap.mOriginal);
+                mPortfolioCurrenteyPriceOriginal = cursor.getDouble(columnsMap.mColumnPriceOriginal);
+                mBaseCurrenteyPrice = cursor.getDouble(columnsMap.mColumnPriceNow);
+                mPortfolioCurrenteyId = cursor.getLong(columnsMap.mColumnId);
+            }
+            cursor.close();
         }
     }
-    private void insertCurrentey() {
+    private Uri insertCurrentey() {
         ContentValues values = new ContentValues();
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID, mCurrenteyId);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID, argPortfolioId);
@@ -544,7 +583,7 @@ public class TransactionActivity extends BaseActivity implements LoaderManager.L
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, mBaseCoinPrice / mPrice);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, mBaseCoinPrice / mPrice);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, mBaseCoinPrice / mPrice);
-        getContentResolver().insert(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values);
+        return getContentResolver().insert(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values);
     }
     private void updateCurrentey() {
         ContentValues values = new ContentValues();

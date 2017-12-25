@@ -27,13 +27,16 @@ public class AutocompleteActivity extends BaseActivity {
     @BindView(R.id.clear_text_button)   ImageView mClearTextButton;
     @BindView(R.id.add_transaction)     Button mAddTransactionButton;
 
+    private long argPortfolioId;
+
     private AutoTextCoinAdapter mAdapterCoin;
     private long mCoinId;
     private String mCoinSymbol;
 
 
-    public static void start(Context context) {
+    public static void start(Context context, long portfolioId) {
         Intent intent = new Intent(context, AutocompleteActivity.class);
+        intent.putExtra(TransactionActivity.EXTRA_PORTFOLIO_ID, portfolioId);
         context.startActivity(intent);
     }
 
@@ -48,6 +51,13 @@ public class AutocompleteActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Portfolio
+        argPortfolioId = getIntent().getLongExtra(TransactionActivity.EXTRA_PORTFOLIO_ID, 0);
+        if (argPortfolioId == 0) {
+            finish();
+            return;
+        }
 
         mAdapterCoin = new AutoTextCoinAdapter(this);
 
@@ -65,7 +75,7 @@ public class AutocompleteActivity extends BaseActivity {
         compositeDisposable.add(RxView.clicks(mClearTextButton).subscribe(o -> mCoinSelect.setText("")));
 
         RxView.clicks(mAddTransactionButton).subscribe(success -> {
-            TransactionActivity.start(this, mCoinId, mCoinSymbol);
+            TransactionActivity.start(this, argPortfolioId, mCoinId, mCoinSymbol);
             finish();
         });
     }

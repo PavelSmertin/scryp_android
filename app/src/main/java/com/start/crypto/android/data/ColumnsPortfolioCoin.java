@@ -15,6 +15,9 @@ public class ColumnsPortfolioCoin {
     private static final int COLUMN_PRICE_ORIGINAL  = 7;
     private static final int COLUMN_PRICE_24H       = 8;
 
+    private static final int COLUMN_CREATED_AT      = 9;
+    private static final int COLUMN_UPDATED_AT      = 10;
+
     public static final int CACHE_SIZE          = 50;
 
     public static class ColumnsMap {
@@ -29,6 +32,8 @@ public class ColumnsPortfolioCoin {
         public int mColumnPriceNow;
         public int mColumnPriceOriginal;
         public int mColumnPrice24h;
+        public int mColumnCreatedAt;
+        public int mColumnUpdatedAt;
 
 
         public ColumnsMap() {
@@ -40,6 +45,9 @@ public class ColumnsPortfolioCoin {
             mColumnPriceNow         = COLUMN_PRICE_NOW;
             mColumnPriceOriginal    = COLUMN_PRICE_ORIGINAL;
             mColumnPrice24h         = COLUMN_PRICE_24H;
+
+            mColumnCreatedAt        = COLUMN_CREATED_AT;
+            mColumnUpdatedAt        = COLUMN_UPDATED_AT;
         }
 
         @SuppressLint("InlinedApi")
@@ -93,6 +101,20 @@ public class ColumnsPortfolioCoin {
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
+
+
+            try {
+                mColumnCreatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnUpdatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
 
         }
     }

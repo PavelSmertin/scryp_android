@@ -115,6 +115,8 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     @BindView(R.id.portfolio_profit_all)        TextView mPortfolioProfitAll;
     @BindView(R.id.portfolio_profit_all_unit)   TextView mPortfolioProfitAllUnit;
 
+    private long mPortfolioId;
+
     private AlertDialog mAlertDialog;
 
     private PortfolioCoinsListAdapter mAdapter;
@@ -201,9 +203,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             }
         });
 
-        getSupportLoaderManager().restartLoader(0, null, this);
+        getSupportLoaderManager().initLoader(0, null, this);
 
-        RxView.clicks(addTransactionView).subscribe(success -> AutocompleteActivity.start(this));
+        RxView.clicks(addTransactionView).subscribe(success -> AutocompleteActivity.start(this, mPortfolioId));
         RxView.clicks(preInsertView).subscribe(success ->
 //                {
 //                    mSwipeRefresh.setRefreshing(true);
@@ -212,11 +214,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 //                }
                 {
                     if(mLogin == null) {
-//                        if(mAccountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE).length > 0) {
-//                            showAccountPicker(AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
-//                        } else {
-//                            addNewAccount(AuthActivity.ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
-//                        }
                         getTokenForAccountCreateIfNeeded(AuthActivity.ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
                     }
                 }
@@ -234,6 +231,18 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         if(cursor != null) {
             if(cursor.getCount() == 0) {
                 importDB();
+            }
+            cursor.close();
+        }
+
+        cursor = getContentResolver().query(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null, null, null);
+        if(cursor != null) {
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios._ID);
+                mPortfolioId = cursor.getLong(itemColumnIndex);
+            } else {
+                throw new IllegalStateException("illegal portfolio id");
             }
             cursor.close();
         }
@@ -393,6 +402,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         String exchange;
         mPieData =  new HashMap<>();
 
+        data.moveToFirst();
         while (data.moveToNext()) {
             double original = data.getDouble(columnsMap.mOriginal);
             double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
@@ -510,7 +520,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         // Exchanges
         ContentValues values = new ContentValues(1);
-        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, "CCCAGG");
+        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, TransactionActivity.DEFAULT_EXCHANGE);
         getContentResolver().insert(CryptoContract.CryptoExchanges.CONTENT_URI, values);
 
         Resources res = getResources();
@@ -898,6 +908,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void triggerRefresh() {
+        if(mLogin == null) {
+            return;
+        }
         Bundle b = new Bundle();
         // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
         b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
