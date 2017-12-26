@@ -36,7 +36,7 @@ public class AutocompleteActivity extends BaseActivity {
 
     public static void start(Context context, long portfolioId) {
         Intent intent = new Intent(context, AutocompleteActivity.class);
-        intent.putExtra(TransactionActivity.EXTRA_PORTFOLIO_ID, portfolioId);
+        intent.putExtra(CreateTransactionActivity.EXTRA_PORTFOLIO_ID, portfolioId);
         context.startActivity(intent);
     }
 
@@ -53,7 +53,7 @@ public class AutocompleteActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         // Portfolio
-        argPortfolioId = getIntent().getLongExtra(TransactionActivity.EXTRA_PORTFOLIO_ID, 0);
+        argPortfolioId = getIntent().getLongExtra(CreateTransactionActivity.EXTRA_PORTFOLIO_ID, 0);
         if (argPortfolioId == 0) {
             finish();
             return;
@@ -75,7 +75,7 @@ public class AutocompleteActivity extends BaseActivity {
         compositeDisposable.add(RxView.clicks(mClearTextButton).subscribe(o -> mCoinSelect.setText("")));
 
         RxView.clicks(mAddTransactionButton).subscribe(success -> {
-            TransactionActivity.start(this, argPortfolioId, mCoinId, mCoinSymbol);
+            CreateTransactionActivity.start(this, argPortfolioId, mCoinId, mCoinSymbol);
             finish();
         });
     }

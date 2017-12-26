@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.start.crypto.android.TransactionActivity"
+    tools:context="com.start.crypto.android.CreateTransactionActivity"
     android:id="@+id/scroll_view"
     >
 
@@ -81,7 +81,7 @@
             app:layout_constraintLeft_toLeftOf="@id/currentey_select_label"
             app:layout_constraintRight_toRightOf="@id/currentey_select_label"
             >
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/currentey_complete"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
@@ -91,7 +91,7 @@
                 android:lines="1"
                 android:maxLines="1"
                 tools:ignore="RtlSymmetry"
-                android:visibility="visible"
+                android:transitionName="@string/transition_autocomplete_coin"
                 />
             <ImageView
                 android:id="@+id/clear_coin_button"
@@ -103,7 +103,8 @@
                 android:padding="6dp"
                 android:layout_marginBottom="10dp"
                 app:srcCompat="@drawable/ic_close_white_24dp"
-                android:visibility="visible"
+                android:transitionName="@string/transition_autocomplete_clear"
+
                 />
         </FrameLayout>
 

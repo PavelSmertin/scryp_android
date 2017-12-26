@@ -220,7 +220,7 @@ public final class CryptoContract {
         public static final Uri CONTENT_ID_URI_BASE    = Uri.parse(SCHEME + AUTHORITY + PATH_COINS_ID);
         public static final String CONTENT_TYPE        = "vnd.android.cursor.dir/vnd.google.crypto_coins";
         public static final String CONTENT_ITEM_TYPE   = "vnd.android.cursor.item/vnd.google.crypto_coins";
-        public static final String DEFAULT_SORT_ORDER  = "_id ASC";
+        public static final String DEFAULT_SORT_ORDER  = CryptoCoins.COLUMN_NAME_SORT_ORDER + " ASC";
 
         public static final int     COINS_ID_PATH_POSITION = 1;
 

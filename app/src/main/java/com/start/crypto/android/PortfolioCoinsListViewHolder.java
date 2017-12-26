@@ -165,7 +165,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             }
         });
 
-        RxView.clicks(buyButton).subscribe(el -> TransactionActivity.start(
+        RxView.clicks(buyButton).subscribe(el -> CreateTransactionActivity.start(
                 context,
                 mPortfolioId,
                 mPortfolioCoinId,
@@ -179,7 +179,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             sellButton.setEnabled(false);
         } else {
             sellButton.setEnabled(true);
-            RxView.clicks(sellButton).subscribe(el -> TransactionActivity.start(
+            RxView.clicks(sellButton).subscribe(el -> CreateTransactionActivity.start(
                     context,
                     mPortfolioId,
                     mPortfolioCoinId,

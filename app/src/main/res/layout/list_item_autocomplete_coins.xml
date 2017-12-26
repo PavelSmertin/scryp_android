@@ -11,8 +11,8 @@
     android:paddingStart="8dp"
     android:paddingTop="1.5dp"
     android:paddingBottom="1.5dp"
-    android:layout_margin="5dp"
-    android:background="@color/colorPrimaryDark">
+    android:background="@drawable/item_bg"
+    >
 
 
     <TextView

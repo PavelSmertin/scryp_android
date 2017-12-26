@@ -55,4 +55,6 @@ public class CryptoApp extends Application {
 
         PreferencesHelper.createInstance(this);
     }
+
+
 }

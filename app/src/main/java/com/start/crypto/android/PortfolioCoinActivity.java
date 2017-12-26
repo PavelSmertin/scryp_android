@@ -80,13 +80,13 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
         setTitle(coinName);
 
         mAllTimeProfitView.setText(String.format(Locale.US, "%.2f", original * (priceNow - priceOriginal)));
-        mSymbolAllTimeProfitView .setText(TransactionActivity.DEFAULT_SYMBOL);
+        mSymbolAllTimeProfitView .setText(CreateTransactionActivity.DEFAULT_SYMBOL);
         mAmountView.setText(String.format(Locale.US, "%f %s", original, coinName));
-        mBuyPriceView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, TransactionActivity.DEFAULT_SYMBOL));
-        mCurrentView.setText(String.format(Locale.US, "%.2f %s", priceNow, TransactionActivity.DEFAULT_SYMBOL));
-        mTotalCostView.setText(String.format(Locale.US, "%.2f %s", priceNow * original, TransactionActivity.DEFAULT_SYMBOL));
-        mAcqusitionCoastView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, TransactionActivity.DEFAULT_SYMBOL));
-        m24hChangeView.setText(String.format(Locale.US, "%.2f %s", profit24h, TransactionActivity.DEFAULT_SYMBOL));
+        mBuyPriceView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, CreateTransactionActivity.DEFAULT_SYMBOL));
+        mCurrentView.setText(String.format(Locale.US, "%.2f %s", priceNow, CreateTransactionActivity.DEFAULT_SYMBOL));
+        mTotalCostView.setText(String.format(Locale.US, "%.2f %s", priceNow * original, CreateTransactionActivity.DEFAULT_SYMBOL));
+        mAcqusitionCoastView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, CreateTransactionActivity.DEFAULT_SYMBOL));
+        m24hChangeView.setText(String.format(Locale.US, "%.2f %s", profit24h, CreateTransactionActivity.DEFAULT_SYMBOL));
 
 
         mAdapter = new TransactionsListAdapter(this, null);

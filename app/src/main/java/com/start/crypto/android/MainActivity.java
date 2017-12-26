@@ -44,6 +44,7 @@ import com.jakewharton.rxbinding2.view.RxView;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
+import com.start.crypto.android.api.model.Coin;
 import com.start.crypto.android.api.model.CoinResponse;
 import com.start.crypto.android.api.model.CoinsResponse;
 import com.start.crypto.android.data.ColumnsCoin;
@@ -139,6 +140,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private PublishSubject<Boolean> mAuthButtonSubject = PublishSubject.create();
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
@@ -173,6 +175,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         CryptoApp app = (CryptoApp) getApplication();
         mSocket = app.getSocket();
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
@@ -201,7 +204,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         getSupportLoaderManager().initLoader(0, null, this);
 
-        RxView.clicks(addTransactionView).subscribe(success -> AutocompleteActivity.start(this, mPortfolioId));
+        RxView.clicks(addTransactionView).subscribe(success -> AutocompleteListActivity.start(this));
         RxView.clicks(preInsertView).subscribe(success ->
 //                {
 //                    mSwipeRefresh.setRefreshing(true);
@@ -218,8 +221,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         if(PreferencesHelper.getInstance().getLogin() != null) {
             preInsertView.setVisibility(View.GONE);
         }
-
-
 
 
         Cursor cursor = getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
@@ -435,10 +436,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         mPortfolioCurrentValue.setText(KeyboardHelper.format(valueHoldings));
         mPortfolioProfit24h.setText(KeyboardHelper.format(profit24h));
-        mPortfolioProfit24hUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioProfit24hUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
         mPortfolioOriginalValue.setText(KeyboardHelper.format(valueAll));
         mPortfolioProfitAll.setText(KeyboardHelper.format(profitAll));
-        mPortfolioProfitAllUnit.setText(TransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioProfitAllUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
 
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));
@@ -515,7 +516,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         // Exchanges
         ContentValues values = new ContentValues(1);
-        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, TransactionActivity.DEFAULT_EXCHANGE);
+        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, CreateTransactionActivity.DEFAULT_EXCHANGE);
         getContentResolver().insert(CryptoContract.CryptoExchanges.CONTENT_URI, values);
 
         Resources res = getResources();
@@ -566,10 +567,20 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         refreshPrices();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == AutocompleteListActivity.REQUEST_COIN && resultCode == RESULT_OK) {
+            Coin coin = data.getParcelableExtra(AutocompleteListActivity.EXTRA_COIN);
+            CreateTransactionActivity.start(this, mPortfolioId, coin.getId(), coin.getSymbol());
+        }
+    }
+
     private void refreshPrices() {
 
 
-        RestClientMinApi.INSTANCE.getClient().prices(TransactionActivity.DEFAULT_SYMBOL, implode(mCoins), null)
+        RestClientMinApi.INSTANCE.getClient().prices(CreateTransactionActivity.DEFAULT_SYMBOL, implode(mCoins), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
 
                 .subscribeOn(Schedulers.io())
@@ -589,13 +600,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         cal.add(Calendar.DAY_OF_YEAR, -1);
 
 
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+        RestClientMinApi.INSTANCE.getClient().pricesHistorical(CreateTransactionActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
-                            write24hPrices(response.get(TransactionActivity.DEFAULT_SYMBOL));
+                            write24hPrices(response.get(CreateTransactionActivity.DEFAULT_SYMBOL));
                             mSwipeRefresh.setRefreshing(false);
                         },
                         error -> {
@@ -861,9 +872,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private void doSync(String response) {
         clearDb();
-
-            saveJsonCollections(response);
-
+        saveJsonCollections(response);
     }
 
     private void getExistingAccountAuthToken(Account account, String authTokenType) {

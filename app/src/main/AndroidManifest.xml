@@ -39,12 +39,17 @@
             android:value="4d97e2d44e4bae844d86c4d8ab033d9347b8d054" />
 
         <activity
-            android:name=".TransactionActivity"
+            android:name=".CreateTransactionActivity"
             android:label="@string/title_activity_transaction" />
         <activity
             android:name=".AutocompleteActivity"
             android:label="@string/title_activity_autocomplete"
             android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name=".AutocompleteListActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/title_activity_autocomplete"
+        />
 
         <activity
             android:name=".PieActivity"
