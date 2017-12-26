@@ -13,10 +13,11 @@
         app:tabSelectedTextColor="@color/colorTextPrimary"
         android:id="@+id/tabs"
 
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/data_block"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-
-        tools:layout_editor_absoluteY="0dp">
+        >
 
         <android.support.design.widget.TabItem
             android:layout_width="wrap_content"
@@ -32,9 +33,10 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:id="@+id/data_block"
         app:layout_constraintTop_toBottomOf="@+id/tabs"
+        app:layout_constraintBottom_toTopOf="@+id/transactions"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:paddingTop="16dp"
@@ -62,6 +64,7 @@
             android:layout_marginEnd="5dp"
             android:textColor="@color/colorUpValue"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/label_amount"
             app:layout_constraintLeft_toRightOf="@+id/label_all_time"
             app:layout_constraintRight_toLeftOf="@+id/symbol_all_time"
             />
@@ -80,52 +83,70 @@
 
 
 
+
+
+
+
+
+
+        <android.support.constraint.Guideline
+            android:id="@+id/line_2"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/label_amount"
             android:text="@string/portfolio_coin_amount"
-            android:layout_marginTop="16dp"
             style="@style/AppLabelStyle"
-            app:layout_constraintTop_toBottomOf="@+id/label_all_time"
+
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/value_all_time"
+            app:layout_constraintBottom_toTopOf="@+id/label_buy_price"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/label_buy_price"
-            android:gravity="center"
+            app:layout_constraintRight_toLeftOf="@+id/line_2"
             />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/value_amount"
             tools:text="1.798773 BTC"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@+id/label_amount"
-            app:layout_constraintLeft_toLeftOf="@+id/label_amount"
-            app:layout_constraintRight_toRightOf="@+id/label_amount"
+            android:gravity="end"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_amount"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/line_2"
             />
+
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/label_buy_price"
             android:text="@string/portfolio_coin_buy_price"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
             style="@style/AppLabelStyle"
-            app:layout_constraintTop_toBottomOf="@+id/label_all_time"
-            app:layout_constraintLeft_toRightOf="@+id/label_amount"
-            app:layout_constraintRight_toLeftOf="@+id/label_current_value"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/label_amount"
+            app:layout_constraintBottom_toTopOf="@+id/label_current_value"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/line_2"
             />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/value_buy_price"
             tools:text="5117.76 USD"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@+id/label_buy_price"
-            app:layout_constraintLeft_toLeftOf="@+id/label_buy_price"
-            app:layout_constraintRight_toRightOf="@+id/label_buy_price"
+            android:gravity="end"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_buy_price"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/line_2"
             />
 
 
@@ -134,23 +155,24 @@
             android:layout_height="wrap_content"
             android:id="@+id/label_current_value"
             android:text="@string/portfolio_coin_current_value"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
             style="@style/AppLabelStyle"
-            app:layout_constraintTop_toBottomOf="@+id/label_all_time"
-            app:layout_constraintLeft_toRightOf="@+id/label_buy_price"
-            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/label_buy_price"
+            app:layout_constraintBottom_toTopOf="@+id/delimiter"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/line_2"
             />
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/value_current_value"
             tools:text="17217.31 USD"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@+id/label_current_value"
-            app:layout_constraintLeft_toLeftOf="@+id/label_current_value"
-            app:layout_constraintRight_toRightOf="@+id/label_current_value"
+            android:gravity="end"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/label_current_value"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/line_2"
             />
 
         <View
@@ -160,30 +182,30 @@
             android:layout_gravity="center"
             android:id="@+id/delimiter"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@+id/value_amount"
+            app:layout_constraintTop_toBottomOf="@+id/label_current_value"
+            app:layout_constraintBottom_toTopOf="@+id/label_total_coast"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             />
 
 
-        <android.support.constraint.Guideline
-            android:id="@+id/line_2"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:layout_editor_absoluteY="81dp"
-            tools:layout_editor_absoluteX="192dp" />
+
+
+
+
+
+
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/label_total_coast"
             android:text="@string/portfolio_coin_total_coast"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="10dp"
             android:layout_marginStart="16dp"
             style="@style/AppLabelStyle"
             app:layout_constraintTop_toBottomOf="@+id/delimiter"
+            app:layout_constraintBottom_toTopOf="@+id/label_acqusition_coast"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/line_2"
             />
@@ -207,6 +229,7 @@
             android:layout_marginStart="16dp"
             style="@style/AppLabelStyle"
             app:layout_constraintTop_toBottomOf="@+id/label_total_coast"
+            app:layout_constraintBottom_toTopOf="@+id/label_24h_change"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/line_2"
             />
@@ -230,6 +253,7 @@
             android:layout_marginStart="16dp"
             style="@style/AppLabelStyle"
             app:layout_constraintTop_toBottomOf="@+id/label_acqusition_coast"
+            app:layout_constraintBottom_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/line_2"
             />

@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import com.start.crypto.android.data.CryptoContract;
+import com.start.crypto.android.utils.KeyboardHelper;
 
 import java.util.Locale;
 
@@ -79,14 +80,14 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
 
         setTitle(coinName);
 
-        mAllTimeProfitView.setText(String.format(Locale.US, "%.2f", original * (priceNow - priceOriginal)));
+        mAllTimeProfitView.setText(String.format(Locale.US, "%s", KeyboardHelper.format(original * (priceNow - priceOriginal))));
         mSymbolAllTimeProfitView .setText(CreateTransactionActivity.DEFAULT_SYMBOL);
-        mAmountView.setText(String.format(Locale.US, "%f %s", original, coinName));
-        mBuyPriceView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, CreateTransactionActivity.DEFAULT_SYMBOL));
-        mCurrentView.setText(String.format(Locale.US, "%.2f %s", priceNow, CreateTransactionActivity.DEFAULT_SYMBOL));
-        mTotalCostView.setText(String.format(Locale.US, "%.2f %s", priceNow * original, CreateTransactionActivity.DEFAULT_SYMBOL));
-        mAcqusitionCoastView.setText(String.format(Locale.US, "%.2f %s", priceOriginal, CreateTransactionActivity.DEFAULT_SYMBOL));
-        m24hChangeView.setText(String.format(Locale.US, "%.2f %s", profit24h, CreateTransactionActivity.DEFAULT_SYMBOL));
+        mAmountView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(original), coinName));
+        mBuyPriceView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), CreateTransactionActivity.DEFAULT_SYMBOL));
+        mCurrentView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow), CreateTransactionActivity.DEFAULT_SYMBOL));
+        mTotalCostView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow * original), CreateTransactionActivity.DEFAULT_SYMBOL));
+        mAcqusitionCoastView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), CreateTransactionActivity.DEFAULT_SYMBOL));
+        m24hChangeView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(profit24h), CreateTransactionActivity.DEFAULT_SYMBOL));
 
 
         mAdapter = new TransactionsListAdapter(this, null);

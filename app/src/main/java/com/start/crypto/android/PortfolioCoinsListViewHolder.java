@@ -75,28 +75,33 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         coinExchangeView.setText(data.getString(columnsExchangesMap.mColumnName));
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
-        String originalPrice = data.getString(columnsMap.mOriginal);
-        String originalBalance = KeyboardHelper.format(data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
+        double originalPrice = data.getDouble(columnsMap.mOriginal);
+        String originalBalance = KeyboardHelper.cut(data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
+        double priceDelta = (priceNow - price24h) / priceNow;
 
-        coinOriginalView.setText(String.format(Locale.US, "%s @ %s", KeyboardHelper.formatter.format(
-                new BigDecimal(originalPrice).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()), originalBalance));
+        coinOriginalView.setText(String.format(Locale.US, "%s @ %s %s", KeyboardHelper.cut(originalPrice),
+                originalBalance,
+                CreateTransactionActivity.DEFAULT_SYMBOL
+        ));
 
-        coinPriceView.setText(
+        coinPriceView.setText(String.format(Locale.US, "%s(%.2f%%)",
                 KeyboardHelper.formatter.format(
                         new BigDecimal(
                                 data.getString(columnsMap.mColumnPriceNow)
-                        ).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()));
+                        ).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()),
+                priceDelta
+        ));
 
         if(Double.isInfinite(profit24h)) {
             return;
         }
 
-        coinProfitView.setText(KeyboardHelper.format(profit24h));
+        coinProfitView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(profit24h), CreateTransactionActivity.DEFAULT_SYMBOL));
         if(profit24h < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
-        coinHoldingsView.setText(KeyboardHelper.format(coinHolding));
+        coinHoldingsView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(coinHolding), CreateTransactionActivity.DEFAULT_SYMBOL));
 
         long portfolioCoinId    = data.getLong(columnsMap.mColumnId);
         long coinId             = data.getLong(columnsMap.mCoinId);

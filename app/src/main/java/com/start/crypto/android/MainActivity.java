@@ -80,6 +80,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -111,12 +112,14 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @BindView(R.id.navigation)                  BottomNavigationView mNavigation;
 
-    @BindView(R.id.portfolio_current_value)     TextView mPortfolioCurrentValue;
-    @BindView(R.id.portfolio_profit_24h)        TextView mPortfolioProfit24h;
-    @BindView(R.id.portfolio_profit_24h_unit)   TextView mPortfolioProfit24hUnit;
-    @BindView(R.id.portfolio_original_value)    TextView mPortfolioOriginalValue;
-    @BindView(R.id.portfolio_profit_all)        TextView mPortfolioProfitAll;
-    @BindView(R.id.portfolio_profit_all_unit)   TextView mPortfolioProfitAllUnit;
+    @BindView(R.id.portfolio_current_value)         TextView mPortfolioCurrentValue;
+    @BindView(R.id.portfolio_current_value_unit)    TextView mPortfolioCurrentValueUnit;
+    @BindView(R.id.portfolio_profit_24h)            TextView mPortfolioProfit24h;
+    @BindView(R.id.portfolio_profit_24h_unit)       TextView mPortfolioProfit24hUnit;
+    @BindView(R.id.portfolio_original_value)        TextView mPortfolioOriginalValue;
+    @BindView(R.id.portfolio_original_value_unit)   TextView mPortfolioOriginalValueUnit;
+    @BindView(R.id.portfolio_profit_all)            TextView mPortfolioProfitAll;
+    @BindView(R.id.portfolio_profit_all_unit)       TextView mPortfolioProfitAllUnit;
 
     private long mPortfolioId;
 
@@ -434,12 +437,14 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         double profitAllPercent = (valueHoldings - valueAll) / valueHoldings;
 
 
-        mPortfolioCurrentValue.setText(KeyboardHelper.format(valueHoldings));
-        mPortfolioProfit24h.setText(KeyboardHelper.format(profit24h));
-        mPortfolioProfit24hUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
-        mPortfolioOriginalValue.setText(KeyboardHelper.format(valueAll));
-        mPortfolioProfitAll.setText(KeyboardHelper.format(profitAll));
-        mPortfolioProfitAllUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
+        mPortfolioCurrentValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioProfit24h.setText(KeyboardHelper.cut(profit24h));
+        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", CreateTransactionActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
+        mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
+        mPortfolioOriginalValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioProfitAll.setText(KeyboardHelper.cut(profitAll));
+        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", CreateTransactionActivity.DEFAULT_SYMBOL, profitAllPercent));
 
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));

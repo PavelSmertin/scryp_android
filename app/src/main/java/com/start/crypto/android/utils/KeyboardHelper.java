@@ -34,10 +34,10 @@ public final class KeyboardHelper {
         suffixes.put(1_000_000_000_000_000_000D, "E");
     }
 
-    public static String format(double value) {
+    public static String cut(double value) {
         //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
-        if (value == Long.MIN_VALUE) return format(Long.MIN_VALUE + 1);
-        if (value < 0) return "-" + format(-value);
+        if (value == Long.MIN_VALUE) return cut(Long.MIN_VALUE + 1);
+        if (value < 0) return "-" + cut(-value);
         if (value < 1000_000D) return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()); //deal with easy case
 
         Map.Entry<Double, String> e = suffixes.floorEntry(value);
@@ -45,6 +45,10 @@ public final class KeyboardHelper {
         String suffix = e.getValue();
 
         return formatter.format(new BigDecimal(value / divideBy).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()) + suffix;
+    }
+
+    public static String format(double value) {
+        return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_CEILING).doubleValue());
     }
 
 
