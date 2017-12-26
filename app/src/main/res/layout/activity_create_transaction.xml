@@ -43,6 +43,8 @@
             android:lines="1"
             android:maxLines="1"
             tools:ignore="RtlSymmetry"
+            android:popupBackground="@color/colorPrimaryDark"
+
             app:layout_constraintTop_toBottomOf="@id/exchange_select_label"
             app:layout_constraintLeft_toLeftOf="@id/exchange_select_label"
             app:layout_constraintRight_toRightOf="@id/exchange_select_label"
