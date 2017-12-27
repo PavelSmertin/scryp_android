@@ -25,8 +25,8 @@
         <item name="android:textViewStyle">@style/AppTextViewStyle</item>
         <item name="editTextStyle">@style/AppEditTextStyle</item>
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="android:itemBackground">@drawable/item_menu_bg</item>
     </style>
-
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>

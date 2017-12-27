@@ -55,6 +55,8 @@
     <string name="transaction_description_error">Descriptions length restricted by 160 characters</string>
     <string name="transition_autocomplete_coin">TRANSITION:AUTOCOMLETE_COIN</string>
     <string name="transition_autocomplete_clear">TRANSITION:AUTOCOMLETE_CLEAR</string>
+    <string name="portfolio_coin_edit">Edit</string>
+    <string name="portfolio_coin_remove">Remove</string>
 
 
 </resources>

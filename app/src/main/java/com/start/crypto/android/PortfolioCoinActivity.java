@@ -9,6 +9,9 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.start.crypto.android.data.CryptoContract;
@@ -127,6 +130,24 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
         if (mAdapter != null) {
             mAdapter.changeCursor(null);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.portfolio_coin_edit:
+                return true;
+            case R.id.portfolio_coin_remove:
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.portfolio_coin, menu);
+        return true;
     }
 
 

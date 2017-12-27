@@ -433,8 +433,12 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         double profit24h = valueHoldings - value24h;
         double profitAll = valueHoldings - valueAll;
 
-        double profit24hPercent = (valueHoldings - value24h) / valueHoldings;
-        double profitAllPercent = (valueHoldings - valueAll) / valueHoldings;
+        double profit24hPercent = 0;
+        double profitAllPercent = 0;
+        if(valueHoldings > 0) {
+            profit24hPercent = (valueHoldings - value24h) * 100 / valueHoldings;
+            profitAllPercent = (valueHoldings - valueAll) * 100 / valueHoldings;
+        }
 
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
@@ -458,7 +462,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
 
         // push to server
-        if (PreferencesHelper.getInstance().getLogin() != null && data.getCount() > 0 && profit24h > 0 && profitAll > 0) {
+        if (PreferencesHelper.getInstance().getLogin() != null && data.getCount() > 0 && profit24h != 0 && profitAll != 0) {
             compositeDisposable.add(
                     MainServiceGenerator.createService(MainApiService.class, this).pushPortfolio(PreferencesHelper.getInstance().getLogin(), data.getCount(), profit24h, profitAll)
                             .subscribeOn(Schedulers.io())

@@ -77,7 +77,11 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
         double originalPrice = data.getDouble(columnsMap.mOriginal);
         String originalBalance = KeyboardHelper.cut(data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
-        double priceDelta = (priceNow - price24h) / priceNow;
+
+        double priceDelta = 0;
+        if(priceNow > 0) {
+            priceDelta = (priceNow - price24h) * 100 / priceNow;
+        }
 
         coinOriginalView.setText(String.format(Locale.US, "%s @ %s %s", KeyboardHelper.cut(originalPrice),
                 originalBalance,
