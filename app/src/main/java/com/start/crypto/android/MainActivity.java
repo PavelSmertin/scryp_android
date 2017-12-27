@@ -876,7 +876,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void doSync(String response) {
-        clearDb();
         saveJsonCollections(response);
     }
 
@@ -972,16 +971,22 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void saveJsonCollections(String response) {
+        JSONArray jsonPortfolios = null;
         try {
-            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_PORTFOLIOS);
-            JSONArray jsonPortfolios = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIOS);
-            saveJsonToDatabase(CryptoContract.CryptoPortfolios.CONTENT_URI, jsonPortfolios, CryptoContract.CryptoPortfolios.DEFAULT_PROJECTION);
+            jsonPortfolios = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIOS);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        if(jsonPortfolios != null && jsonPortfolios.length() > 0) {
+            // Если на сервере есть информация по портфолио то чистим всю базу
+            clearDb();
+            saveJsonToDatabase(CryptoContract.CryptoPortfolios.CONTENT_URI, jsonPortfolios, CryptoContract.CryptoPortfolios.DEFAULT_PROJECTION);
+        } else {
+            return;
+        }
+
         try {
-            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_PORTFOLIO_COINS);
             JSONArray jsonPortfolioCoins = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIO_COINS);
             saveJsonToDatabase(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, jsonPortfolioCoins, CryptoContract.CryptoPortfolioCoins.DEFAULT_PROJECTION_SIMPLE);
         } catch (JSONException e) {
@@ -989,7 +994,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
 
         try {
-            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_TRANSACTIONS);
             JSONArray jsonTransactions = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_TRANSACTIONS);
             saveJsonToDatabase(CryptoContract.CryptoTransactions.CONTENT_URI, jsonTransactions, CryptoContract.CryptoTransactions.DEFAULT_PROJECTION);
         } catch (JSONException e) {
@@ -997,7 +1001,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
 
         try {
-            Log.d("DEBUG_INFO", "   collection: " + SyncAdapter.COLLECTION_NOTIFICATIONS);
             JSONArray jsonNotifications = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_NOTIFICATIONS);
             saveJsonToDatabase(CryptoContract.CryptoNotifications.CONTENT_URI, jsonNotifications, CryptoContract.CryptoNotifications.DEFAULT_PROJECTION);
         } catch (JSONException e) {
