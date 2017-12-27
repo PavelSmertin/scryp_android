@@ -953,38 +953,19 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         if (TextUtils.isEmpty(msg))
             return;
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
-            }
-        });
+        runOnUiThread(() -> Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show());
     }
 
-
-
-    private void clearDb() {
-        getContentResolver().delete(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null);
-        getContentResolver().delete(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null);
-        getContentResolver().delete(CryptoContract.CryptoTransactions.CONTENT_URI, null, null);
-        getContentResolver().delete(CryptoContract.CryptoNotifications.CONTENT_URI, null, null);
-    }
 
     private void saveJsonCollections(String response) {
         JSONArray jsonPortfolios = null;
         try {
             jsonPortfolios = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIOS);
+            saveJsonToDatabase(CryptoContract.CryptoPortfolios.CONTENT_URI, jsonPortfolios, CryptoContract.CryptoPortfolios.DEFAULT_PROJECTION);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        if(jsonPortfolios != null && jsonPortfolios.length() > 0) {
-            // Если на сервере есть информация по портфолио то чистим всю базу
-            clearDb();
-            saveJsonToDatabase(CryptoContract.CryptoPortfolios.CONTENT_URI, jsonPortfolios, CryptoContract.CryptoPortfolios.DEFAULT_PROJECTION);
-        } else {
-            return;
-        }
 
         try {
             JSONArray jsonPortfolioCoins = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIO_COINS);
