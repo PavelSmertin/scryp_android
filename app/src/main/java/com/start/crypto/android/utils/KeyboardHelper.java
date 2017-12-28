@@ -26,7 +26,7 @@ public final class KeyboardHelper {
 
     private static final NavigableMap<Double, String> suffixes = new TreeMap<>();
     static {
-        suffixes.put(1_000D, "k");
+        suffixes.put(1_000D, "K");
         suffixes.put(1_000_000D, "M");
         suffixes.put(1_000_000_000D, "G");
         suffixes.put(1_000_000_000_000D, "T");
@@ -38,7 +38,7 @@ public final class KeyboardHelper {
         //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
         if (value == Long.MIN_VALUE) return cut(Long.MIN_VALUE + 1);
         if (value < 0) return "-" + cut(-value);
-        if (value < 1000_000D) return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()); //deal with easy case
+        if (value < 1000D) return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()); //deal with easy case
 
         Map.Entry<Double, String> e = suffixes.floorEntry(value);
         Double divideBy = e.getKey();

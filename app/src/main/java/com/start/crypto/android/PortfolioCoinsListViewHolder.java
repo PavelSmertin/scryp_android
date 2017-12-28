@@ -63,9 +63,9 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(data);
         ColumnsExchange.ColumnsMap columnsExchangesMap  = new ColumnsExchange.ColumnsMap(data);
 
-        mPortfolioId = data.getLong(columnsMap.mPortfolioId);
+        mPortfolioId = data.getLong(columnsMap.mColumnPortfolioId);
         mPortfolioCoinId = data.getLong(columnsMap.mColumnId);
-        mOriginal = data.getDouble(columnsMap.mOriginal);
+        mOriginal = data.getDouble(columnsMap.mColumnOriginal);
         double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
         double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
         double price24h = data.getDouble(columnsMap.mColumnPrice24h);
@@ -75,15 +75,15 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         coinExchangeView.setText(data.getString(columnsExchangesMap.mColumnName));
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
-        double originalPrice = data.getDouble(columnsMap.mOriginal);
-        String originalBalance = KeyboardHelper.cut(data.getDouble(columnsMap.mOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
+        String originalBalance = KeyboardHelper.cut(data.getDouble(columnsMap.mColumnOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
 
         double priceDelta = 0;
         if(priceNow > 0) {
             priceDelta = (priceNow - price24h) * 100 / priceNow;
         }
 
-        coinOriginalView.setText(String.format(Locale.US, "%s @ %s %s", KeyboardHelper.cut(originalPrice),
+        coinOriginalView.setText(String.format(Locale.US, "%s @ %s %s",
+                KeyboardHelper.cut(mOriginal),
                 originalBalance,
                 CreateTransactionActivity.DEFAULT_SYMBOL
         ));
@@ -108,9 +108,9 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         coinHoldingsView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(coinHolding), CreateTransactionActivity.DEFAULT_SYMBOL));
 
         long portfolioCoinId    = data.getLong(columnsMap.mColumnId);
-        long coinId             = data.getLong(columnsMap.mCoinId);
+        long coinId             = data.getLong(columnsMap.mColumnCoinId);
         String coinSymbol       = data.getString(columnsCoinsMap.mColumnSymbol);
-        long correspondId       = data.getLong(columnsMap.mCoinId);
+        long correspondId       = data.getLong(columnsMap.mColumnCoinId);
 
 //        RxView.clicks(addNOtificationButton).subscribe(el -> NotificationFormActivity.startActivity(
 //                        context,
@@ -123,15 +123,19 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         mListRow.setOnClickListener(view -> {
             if(swipeLayout.getOpenStatus() == SwipeLayout.Status.Close){
-                PortfolioCoinActivity.startActivity(
+//                PortfolioCoinActivity.start(
+//                        context,
+//                        portfolioCoinId,
+//                        coinSymbol,
+//                        priceNow,
+//                        mOriginal,
+//                        priceOriginal,
+//                        profit24h
+//
+//                );
+                PortfolioCoinActivity.start(
                         context,
-                        portfolioCoinId,
-                        coinSymbol,
-                        priceNow,
-                        mOriginal,
-                        priceOriginal,
-                        profit24h
-
+                        portfolioCoinId
                 );
             }
         });
@@ -180,7 +184,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
                 mPortfolioCoinId,
                 coinId,
                 coinSymbol,
-                data.getLong(columnsMap.mExchangeId),
+                data.getLong(columnsMap.mColumnExchangeId),
                 TransactionType.BUY)
         );
 
@@ -194,7 +198,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
                     mPortfolioCoinId,
                     coinId,
                     coinSymbol,
-                    data.getLong(columnsMap.mExchangeId),
+                    data.getLong(columnsMap.mColumnExchangeId),
                     TransactionType.SELL)
             );
         }

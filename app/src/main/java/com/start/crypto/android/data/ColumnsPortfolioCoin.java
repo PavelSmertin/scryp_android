@@ -25,10 +25,10 @@ public class ColumnsPortfolioCoin {
         private final boolean DEBUG = false;
 
         public int mColumnId;
-        public int mPortfolioId;
-        public int mCoinId;
-        public int mExchangeId;
-        public int mOriginal;
+        public int mColumnPortfolioId;
+        public int mColumnCoinId;
+        public int mColumnExchangeId;
+        public int mColumnOriginal;
         public int mColumnPriceNow;
         public int mColumnPriceOriginal;
         public int mColumnPrice24h;
@@ -38,10 +38,10 @@ public class ColumnsPortfolioCoin {
 
         public ColumnsMap() {
             mColumnId               = COLUMN_ID;
-            mPortfolioId            = COLUMN_PORTFOLIO_ID;
-            mCoinId                 = COLUMN_COIN_ID;
-            mExchangeId             = COLUMN_EXCHANGE_ID;
-            mOriginal               = COLUMN_ORIGINAL;
+            mColumnPortfolioId      = COLUMN_PORTFOLIO_ID;
+            mColumnCoinId           = COLUMN_COIN_ID;
+            mColumnExchangeId       = COLUMN_EXCHANGE_ID;
+            mColumnOriginal         = COLUMN_ORIGINAL;
             mColumnPriceNow         = COLUMN_PRICE_NOW;
             mColumnPriceOriginal    = COLUMN_PRICE_ORIGINAL;
             mColumnPrice24h         = COLUMN_PRICE_24H;
@@ -61,25 +61,25 @@ public class ColumnsPortfolioCoin {
             }
 
             try {
-                mPortfolioId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID);
+                mColumnPortfolioId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
 
             try {
-                mCoinId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID);
+                mColumnCoinId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
 
             try {
-                mExchangeId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID);
+                mColumnExchangeId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
 
             try {
-                mOriginal = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL);
+                mColumnOriginal = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }

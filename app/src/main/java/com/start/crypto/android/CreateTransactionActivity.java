@@ -96,7 +96,6 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
     private double  mPortfolioCurrenteyOriginal;
     private double  mPortfolioCurrenteyPriceOriginal;
 
-    private double  mBaseCoinPrice = 1;
     private double  mBaseCurrenteyPrice = 1;
 
 
@@ -390,12 +389,15 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
             data.moveToNext();
             ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
 
-            mPortfolioCoinOriginal = data.getDouble(columnsMap.mOriginal);
+            mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
             mPortfolioCoinPriceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
-            mBaseCoinPrice = data.getDouble(columnsMap.mColumnPriceNow);
 
             if(argTrasactionType == TransactionType.SELL) {
                 mAmountMax = mPortfolioCoinOriginal;
+                mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+            }
+
+            if(argTrasactionType == TransactionType.EDIT) {
                 mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
             }
             return;
@@ -435,7 +437,7 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
     }
 
     private void initLoaderManager() {
-        if(argTrasactionType == TransactionType.BUY || argTrasactionType == TransactionType.SELL) {
+        if(argTrasactionType == TransactionType.BUY || argTrasactionType == TransactionType.SELL || argTrasactionType == TransactionType.EDIT) {
             getSupportLoaderManager().restartLoader(CryptoContract.LOADER_PORTFOLIO_COINS, null, this);
         }
         getSupportLoaderManager().restartLoader(CryptoContract.LOADER_COINS, null, this);
@@ -516,6 +518,10 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
             }
         }
 
+        if (argTrasactionType == TransactionType.EDIT ) {
+            updateCoin();
+        }
+
     }
 
     private long newPortfolioCoin(Uri uriPortfoloioCoin) {
@@ -570,8 +576,10 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
     }
     private void updateCoin() {
         ContentValues values = new ContentValues();
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID, argExchangeId);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL, getPortfolioCoinOriginal());
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, getPortfolioCoinPrice());
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT, Calendar.getInstance().getTimeInMillis());
         getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins._ID + " = " + argPortfolioCoinId, null);
     }
 
@@ -592,9 +600,8 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
                 cursor.moveToFirst();
                 ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(cursor);
 
-                mPortfolioCurrenteyOriginal = cursor.getDouble(columnsMap.mOriginal);
+                mPortfolioCurrenteyOriginal = cursor.getDouble(columnsMap.mColumnOriginal);
                 mPortfolioCurrenteyPriceOriginal = cursor.getDouble(columnsMap.mColumnPriceOriginal);
-                mBaseCurrenteyPrice = cursor.getDouble(columnsMap.mColumnPriceNow);
                 mPortfolioCurrenteyId = cursor.getLong(columnsMap.mColumnId);
             }
             cursor.close();
@@ -606,15 +613,17 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID, argPortfolioId);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID, argExchangeId);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL, mAmount * mPrice);
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, mBaseCoinPrice / mPrice);
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, mBaseCoinPrice / mPrice);
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, mBaseCoinPrice / mPrice);
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, mBaseCurrenteyPrice);
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, mBaseCurrenteyPrice);
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, mBaseCurrenteyPrice);
         return getContentResolver().insert(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values);
     }
     private void updateCurrentey() {
         ContentValues values = new ContentValues();
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID, argExchangeId);
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL, getPortfolioCurrenteyOriginal());
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, getPortfolioCurrenteyPrice());
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT, Calendar.getInstance().getTimeInMillis());
         getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins._ID + " = " + mPortfolioCurrenteyId, null);
     }
 
@@ -629,6 +638,9 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
         if(argTrasactionType == TransactionType.SELL) {
             return mPortfolioCoinOriginal - mAmount;
         }
+        if(argTrasactionType == TransactionType.EDIT) {
+            return mAmount;
+        }
         throw new IllegalStateException("unhundled type transaction");
     }
     private double getPortfolioCurrenteyOriginal() {
@@ -639,6 +651,9 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
         if (argTrasactionType == TransactionType.BUY) {
             return mPortfolioCurrenteyOriginal - mAmount * mPrice;
         }
+        if(argTrasactionType == TransactionType.EDIT) {
+            return mAmount * mPrice;
+        }
         throw new IllegalStateException("unhundled type transaction");
 
     }
@@ -647,7 +662,7 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
     // Меняется при любой транзакции
     private double getPortfolioCoinPrice() {
         double originalSum = mPortfolioCoinOriginal * mPortfolioCoinPriceOriginal; // in base currency
-        double transactionSum = mAmount * mBaseCoinPrice; // in base currency
+        double transactionSum = mAmount * mPrice * mBaseCurrenteyPrice; // in base currency
 
         if (argTrasactionType == TransactionType.BUY) {
             return (originalSum + transactionSum) / (mPortfolioCoinOriginal + mAmount);
@@ -657,6 +672,9 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
                 return mPortfolioCoinPriceOriginal;
             }
             return (originalSum - transactionSum) / (mPortfolioCoinOriginal - mAmount);
+        }
+        if (argTrasactionType == TransactionType.EDIT) {
+            return mPrice * mBaseCurrenteyPrice;
         }
         throw new IllegalStateException("unhundled type transaction");
     }
@@ -670,20 +688,31 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
         if (argTrasactionType == TransactionType.BUY){
             return (originalSum - transactionSum) / (mPortfolioCurrenteyOriginal - mAmount * mPrice);
         }
+        if (argTrasactionType == TransactionType.EDIT){
+            return mBaseCurrenteyPrice;
+        }
         throw new IllegalStateException("unhundled type transaction");
     }
 
     private void retrivePrice() {
         startProgressDialog(R.string.all_loading);
         if(Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
-            RestClientMinApi.INSTANCE.getClient().prices(argCoinSymbol, mCurrenteySymbol, null)
+            RestClientMinApi.INSTANCE.getClient().prices(
+                    mCurrenteySymbol,
+                    mCurrenteySymbol.equals(DEFAULT_SYMBOL) ? argCoinSymbol : argCoinSymbol + "," + DEFAULT_SYMBOL,
+                    null
+            )
                     .compose(bindUntilEvent(ActivityEvent.PAUSE))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             response -> {
                                 stopProgressDialog();
-                                mPriceView.setText(String.format(Locale.US, "%.2f", response.get(mCurrenteySymbol)));
+                                mPrice = 1/response.get(argCoinSymbol);
+                                mPriceView.setText(String.format(Locale.US, "%.2f", mPrice));
+                                if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+                                    mBaseCurrenteyPrice = 1 / response.get(DEFAULT_SYMBOL);
+                                }
                             },
                             e -> {
                                 stopProgressDialog();
@@ -693,21 +722,31 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
             return;
         }
 
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(argCoinSymbol, mCurrenteySymbol, Long.toString(mDate), null)
+        RestClientMinApi.INSTANCE.getClient().pricesHistorical(
+                mCurrenteySymbol,
+                mCurrenteySymbol.equals(DEFAULT_SYMBOL) ? argCoinSymbol : argCoinSymbol + "," + DEFAULT_SYMBOL,
+                Long.toString(mDate),
+                null
+        )
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
                             stopProgressDialog();
-                            HashMap<String, Double> prices = response.get(argCoinSymbol);
-                            mPriceView.setText(String.format(Locale.US, "%.2f", prices.get(mCurrenteySymbol)));
+                            HashMap<String, Double> prices = response.get(mCurrenteySymbol);
+                            mPrice = 1/prices.get(argCoinSymbol);
+                            mPriceView.setText(String.format(Locale.US, "%.2f", mPrice));
+                            if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+                                mBaseCurrenteyPrice = 1 / prices.get(DEFAULT_SYMBOL);
+                            }
                         },
                         e -> {
                             stopProgressDialog();
                             Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                 );
+
     }
 
 }

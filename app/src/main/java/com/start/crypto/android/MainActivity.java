@@ -403,7 +403,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         mPieData = new HashMap<>();
 
         while (data.moveToNext()) {
-            double original = data.getDouble(columnsMap.mOriginal);
+            double original = data.getDouble(columnsMap.mColumnOriginal);
             double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
             double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
             double price24h = data.getDouble(columnsMap.mColumnPrice24h);
@@ -413,7 +413,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
             valueHoldings += original * priceNow;
 
             symbol = data.getString(columnsCoinsMap.mColumnSymbol);
-            long coinId = data.getLong(columnsMap.mCoinId);
+            long coinId = data.getLong(columnsMap.mColumnCoinId);
             if (!mCoins.containsKey(symbol)) {
                 mCoins.put(symbol, coinId);
             }
