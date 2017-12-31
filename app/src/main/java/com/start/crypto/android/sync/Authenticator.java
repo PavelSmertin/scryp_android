@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import com.start.crypto.android.AuthActivity;
+import com.start.crypto.android.account.SigninActivity;
 
 public class Authenticator extends AbstractAccountAuthenticator {
 
@@ -35,10 +35,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
             String[] strings,
             Bundle options) throws NetworkErrorException {
 
-        final Intent intent = new Intent(mContext, AuthActivity.class);
-        intent.putExtra(AuthActivity.ARG_ACCOUNT_TYPE, accountType);
-        intent.putExtra(AuthActivity.ARG_AUTH_TYPE, authTokenType);
-        intent.putExtra(AuthActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
+        final Intent intent = new Intent(mContext, SigninActivity.class);
+        intent.putExtra(SigninActivity.ARG_ACCOUNT_TYPE, accountType);
+        intent.putExtra(SigninActivity.ARG_AUTH_TYPE, authTokenType);
+        intent.putExtra(SigninActivity.ARG_IS_ADDING_NEW_ACCOUNT, true);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
@@ -88,10 +88,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
         // If we get here, then we couldn't access the user's password - so we
         // need to re-prompt them for their credentials. We do that by creating
         // an intent to display our AuthenticatorActivity.
-        final Intent intent = new Intent(mContext, AuthActivity.class);
+        final Intent intent = new Intent(mContext, SigninActivity.class);
         intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
-        intent.putExtra(AuthActivity.ARG_ACCOUNT_TYPE, account.type);
-        intent.putExtra(AuthActivity.ARG_AUTH_TYPE, authTokenType);
+        intent.putExtra(SigninActivity.ARG_ACCOUNT_TYPE, account.type);
+        intent.putExtra(SigninActivity.ARG_AUTH_TYPE, authTokenType);
         final Bundle bundle = new Bundle();
         bundle.putParcelable(AccountManager.KEY_INTENT, intent);
         return bundle;

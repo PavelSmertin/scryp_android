@@ -3,8 +3,8 @@ package com.start.crypto.android.api;
 import com.start.crypto.android.api.model.Auth;
 import com.start.crypto.android.api.model.JWTResponse;
 import com.start.crypto.android.api.model.Portfolio;
+import com.start.crypto.android.api.model.RestoreResponse;
 
-import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -13,6 +13,8 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface MainApiService {
@@ -23,11 +25,25 @@ public interface MainApiService {
   );
 
   @POST("users")
-  Observable<HashMap<String, HashMap<String, Double>>> signup(
+  Observable<JWTResponse> signup(
           @Query("user[email]") String email,
           @Query("user[password]") String password,
           @Query("user[password_confirmation]") String password_confirmation
   );
+
+  @POST("password_resets")
+  Observable<RestoreResponse> restoreRequest(
+          @Query("password_reset[email]") String email
+  );
+
+  @PUT("password_resets/{id}")
+  Observable<JWTResponse> restorePassword(
+          @Path("id") String resource,
+          @Query("password_reset[code]") String email,
+          @Query("password_reset[password]") String password,
+          @Query("password_reset[password_confirmation]") String passwordConfirmation
+  );
+
 
   @GET("portfolios.json")
   Observable<List<Portfolio>> portfolios();

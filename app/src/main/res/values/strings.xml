@@ -5,13 +5,21 @@
     <string name="all_loading">Loading</string>
 
 
-    <string name="auth_email">Email</string>
-    <string name="auth_password">Password</string>
-    <string name="auth_password_repeat">Repeat password</string>
+    <string name="account_email">Email</string>
+    <string name="account_code">Digital code</string>
+    <string name="account_password">Password</string>
+    <string name="account_password_repeat">Repeat password</string>
+
+    <string name="account_email_error">Email not valid</string>
+    <string name="account_code_was_sent">Code was sent to your email</string>
+
     <string name="title_activity_auth">Sign in</string>
     <string name="title_activity_signup">Sign up</string>
+    <string name="title_activity_restore">Restore password</string>
     <string name="title_activity_portfolios">Portfolios chart</string>
     <string name="title_activity_main">Coins</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+
 
     <string name="title_home">Chart</string>
     <string name="title_settings">Pie</string>

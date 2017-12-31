@@ -11,7 +11,7 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
 
-import com.start.crypto.android.AuthActivity;
+import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.data.CryptoContract;
@@ -98,7 +98,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void logout(Account account) {
         PreferencesHelper.getInstance().logout();
         AccountManager accountManager = AccountManager.get(mContext);
-        String authToken = accountManager.peekAuthToken(account, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+        String authToken = accountManager.peekAuthToken(account, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
         accountManager.invalidateAuthToken(account.type, authToken);
     }
 

@@ -41,6 +41,7 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jakewharton.rxbinding2.view.RxView;
+import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
@@ -216,7 +217,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 //                }
                 {
                     if(PreferencesHelper.getInstance().getLogin() == null) {
-                        getTokenForAccountCreateIfNeeded(AuthActivity.ACCOUNT_TYPE, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+                        getTokenForAccountCreateIfNeeded(SigninActivity.ACCOUNT_TYPE, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
                     }
                 }
         );
@@ -253,9 +254,9 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         mAccountManager = AccountManager.get(this);
 
-//        Account[] accounts = mAccountManager.getAccountsByType( AuthActivity.ACCOUNT_TYPE);
+//        Account[] accounts = mAccountManager.getAccountsByType( SigninActivity.ACCOUNT_TYPE);
 //        if (accounts.length != 0) {
-//            String token = mAccountManager.peekAuthToken(accounts[0], AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+//            String token = mAccountManager.peekAuthToken(accounts[0], SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
 //            if (token != null && PreferencesHelper.getInstance().getLogin() != null) {
 //                preInsertView.setVisibility(View.GONE);
 //            }
@@ -264,7 +265,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         if (savedInstanceState != null) {
             boolean showDialog = savedInstanceState.getBoolean(STATE_DIALOG);
             if (showDialog) {
-                showAccountPicker(AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+                showAccountPicker(SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
             }
         }
 
@@ -830,19 +831,16 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private void invalidateAuthToken(final Account account, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null,null);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Bundle bnd = future.getResult();
+        new Thread(() -> {
+            try {
+                Bundle bnd = future.getResult();
 
-                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                    mAccountManager.invalidateAuthToken(account.type, authtoken);
-                    showMessage(account.name + " invalidated");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showMessage(e.getMessage());
-                }
+                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                mAccountManager.invalidateAuthToken(account.type, authtoken);
+                showMessage(account.name + " invalidated");
+            } catch (Exception e) {
+                e.printStackTrace();
+                showMessage(e.getMessage());
             }
         }).start();
     }
@@ -906,7 +904,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     }
 
     private void showAccountPicker(final String authTokenType) {
-        final Account availableAccounts[] = mAccountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE);
+        final Account availableAccounts[] = mAccountManager.getAccountsByType(SigninActivity.ACCOUNT_TYPE);
 
         if (availableAccounts.length == 0) {
             Toast.makeText(this, "No accounts", Toast.LENGTH_SHORT).show();
@@ -930,10 +928,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     private void logout() {
         PreferencesHelper.getInstance().logout();
-        Account[] accounts = mAccountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE);
+        Account[] accounts = mAccountManager.getAccountsByType(SigninActivity.ACCOUNT_TYPE);
         if (accounts.length != 0) {
             for(Account a : accounts) {
-                invalidateAuthToken(a, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+                invalidateAuthToken(a, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
             }
         }
         preInsertView.setVisibility(View.VISIBLE);
@@ -948,7 +946,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(
-                new Account(PreferencesHelper.getInstance().getLogin(), AuthActivity.ACCOUNT_TYPE),
+                new Account(PreferencesHelper.getInstance().getLogin(), SigninActivity.ACCOUNT_TYPE),
                 CryptoContract.AUTHORITY,
                 b);
     }

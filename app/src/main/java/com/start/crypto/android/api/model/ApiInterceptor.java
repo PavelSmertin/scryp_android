@@ -4,7 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 
-import com.start.crypto.android.AuthActivity;
+import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.utils.PreferencesHelper;
 
 import java.io.IOException;
@@ -45,13 +45,13 @@ public class ApiInterceptor implements Interceptor {
 
         AccountManager accountManager = AccountManager.get(mContext);
 
-        Account[] accounts = accountManager.getAccountsByType(AuthActivity.ACCOUNT_TYPE);
+        Account[] accounts = accountManager.getAccountsByType(SigninActivity.ACCOUNT_TYPE);
         if (accounts.length != 0) {
             Account currentAccount = getStoredAccount(accounts);
             if(currentAccount == null) {
                 return null;
             }
-            return accountManager.peekAuthToken(currentAccount, AuthActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+            return accountManager.peekAuthToken(currentAccount, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
         }
         return null;
     }

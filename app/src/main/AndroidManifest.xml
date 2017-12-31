@@ -62,12 +62,20 @@
             android:label="@string/title_activity_notification"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".AuthActivity"
+            android:name=".account.SigninActivity"
             android:label="@string/title_activity_auth"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
-            android:name=".SignupActivity"
+            android:name=".account.SignupActivity"
             android:label="@string/title_activity_signup"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name=".account.RestoreRequestActivity"
+            android:label="@string/title_activity_restore"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name=".account.RestorePasswordActivity"
+            android:label="@string/title_activity_restore"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".PortfoliosActivity"
