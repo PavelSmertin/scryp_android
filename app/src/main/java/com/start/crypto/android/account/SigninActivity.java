@@ -1,7 +1,6 @@
 package com.start.crypto.android.account;
 
 import android.accounts.Account;
-import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.model.Auth;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -49,11 +47,13 @@ public class SigninActivity extends AccountAuthenticatorActivity {
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     @Override
+    protected void setupLayout() {
+        setContentView(R.layout.account_activity_signin);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.account_activity_signin);
-        ButterKnife.bind(this);
 
         mAccountManager = AccountManager.get(this);
 
