@@ -26,7 +26,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -80,6 +81,15 @@
         <activity
             android:name=".PortfoliosActivity"
             android:label="@string/title_activity_portfolios" />
+        <activity android:name=".PortfolioCoinActivity" />
+        <activity
+            android:name=".publicPortfolio.PortfolioActivity"
+            android:label="@string/title_activity_portfolios"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+
+
+
 
         <provider
             android:name=".data.CryptoProvider"
@@ -108,7 +118,6 @@
                 android:resource="@xml/syncadapter" />
         </service>
 
-        <activity android:name=".PortfolioCoinActivity" />
     </application>
 
 </manifest>

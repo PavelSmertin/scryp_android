@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.start.crypto.android.api.model.Portfolio;
+import com.start.crypto.android.publicPortfolio.PortfolioActivity;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -20,6 +21,7 @@ import butterknife.ButterKnife;
 public class PortfoliosAdapter extends RecyclerView.Adapter {
 
     private final List<Portfolio> mPortfolios = new LinkedList<>();
+
 
     public PortfoliosAdapter() {
     }
@@ -34,6 +36,12 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ((ViewHolder) holder).bind(mPortfolios.get(position));
+        holder.itemView.setOnClickListener(v -> PortfolioActivity.start(
+                ((ViewHolder) holder).itemView.getContext(),
+                mPortfolios.get(position).getUserId(),
+                mPortfolios.get(position).getUserName()
+
+        ));
     }
 
     @Override

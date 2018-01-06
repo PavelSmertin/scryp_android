@@ -3,6 +3,7 @@ package com.start.crypto.android.api;
 import com.start.crypto.android.api.model.Auth;
 import com.start.crypto.android.api.model.JWTResponse;
 import com.start.crypto.android.api.model.Portfolio;
+import com.start.crypto.android.api.model.PublicPortfolioResponse;
 import com.start.crypto.android.api.model.RestoreResponse;
 
 import java.util.List;
@@ -57,6 +58,9 @@ public interface MainApiService {
 
   );
 
+
+  @GET("public_portfolio/{user_id}")
+  Observable<PublicPortfolioResponse> publicPortfolio(@Path("user_id") String resource);
 
   @GET("sync")
   Observable<ResponseBody> syncDownload();

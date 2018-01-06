@@ -27,11 +27,6 @@ import butterknife.BindView;
 public class PortfolioCoinActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>  {
 
     public static final String EXTRA_PORTFOLIO_COIN_ID  = "portfolio_coin_id";
-    public static final String EXTRA_COIN_NAME          = "coin_name";
-    public static final String EXTRA_PRICE_NOW          = "price_now";
-    public static final String EXTRA_ORIGINAL           = "original";
-    public static final String EXTRA_PRICE_ORIGINAL     = "price_original";
-    public static final String EXTRA_24H_PROFIT         = "24h_profit";
 
     @BindView(R.id.value_all_time)              TextView mAllTimeProfitView;
     @BindView(R.id.symbol_all_time)             TextView mSymbolAllTimeProfitView;
@@ -58,23 +53,6 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
     public static void start(Context context, long portfolioCoinId) {
         Intent intent = new Intent(context, PortfolioCoinActivity.class);
         intent.putExtra(EXTRA_PORTFOLIO_COIN_ID,    portfolioCoinId);
-        context.startActivity(intent);
-    }
-
-    public static void start(Context context,
-                                     long portfolioCoinId,
-                                     String name,
-                                     double priceNow,
-                                     double original,
-                                     double priceOriginal,
-                                     double profit24h) {
-        Intent intent = new Intent(context, PortfolioCoinActivity.class);
-        intent.putExtra(EXTRA_PORTFOLIO_COIN_ID,    portfolioCoinId);
-        intent.putExtra(EXTRA_COIN_NAME,            name);
-        intent.putExtra(EXTRA_PRICE_NOW,            priceNow);
-        intent.putExtra(EXTRA_ORIGINAL,             original);
-        intent.putExtra(EXTRA_PRICE_ORIGINAL,       priceOriginal);
-        intent.putExtra(EXTRA_24H_PROFIT,           profit24h);
         context.startActivity(intent);
     }
 

@@ -4,38 +4,44 @@ import com.google.gson.annotations.SerializedName;
 
 public class Portfolio {
 
+    private int id;
+
     @SerializedName("coins_count")
-    private int mCoinsCount;
+    private int coinsCount;
 
     @SerializedName("user_id")
-    private long mUserId;
+    private long userId;
 
     @SerializedName("user_name")
-    private String mUserName;
+    private String userName;
 
     @SerializedName("profit_24h")
-    private double mProfit24h;
+    private double profit24h;
 
     @SerializedName("profit_7d")
-    private double mProfit7d;
+    private double profit7d;
+
+    public long getId() {
+        return id;
+    }
 
     public int getCoinsCount() {
-        return mCoinsCount;
+        return coinsCount;
     }
 
     public long getUserId() {
-        return mUserId;
+        return userId;
     }
 
     public String getUserName() {
-        return mUserName;
+        return userName;
     }
 
     public double getProfit24h() {
-        return mProfit24h;
+        return profit24h;
     }
 
     public double getProfit7d() {
-        return mProfit7d;
+        return profit7d;
     }
 }

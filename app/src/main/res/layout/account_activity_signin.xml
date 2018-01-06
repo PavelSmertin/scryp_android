@@ -43,6 +43,16 @@
             android:layout_height="60dp"
             android:inputType="textPassword" />
 
+
+        <Button
+            android:id="@+id/next"
+            style="@style/AppButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/all_next"
+            />
+
         <Button
             android:id="@+id/sign_up"
             android:layout_width="match_parent"
@@ -63,16 +73,6 @@
             android:layout_marginTop="10dp"
             />
 
-        <Button
-            android:id="@+id/next"
-            style="@style/AppButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/all_next"
-
-
-            />
     </LinearLayout>
 
 </ScrollView>

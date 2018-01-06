@@ -165,7 +165,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_test);
+        setContentView(R.layout.activity_main);
     }
 
     @Override
@@ -884,21 +884,18 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
     private void getExistingAccountAuthToken(Account account, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, this, null, null);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Bundle bnd = future.getResult();
+        new Thread(() -> {
+            try {
+                Bundle bnd = future.getResult();
 
-                    final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                    showMessage((authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL");
-                    PreferencesHelper.getInstance().setLogin(account.name);
-                    mAuthButtonSubject.onNext(false);
+                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                showMessage((authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL");
+                PreferencesHelper.getInstance().setLogin(account.name);
+                mAuthButtonSubject.onNext(false);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    showMessage(e.getMessage());
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                showMessage(e.getMessage());
             }
         }).start();
     }
