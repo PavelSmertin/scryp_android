@@ -84,8 +84,8 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
         public void bind(Portfolio portfolio) {
             mUserName.setText(portfolio.getUserName());
             mCoinsCount.setText(String.format("%d coins", portfolio.getCoinsCount()));
-            mProfit24h.setText(new BigDecimal(portfolio.getProfit24h()).setScale(0, BigDecimal.ROUND_CEILING)+ "%");
-            mprofit7d.setText(new BigDecimal(portfolio.getProfit7d()).setScale(0, BigDecimal.ROUND_CEILING) + "%");
+            mProfit24h.setText(new BigDecimal(portfolio.getProfit24h()).setScale(0, BigDecimal.ROUND_FLOOR)+ "%");
+            mprofit7d.setText(new BigDecimal(portfolio.getProfit7d()).setScale(0, BigDecimal.ROUND_FLOOR) + "%");
 
             if(portfolio.getProfit24h() < 0) {
                 mProfit24h.setTextColor(mDownTendColor);

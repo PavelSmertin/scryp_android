@@ -38,18 +38,23 @@ public final class KeyboardHelper {
         //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
         if (value == Long.MIN_VALUE) return cut(Long.MIN_VALUE + 1);
         if (value < 0) return "-" + cut(-value);
-        if (value < 1000D) return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()); //deal with easy case
+        if (value < 1000D) return format(value); //deal with easy case
 
         Map.Entry<Double, String> e = suffixes.floorEntry(value);
         Double divideBy = e.getKey();
         String suffix = e.getValue();
 
-        return formatter.format(new BigDecimal(value / divideBy).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()) + suffix;
+        return formatter.format(new BigDecimal(value / divideBy).setScale(0, BigDecimal.ROUND_FLOOR).doubleValue()) + suffix;
     }
 
     public static String format(double value) {
-        return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_CEILING).doubleValue());
+        if (value > -1 && value < 1) {
+            return formatter.format(new BigDecimal(value).setScale(5, BigDecimal.ROUND_FLOOR).doubleValue());
+        }
+        return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
+
     }
+
 
 
 

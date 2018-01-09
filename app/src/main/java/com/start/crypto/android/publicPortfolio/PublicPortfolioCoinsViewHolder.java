@@ -10,7 +10,6 @@ import com.start.crypto.android.R;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.utils.KeyboardHelper;
 
-import java.math.BigDecimal;
 import java.util.Locale;
 
 class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
@@ -65,8 +64,7 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         ));
 
         coinPriceView.setText(String.format(Locale.US, "%s(%.2f%%)",
-                KeyboardHelper.formatter.format(
-                        new BigDecimal(priceNow).setScale(2, BigDecimal.ROUND_CEILING).doubleValue()),
+                KeyboardHelper.format(priceNow),
                 priceDelta
         ));
 

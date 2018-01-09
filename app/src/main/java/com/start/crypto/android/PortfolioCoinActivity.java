@@ -122,7 +122,7 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
             mBuyPriceView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), CreateTransactionActivity.DEFAULT_SYMBOL));
             mCurrentView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow), CreateTransactionActivity.DEFAULT_SYMBOL));
             mTotalCostView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow * original), CreateTransactionActivity.DEFAULT_SYMBOL));
-            mAcqusitionCoastView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), CreateTransactionActivity.DEFAULT_SYMBOL));
+            mAcqusitionCoastView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal * original), CreateTransactionActivity.DEFAULT_SYMBOL));
             m24hChangeView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(profit24h), CreateTransactionActivity.DEFAULT_SYMBOL));
 
             return;

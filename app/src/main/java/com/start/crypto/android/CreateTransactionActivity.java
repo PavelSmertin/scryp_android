@@ -28,6 +28,7 @@ import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.Coin;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
+import com.start.crypto.android.utils.KeyboardHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 
 import java.text.SimpleDateFormat;
@@ -709,7 +710,7 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
                             response -> {
                                 stopProgressDialog();
                                 mPrice = 1/response.get(argCoinSymbol);
-                                mPriceView.setText(String.format(Locale.US, "%.2f", mPrice));
+                                mPriceView.setText(KeyboardHelper.format(mPrice));
                                 if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
                                     mBaseCurrenteyPrice = 1 / response.get(DEFAULT_SYMBOL);
                                 }
@@ -736,7 +737,7 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
                             stopProgressDialog();
                             HashMap<String, Double> prices = response.get(mCurrenteySymbol);
                             mPrice = 1/prices.get(argCoinSymbol);
-                            mPriceView.setText(String.format(Locale.US, "%.2f", mPrice));
+                            mPriceView.setText(KeyboardHelper.format(mPrice));
                             if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
                                 mBaseCurrenteyPrice = 1 / prices.get(DEFAULT_SYMBOL);
                             }

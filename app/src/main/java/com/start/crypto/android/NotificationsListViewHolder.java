@@ -56,7 +56,7 @@ class NotificationsListViewHolder extends RecyclerView.ViewHolder  {
         coinThresholdView.setText(String.format(Locale.getDefault(), "1 %s %s %s %s",
                 coin,
                 NotificationComparePrice.valueOf(compare) == NotificationComparePrice.LESS_THAN ? "<" : ">",
-                new BigDecimal(priceThreshold).setScale(0, BigDecimal.ROUND_CEILING).toString(),
+                new BigDecimal(priceThreshold).setScale(0, BigDecimal.ROUND_FLOOR).toString(),
                 pair
         ));
 

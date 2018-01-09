@@ -54,8 +54,8 @@
     <string name="portfolio_coin_amount">Amount</string>
     <string name="portfolio_coin_buy_price">Buy price</string>
     <string name="portfolio_coin_current_value">Current value</string>
-    <string name="portfolio_coin_total_coast">Total coast</string>
-    <string name="portfolio_coin_acqusition_coast">Acqusition coast</string>
+    <string name="portfolio_coin_total_cost">Total cost</string>
+    <string name="portfolio_coin_acqusition_cost">Acqusition cost</string>
     <string name="portfolio_coin_24h_change">24h change</string>
 
     <string name="transaction_amount_error">You can\'t sell more of a position than you own</string>
