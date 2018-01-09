@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -237,13 +238,24 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
                 });
 
         // Amount
+        mAmountView.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus && mAmountView.getText().toString().equals("0.00")) {
+                mAmountView.setText(null);
+            }
+            if(!hasFocus && mAmountView.getText().length() == 0) {
+                mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
+            }
+        });
+
         RxTextView.textChanges(mAmountView)
                 .debounce(100, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(amount -> {
                     double amountDouble = 0;
                     try{
-                        amountDouble = Double.parseDouble(amount.toString());
+                        if(amount.length() > 0) {
+                            amountDouble = Double.parseDouble(amount.toString());
+                        }
                         // Нельзя продать монет больше, чем их в портфеле
                         if(mAmountMax > 0 && amountDouble > mAmountMax) {
                             mAmountView.setError(getString(R.string.transaction_amount_error));
@@ -325,6 +337,7 @@ public class CreateTransactionActivity extends BaseActivity implements LoaderMan
                                 descriptionLength < MAX_DESCRIPTION_LENGTH)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(res -> {
+                    Log.d("DEBUG_INFO", "Combine validators");
                     mAddTransactionButton.setEnabled(res);
                 })
         );
