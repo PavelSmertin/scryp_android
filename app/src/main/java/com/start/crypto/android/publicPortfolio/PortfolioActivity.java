@@ -10,9 +10,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.start.crypto.android.BaseActivity;
+import com.start.crypto.android.CreateTransactionActivity;
 import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
+import com.start.crypto.android.api.model.PortfolioCoin;
+import com.start.crypto.android.utils.KeyboardHelper;
+
+import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -102,6 +108,7 @@ public class PortfolioActivity extends BaseActivity {
                         .subscribe(
                                 response -> {
                                     mAdapter.update(response.getPortfolioCoins());
+                                    calculatePortfolioValues(response.getPortfolioCoins());
                                 },
                                 error -> {
                                     Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -109,5 +116,60 @@ public class PortfolioActivity extends BaseActivity {
                         )
         );
     }
+
+
+    private void calculatePortfolioValues(List<PortfolioCoin> portfolioCoins) {
+
+        double valueAll = 0;
+        double value24h = 0;
+        double valueHoldings = 0;
+
+        for (PortfolioCoin portfolioCoin : portfolioCoins) {
+            double original = portfolioCoin.getOriginal();
+            double priceOriginal = portfolioCoin.getPriceOriginal();
+            double priceNow = portfolioCoin.getPriceNow();
+            double price24h = portfolioCoin.getPrice24h();
+
+            valueAll += original * priceOriginal;
+            value24h += original * price24h;
+            valueHoldings += original * priceNow;
+        }
+
+        if (Double.isInfinite(valueHoldings)) {
+            return;
+        }
+
+        double profit24h = valueHoldings - value24h;
+        double profitAll = valueHoldings - valueAll;
+
+        double profit24hPercent = 0;
+        double profitAllPercent = 0;
+        if(valueHoldings > 0) {
+            profit24hPercent = (valueHoldings - value24h) * 100 / valueHoldings;
+            profitAllPercent = (valueHoldings - valueAll) * 100 / valueHoldings;
+        }
+
+
+        mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
+        mPortfolioCurrentValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioProfit24h.setText(KeyboardHelper.cut(profit24h));
+        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", CreateTransactionActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
+        mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
+        mPortfolioOriginalValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioProfitAll.setText(KeyboardHelper.cut(profitAll));
+        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", CreateTransactionActivity.DEFAULT_SYMBOL, profitAllPercent));
+
+        if (profit24h < 0) {
+            mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));
+            mPortfolioProfit24hUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
+        }
+
+        if (profitAll < 0) {
+            mPortfolioProfitAll.setTextColor(getResources().getColor(R.color.colorDownValue));
+            mPortfolioProfitAllUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
+        }
+
+    }
+
 
 }

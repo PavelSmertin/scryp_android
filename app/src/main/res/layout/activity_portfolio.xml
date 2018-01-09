@@ -19,7 +19,7 @@
         <android.support.design.widget.AppBarLayout
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="234dp"
             android:theme="@style/AppTheme.AppBarOverlay"
             >
             <android.support.design.widget.CollapsingToolbarLayout
@@ -31,12 +31,12 @@
                 app:contentScrim="?attr/colorPrimaryDark"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-
-
                 <android.support.constraint.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/activity_horizontal_margin"
+                    android:paddingStart="@dimen/activity_horizontal_margin"
+                    android:paddingEnd="@dimen/activity_horizontal_margin"
+                    android:paddingBottom="@dimen/activity_horizontal_margin"
                     app:layout_collapseMode="parallax"
                     android:layout_gravity="bottom"
                     android:background="@color/colorPrimaryDark"
@@ -290,19 +290,13 @@
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            >
             <android.support.v7.widget.RecyclerView
                     android:id="@+id/coins_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
                 />
-        </android.support.v4.widget.SwipeRefreshLayout>
 
 
 
