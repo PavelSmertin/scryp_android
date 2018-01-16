@@ -20,17 +20,15 @@ import java.util.Locale;
 class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
     private TextView coinOriginalView;
-    private TextView coinOriginalBalanceView;
 
-    private TextView         coinExchangeView;
     private TextView         coinSymbolView;
     private TextView         coinPriceView;
     private TextView         coinProfitView;
     private TextView         coinHoldingsView;
+    private TextView         coinProfitValueView;
     private SwipeLayout      swipeLayout;
     private View             bottomWraper;
-    private Button           buyButton;
-    private Button           sellButton;
+    private Button           changeButton;
     private ConstraintLayout mListRow;
 
     private double mOriginal;
@@ -40,18 +38,16 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
     public PortfolioCoinsListViewHolder(View itemView) {
         super(itemView);
-        coinExchangeView        = itemView.findViewById(R.id.coin_exchange);
         coinSymbolView          = itemView.findViewById(R.id.coin_symbol);
         coinOriginalView        = itemView.findViewById(R.id.coin_original);
-        coinOriginalBalanceView = itemView.findViewById(R.id.coin_original_balance);
         coinPriceView           = itemView.findViewById(R.id.coin_price);
         coinProfitView          = itemView.findViewById(R.id.coin_profit);
         coinHoldingsView        = itemView.findViewById(R.id.coin_holdings);
+        coinProfitValueView        = itemView.findViewById(R.id.coin_profit_value);
         swipeLayout             = itemView.findViewById(R.id.swipe_layout);
         bottomWraper            = itemView.findViewById(R.id.bottom_wrapper);
-        buyButton               = itemView.findViewById(R.id.buy);
-        sellButton              = itemView.findViewById(R.id.sell);
-        mListRow                = itemView.findViewById(R.id.conversation_list_row);
+        changeButton            = itemView.findViewById(R.id.change);
+        mListRow                = itemView.findViewById(R.id.coins_list_row);
 
     }
 
@@ -65,48 +61,55 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         mPortfolioId = data.getLong(columnsMap.mColumnPortfolioId);
         mPortfolioCoinId = data.getLong(columnsMap.mColumnId);
         mOriginal = data.getDouble(columnsMap.mColumnOriginal);
-        double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
         double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
         double price24h = data.getDouble(columnsMap.mColumnPrice24h);
+        double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
 
         double profit24h = mOriginal * (priceNow - price24h);
         double coinHolding = mOriginal * priceNow;
 
-        coinExchangeView.setText(data.getString(columnsExchangesMap.mColumnName));
         coinSymbolView.setText(data.getString(columnsCoinsMap.mColumnSymbol));
-        String originalBalance = KeyboardHelper.cut(data.getDouble(columnsMap.mColumnOriginal) * data.getDouble(columnsMap.mColumnPriceOriginal));
 
         double priceDelta = 0;
         if(priceNow > 0) {
             priceDelta = (priceNow - price24h) * 100 / priceNow;
         }
 
-        coinOriginalView.setText(String.format(Locale.US, "%s @ %s %s",
-                KeyboardHelper.cut(mOriginal),
-                originalBalance,
-                CreateTransactionActivity.DEFAULT_SYMBOL
+        double deltaAll = 0;
+        if(priceNow > 0) {
+            deltaAll = (priceNow - priceOriginal) * 100 / priceNow;
+        }
+
+        coinOriginalView.setText(String.format(Locale.US, "Total %s %s",
+                KeyboardHelper.cut(coinHolding),
+                TransactionAddActivity.DEFAULT_SYMBOL
         ));
 
-        coinPriceView.setText(String.format(Locale.US, "%s(%.2f%%)",
-                KeyboardHelper.format(data.getDouble(columnsMap.mColumnPriceNow)),
-                priceDelta
+        coinPriceView.setText(String.format(Locale.US, "%s",
+                KeyboardHelper.format(priceNow)
         ));
+        if(priceNow < 0) {
+            coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        }
 
         if(Double.isInfinite(profit24h)) {
             return;
         }
 
-        coinProfitView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(profit24h), CreateTransactionActivity.DEFAULT_SYMBOL));
-        if(profit24h < 0) {
+        coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(deltaAll)));
+        if(deltaAll < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
-        coinHoldingsView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(coinHolding), CreateTransactionActivity.DEFAULT_SYMBOL));
+        coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDelta));
+
+        double deltaValueAll = 0;
+        if(priceNow > 0) {
+            deltaValueAll = (priceNow - priceOriginal) * mOriginal;
+        }
+        coinProfitValueView.setText(String.format(Locale.US, "%s", KeyboardHelper.cut(deltaValueAll)));
 
         long portfolioCoinId    = data.getLong(columnsMap.mColumnId);
-        long coinId             = data.getLong(columnsMap.mColumnCoinId);
-        String coinSymbol       = data.getString(columnsCoinsMap.mColumnSymbol);
-        long correspondId       = data.getLong(columnsMap.mColumnCoinId);
 
 //        RxView.clicks(addNOtificationButton).subscribe(el -> NotificationFormActivity.startActivity(
 //                        context,
@@ -119,16 +122,6 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         mListRow.setOnClickListener(view -> {
             if(swipeLayout.getOpenStatus() == SwipeLayout.Status.Close){
-//                PortfolioCoinActivity.start(
-//                        context,
-//                        portfolioCoinId,
-//                        coinSymbol,
-//                        priceNow,
-//                        mOriginal,
-//                        priceOriginal,
-//                        profit24h
-//
-//                );
                 PortfolioCoinActivity.start(
                         context,
                         portfolioCoinId
@@ -174,30 +167,12 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
             }
         });
 
-        RxView.clicks(buyButton).subscribe(el -> CreateTransactionActivity.start(
+        RxView.clicks(changeButton).subscribe(el -> TransactionBuySellActivity.start(
                 context,
                 mPortfolioId,
                 mPortfolioCoinId,
-                coinId,
-                coinSymbol,
-                data.getLong(columnsMap.mColumnExchangeId),
-                TransactionType.BUY)
+                data.getLong(columnsMap.mColumnExchangeId))
         );
-
-        if(mOriginal <=0 ) {
-            sellButton.setEnabled(false);
-        } else {
-            sellButton.setEnabled(true);
-            RxView.clicks(sellButton).subscribe(el -> CreateTransactionActivity.start(
-                    context,
-                    mPortfolioId,
-                    mPortfolioCoinId,
-                    coinId,
-                    coinSymbol,
-                    data.getLong(columnsMap.mColumnExchangeId),
-                    TransactionType.SELL)
-            );
-        }
 
     }
 

@@ -22,7 +22,7 @@ public class NotificationsActivity extends BaseActivity implements LoaderManager
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_notifications);
+        setContentView(R.layout.notification_activity);
     }
 
     @Override

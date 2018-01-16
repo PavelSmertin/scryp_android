@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    >
+
+    <TextView
+        android:id="@+id/currentey_select_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/pair"
+
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <FrameLayout
+        android:id="@+id/coin_block"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/delimiter"
+        app:layout_constraintTop_toBottomOf="@id/currentey_select_label"
+        >
+
+        <EditText
+            android:id="@+id/coin_complete"
+            style="@style/AppEditTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:imeOptions="actionSearch"
+            android:inputType="textFilter|textNoSuggestions"
+            android:lines="1"
+            android:maxLines="1"
+            android:transitionName="@string/transition_autocomplete_coin"
+            tools:ignore="RtlSymmetry"
+            />
+
+        <ImageView
+            android:id="@+id/clear_coin_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginBottom="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/all_clear_text"
+            android:padding="6dp"
+            android:transitionName="@string/transition_autocomplete_clear"
+            app:srcCompat="@drawable/ic_expand_more_white_24"
+            />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/delimiter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:text="/"
+        android:textSize="24dp"
+
+        app:layout_constraintBottom_toBottomOf="@id/coin_block"
+        app:layout_constraintLeft_toRightOf="@id/coin_block"
+        app:layout_constraintRight_toLeftOf="@+id/currentey_block"
+        />
+
+    <FrameLayout
+        android:id="@+id/currentey_block"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+
+        app:layout_constraintBottom_toBottomOf="@id/coin_block"
+        app:layout_constraintLeft_toRightOf="@id/delimiter"
+        app:layout_constraintRight_toRightOf="parent"
+        >
+
+        <EditText
+            android:id="@+id/currentey_complete"
+            style="@style/AppEditTextStyle"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:imeOptions="actionSearch"
+            android:inputType="textFilter|textNoSuggestions"
+            android:lines="1"
+            android:maxLines="1"
+            android:transitionName="@string/transition_autocomplete_coin"
+            tools:ignore="RtlSymmetry" />
+
+        <ImageView
+            android:id="@+id/clear_currentey_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginBottom="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/all_clear_text"
+            android:padding="6dp"
+            android:transitionName="@string/transition_autocomplete_clear"
+            app:srcCompat="@drawable/ic_expand_more_white_24"
+            />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/amount_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:labelFor="@+id/amount"
+        android:text="@string/amount"
+
+        app:layout_constraintTop_toBottomOf="@id/currentey_block"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+
+    <EditText
+        android:id="@+id/amount"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:inputType="numberDecimal"
+
+        app:layout_constraintLeft_toLeftOf="@id/amount_label"
+        app:layout_constraintRight_toRightOf="@id/amount_label"
+        app:layout_constraintTop_toBottomOf="@id/amount_label"
+        />
+
+
+    <Switch
+        android:id="@+id/price_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:thumb="@drawable/custom_switch_selector"
+        android:track="@drawable/custom_track"
+        android:layout_marginTop="14dp"
+        android:textAllCaps="false"
+        android:textDirection="anyRtl"
+
+        app:layout_constraintTop_toBottomOf="@id/amount"
+
+        />
+    <TextView
+        android:id="@+id/price_label"
+        android:layout_width="@dimen/toggle_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:labelFor="@+id/date"
+        android:text="@string/price_in_total"
+        android:gravity="center"
+
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/amount"
+        />
+    <TextView
+        android:id="@+id/price_per_coin_label"
+        android:layout_width="@dimen/toggle_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:labelFor="@+id/date"
+        android:text="@string/price_per_coin"
+        android:gravity="center"
+
+        app:layout_constraintLeft_toRightOf="@+id/price_label"
+        app:layout_constraintTop_toBottomOf="@id/amount"
+        />
+
+
+
+    <EditText
+        android:id="@+id/price"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:inputType="numberDecimal"
+        android:layout_marginTop="15dp"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/price_label"
+        />
+
+
+
+    <TextView
+        android:id="@+id/exchange_select_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:labelFor="@+id/exchange_complete"
+        android:text="@string/exchange"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/date_label"
+        app:layout_constraintTop_toBottomOf="@id/price"
+        />
+
+    <AutoCompleteTextView
+        android:id="@+id/exchange_complete"
+        style="@style/AppEditTextStyle"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:imeOptions="actionSearch"
+        android:inputType="textFilter|textNoSuggestions"
+        android:lines="1"
+        android:maxLines="1"
+        android:popupBackground="@color/colorPrimaryDark"
+        tools:ignore="RtlSymmetry"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/date"
+        app:layout_constraintTop_toBottomOf="@id/exchange_select_label"
+        />
+
+    <ImageView
+        android:id="@+id/clear_exchange_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginBottom="10dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/all_clear_text"
+        android:padding="6dp"
+        app:srcCompat="@drawable/ic_close_white_24dp"
+
+        app:layout_constraintBottom_toBottomOf="@+id/exchange_complete"
+        app:layout_constraintRight_toRightOf="@+id/exchange_complete"
+        app:layout_constraintTop_toTopOf="@+id/exchange_complete"
+        />
+
+
+    <TextView
+        android:id="@+id/date_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:labelFor="@+id/date"
+        android:text="@string/date"
+
+        app:layout_constraintLeft_toRightOf="@id/exchange_select_label"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/price"
+        />
+
+    <EditText
+        android:id="@+id/date"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:focusable="false"
+        android:inputType="date"
+
+        app:layout_constraintLeft_toRightOf="@id/exchange_complete"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/date_label"
+        />
+
+
+    <TextView
+        android:id="@+id/describtion_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:labelFor="@+id/describtion"
+        android:text="@string/description"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date"
+        />
+
+    <EditText
+        android:id="@+id/describtion"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:inputType="textMultiLine"
+
+        app:layout_constraintLeft_toLeftOf="@id/describtion_label"
+        app:layout_constraintRight_toRightOf="@id/describtion_label"
+        app:layout_constraintTop_toBottomOf="@id/describtion_label"
+        />
+
+
+</android.support.constraint.ConstraintLayout>
+
+

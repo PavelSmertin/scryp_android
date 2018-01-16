@@ -5,13 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.start.crypto.android.PortfolioCoinsHeaderViewHolder;
 import com.start.crypto.android.R;
 import com.start.crypto.android.api.model.PortfolioCoin;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<PublicPortfolioCoinsViewHolder> {
+class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
 
     List<PortfolioCoin> mPortfolioCoins = new ArrayList<>();
 
@@ -20,24 +24,47 @@ class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<PublicPortfolioCo
 
     @Override
     public int getItemCount() {
-        return mPortfolioCoins.size();
+        return mPortfolioCoins.size() + 1;
     }
 
     @Override
-    public void onBindViewHolder(PublicPortfolioCoinsViewHolder viewHolder, int position) {
-        viewHolder.bindData(viewHolder.itemView.getContext(), mPortfolioCoins.get(position));
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        if(viewHolder instanceof PublicPortfolioCoinsViewHolder) {
+            ((PublicPortfolioCoinsViewHolder)viewHolder).bindData(viewHolder.itemView.getContext(), mPortfolioCoins.get(position-1));
+        }
     }
-
-    @Override
-    public PublicPortfolioCoinsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio_coins_public, parent, false);
-        return new PublicPortfolioCoinsViewHolder(v);
-    }
-
 
     public void update(List<PortfolioCoin> portfolioCoins) {
         mPortfolioCoins = portfolioCoins;
         notifyDataSetChanged();
     }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == TYPE_HEADER) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio_coins_header, parent, false);
+            return  new PortfolioCoinsHeaderViewHolder(v);
+        }
+
+        if(viewType == TYPE_ITEM)  {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio_coins_base, parent, false);
+            return new PublicPortfolioCoinsViewHolder(v);
+        }
+        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(isPositionHeader(position)) {
+            return TYPE_HEADER;
+        }
+        return TYPE_ITEM;
+    }
+
+    private boolean isPositionHeader(int position) {
+        return position == 0;
+    }
+
+
 
 }

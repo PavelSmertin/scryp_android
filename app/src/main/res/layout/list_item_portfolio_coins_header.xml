@@ -1,0 +1,61 @@
+
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coins_list_row"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    android:background="@drawable/bottom_border_black"
+    android:paddingStart="8dp"
+    >
+
+    <android.support.constraint.Guideline
+        android:id="@+id/line_1"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.35"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/line_2"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/line_3"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/price_of_coin"
+        android:gravity="start"
+        style="@style/AppLabelStyle"
+        android:id="@+id/coin_holdings"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/line_2"
+        app:layout_constraintLeft_toLeftOf="@+id/line_1"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/portfolio_profit_all"
+        android:id="@+id/coin_profit_value"
+        style="@style/AppLabelStyle"
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/line_3"
+        app:layout_constraintLeft_toLeftOf="@+id/line_2"
+        />
+
+    </android.support.constraint.ConstraintLayout>

@@ -25,6 +25,8 @@
     <string name="title_settings">Pie</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_transaction">Add transaction</string>
+    <string name="title_activity_buy_sell_transaction">Buy/Sell coin</string>
+    <string name="title_activity_edit_transaction">Edit coin</string>
     <string name="title_activity_autocomplete">Choose coin</string>
     <string name="title_activity_pie">Portfolio pie</string>
     <string name="coin">Coin</string>
@@ -32,9 +34,12 @@
     <string name="type_of_transaction">Type of transaction</string>
     <string name="pair">Pair</string>
     <string name="price_of_coin">Price</string>
+    <string name="price_in_total">Price total</string>
+    <string name="price_per_coin">Per coin</string>
     <string name="amount">Amount</string>
     <string name="description">Description</string>
-    <string name="date">Date of transaction</string>
+    <string name="date">Trade data</string>
+    <string name="total">Total</string>
     <string name="buy">Buy</string>
     <string name="sell">Sell</string>
     <string name="correct">Correct</string>
@@ -45,6 +50,7 @@
 
     <string name="portfolio_profit_24h">Profit 24h</string>
     <string name="portfolio_profit_7d">Profit 7d</string>
+    <string name="portfolio_profit_all">Profit</string>
 
     <string name="portfolio_coin_buy">Buy</string>
     <string name="portfolio_coin_sell">Sell</string>
@@ -58,7 +64,7 @@
     <string name="portfolio_coin_acqusition_cost">Acqusition cost</string>
     <string name="portfolio_coin_24h_change">24h change</string>
 
-    <string name="transaction_amount_error">You can\'t sell more of a position than you own</string>
+    <string name="transaction_amount_error">You can\'t sell more of a position than %f</string>
     <string name="transaction_amount_error_parse">Amount is not correct</string>
     <string name="transaction_description_error">Descriptions length restricted by 160 characters</string>
     <string name="transition_autocomplete_coin">TRANSITION:AUTOCOMLETE_COIN</string>

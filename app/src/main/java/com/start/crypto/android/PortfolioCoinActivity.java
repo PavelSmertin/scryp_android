@@ -117,13 +117,13 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
             setTitle(mCoinSymbol);
 
             mAllTimeProfitView.setText(String.format(Locale.US, "%s", KeyboardHelper.format(original * (priceNow - priceOriginal))));
-            mSymbolAllTimeProfitView .setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+            mSymbolAllTimeProfitView .setText(TransactionAddActivity.DEFAULT_SYMBOL);
             mAmountView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(original), mCoinSymbol));
-            mBuyPriceView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), CreateTransactionActivity.DEFAULT_SYMBOL));
-            mCurrentView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow), CreateTransactionActivity.DEFAULT_SYMBOL));
-            mTotalCostView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow * original), CreateTransactionActivity.DEFAULT_SYMBOL));
-            mAcqusitionCoastView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal * original), CreateTransactionActivity.DEFAULT_SYMBOL));
-            m24hChangeView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(profit24h), CreateTransactionActivity.DEFAULT_SYMBOL));
+            mBuyPriceView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), TransactionAddActivity.DEFAULT_SYMBOL));
+            mCurrentView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow), TransactionAddActivity.DEFAULT_SYMBOL));
+            mTotalCostView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceNow * original), TransactionAddActivity.DEFAULT_SYMBOL));
+            mAcqusitionCoastView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal * original), TransactionAddActivity.DEFAULT_SYMBOL));
+            m24hChangeView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(profit24h), TransactionAddActivity.DEFAULT_SYMBOL));
 
             return;
         }
@@ -181,14 +181,11 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.portfolio_coin_edit:
-                CreateTransactionActivity.start(
+                TransactionEditActivity.start(
                         this,
                         mPortfolioId,
                         argPortfolioCoinId,
-                        mCoinId,
-                        mCoinSymbol,
-                        mExchangeId,
-                        TransactionType.EDIT);
+                        mExchangeId);
                 return true;
             case R.id.portfolio_coin_remove:
                 getContentResolver().delete(

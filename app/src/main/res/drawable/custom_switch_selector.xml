@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:dither="true" android:shape="rectangle" android:useLevel="false" android:visible="true">
+            <solid android:color="@color/button_primary_disabled"/>
+            <size android:width="@dimen/toggle_width" android:height="@dimen/toggle_height" />
+        </shape>
+    </item>
+</selector>

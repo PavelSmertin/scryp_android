@@ -40,7 +40,7 @@ public class NotificationFormActivity extends BaseActivity {
     
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_notification_form);
+        setContentView(R.layout.notification_activity_form);
     }
 
     @Override

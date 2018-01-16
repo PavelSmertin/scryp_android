@@ -56,4 +56,8 @@
     </style>
 
 
+    <style name="AppRedButton" parent="AppButton">
+        <item name="android:background">@drawable/button_coin_sell</item>
+    </style>
+
 </resources>

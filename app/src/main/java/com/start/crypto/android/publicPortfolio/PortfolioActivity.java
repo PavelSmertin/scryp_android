@@ -10,8 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.start.crypto.android.BaseActivity;
-import com.start.crypto.android.CreateTransactionActivity;
 import com.start.crypto.android.R;
+import com.start.crypto.android.TransactionAddActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.model.PortfolioCoin;
@@ -151,13 +151,13 @@ public class PortfolioActivity extends BaseActivity {
 
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
-        mPortfolioCurrentValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
         mPortfolioProfit24h.setText(KeyboardHelper.cut(profit24h));
-        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", CreateTransactionActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
+        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", TransactionAddActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
         mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
-        mPortfolioOriginalValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
         mPortfolioProfitAll.setText(KeyboardHelper.cut(profitAll));
-        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", CreateTransactionActivity.DEFAULT_SYMBOL, profitAllPercent));
+        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL, profitAllPercent));
 
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));

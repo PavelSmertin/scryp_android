@@ -44,6 +44,26 @@ public class PortfolioCoin {
 
     private String symbol;
 
+    public PortfolioCoin(long portfolioId, long coinId, long exchangeId) {
+        this.portfolioId = portfolioId;
+        this.coinId = coinId;
+        this.exchangeId = exchangeId;
+    }
+
+    public PortfolioCoin(long portfolioId, long coinId, long exchangeId, double original) {
+        this.portfolioId = portfolioId;
+        this.coinId = coinId;
+        this.exchangeId = exchangeId;
+        this.original = original;
+    }
+
+    public PortfolioCoin(long portfolioId, long coinId, long exchangeId, double original, double priceOriginal) {
+        this.portfolioId = portfolioId;
+        this.coinId = coinId;
+        this.exchangeId = exchangeId;
+        this.original = original;
+        this.priceOriginal = priceOriginal;
+    }
 
     public long getId() {
         return id;
@@ -75,6 +95,10 @@ public class PortfolioCoin {
 
     public double getPriceOriginal() {
         return priceOriginal;
+    }
+
+    public double getTotalOriginal() {
+        return original * priceOriginal;
     }
 
     public double getPrice24h() {

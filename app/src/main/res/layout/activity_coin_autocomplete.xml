@@ -4,15 +4,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.start.crypto.android.AutocompleteActivity"
+    tools:context="com.start.crypto.android.CoinAutocompleteActivity"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin"
+
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     >
 
-    <AutoCompleteTextView
+    <EditText
         android:id="@+id/coin_select"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -22,12 +25,16 @@
         android:lines="1"
         android:maxLines="1"
         tools:ignore="RtlSymmetry"
+        android:inputType="textFilter"
+        android:transitionName="@string/transition_autocomplete_coin"
 
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/add_transaction"
+
         app:layout_constraintVertical_chainStyle="spread_inside"
+        app:layout_constraintVertical_bias="0"
         />
 
     <ImageView
@@ -39,6 +46,8 @@
         android:contentDescription="@string/all_clear_text"
         android:padding="6dp"
         app:srcCompat="@drawable/ic_close_white_24dp"
+        android:transitionName="@string/transition_autocomplete_clear"
+
 
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/coin_select"
@@ -46,20 +55,20 @@
         android:layout_marginBottom="10dp"
         />
 
-    <Button
-        android:id="@+id/add_transaction"
+    <android.support.v7.widget.RecyclerView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="@string/all_next"
-        style="@style/AppButton"
-        android:enabled="false"
+        android:layout_height="0dp"
 
+        android:id="@+id/items"
         app:layout_constraintTop_toBottomOf="@+id/coin_select"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        />
+        >
+
+    </android.support.v7.widget.RecyclerView>
+
+
 
 </android.support.constraint.ConstraintLayout>
 

@@ -5,8 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import com.start.crypto.android.CreateTransactionActivity;
 import com.start.crypto.android.R;
+import com.start.crypto.android.TransactionAddActivity;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.utils.KeyboardHelper;
 
@@ -15,29 +15,26 @@ import java.util.Locale;
 class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
     private TextView coinOriginalView;
-    private TextView coinOriginalBalanceView;
 
-    private TextView         coinExchangeView;
     private TextView         coinSymbolView;
     private TextView         coinPriceView;
     private TextView         coinProfitView;
     private TextView         coinHoldingsView;
-
+    private TextView         coinProfitValueView;
 
     public PublicPortfolioCoinsViewHolder(View itemView) {
         super(itemView);
-        coinExchangeView        = itemView.findViewById(R.id.coin_exchange);
         coinSymbolView          = itemView.findViewById(R.id.coin_symbol);
         coinOriginalView        = itemView.findViewById(R.id.coin_original);
-        coinOriginalBalanceView = itemView.findViewById(R.id.coin_original_balance);
         coinPriceView           = itemView.findViewById(R.id.coin_price);
         coinProfitView          = itemView.findViewById(R.id.coin_profit);
         coinHoldingsView        = itemView.findViewById(R.id.coin_holdings);
+        coinProfitValueView     = itemView.findViewById(R.id.coin_profit_value);
     }
 
     public void bindData(Context context, PortfolioCoin portfolioCoin) {
 
-        double original = portfolioCoin.getOriginal();
+        double original         = portfolioCoin.getOriginal();
         double priceOriginal    = portfolioCoin.getPriceOriginal();
         double priceNow         = portfolioCoin.getPriceNow();
         double price24h         = portfolioCoin.getPrice24h();
@@ -48,36 +45,43 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         double profit24h = original * (priceNow - price24h);
         double coinHolding = original * priceNow;
 
-        coinExchangeView.setText(exchangeName);
         coinSymbolView.setText(coinSymbol);
-        String originalBalance = KeyboardHelper.cut(original * priceOriginal);
 
         double priceDelta = 0;
         if(priceNow > 0) {
             priceDelta = (priceNow - price24h) * 100 / priceNow;
         }
 
-        coinOriginalView.setText(String.format(Locale.US, "%s @ %s %s",
-                KeyboardHelper.cut(original),
-                originalBalance,
-                CreateTransactionActivity.DEFAULT_SYMBOL
+        double priceDeltaAll = 0;
+        if(priceNow > 0) {
+            priceDeltaAll = (priceNow - priceOriginal) * 100 / priceNow;
+        }
+
+        coinOriginalView.setText(String.format(Locale.US, "Total %s %s",
+                KeyboardHelper.cut(coinHolding),
+                TransactionAddActivity.DEFAULT_SYMBOL
         ));
 
-        coinPriceView.setText(String.format(Locale.US, "%s(%.2f%%)",
-                KeyboardHelper.format(priceNow),
-                priceDelta
+        coinPriceView.setText(String.format(Locale.US, "%s",
+                KeyboardHelper.format(priceNow)
         ));
 
         if(Double.isInfinite(profit24h)) {
             return;
         }
 
-        coinProfitView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(profit24h), CreateTransactionActivity.DEFAULT_SYMBOL));
-        if(profit24h < 0) {
+        coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(priceDeltaAll)));
+        if(priceDeltaAll < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
-        coinHoldingsView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.cut(coinHolding), CreateTransactionActivity.DEFAULT_SYMBOL));
+        coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDelta));
+
+        double deltaValueAll = 0;
+        if(priceNow > 0) {
+            deltaValueAll = (priceNow - priceOriginal) * original;
+        }
+        coinProfitValueView.setText(String.format(Locale.US, "%s", KeyboardHelper.cut(deltaValueAll)));
 
     }
 

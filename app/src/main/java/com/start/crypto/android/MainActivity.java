@@ -45,7 +45,6 @@ import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
-import com.start.crypto.android.api.model.Coin;
 import com.start.crypto.android.api.model.CoinResponse;
 import com.start.crypto.android.api.model.CoinsResponse;
 import com.start.crypto.android.data.ColumnsCoin;
@@ -208,7 +207,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         getSupportLoaderManager().initLoader(0, null, this);
 
-        RxView.clicks(addTransactionView).subscribe(success -> AutocompleteListActivity.start(this));
+        RxView.clicks(addTransactionView).subscribe(success -> TransactionAddActivity.start(this, selectPortfolioId()));
         RxView.clicks(preInsertView).subscribe(success ->
 //                {
 //                    mSwipeRefresh.setRefreshing(true);
@@ -224,28 +223,6 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         if(PreferencesHelper.getInstance().getLogin() != null) {
             preInsertView.setVisibility(View.GONE);
-        }
-
-
-        Cursor cursor = getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
-
-        if(cursor != null) {
-            if(cursor.getCount() == 0) {
-                importDB();
-            }
-            cursor.close();
-        }
-
-        cursor = getContentResolver().query(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null, null, null);
-        if(cursor != null) {
-            if(cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios._ID);
-                mPortfolioId = cursor.getLong(itemColumnIndex);
-            } else {
-                throw new IllegalStateException("illegal portfolio id");
-            }
-            cursor.close();
         }
 
         mNavigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -355,6 +332,35 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     }
 
+    private long selectPortfolioId() {
+
+        long portfolioId = -1;
+
+        Cursor cursor = getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
+
+        if(cursor != null) {
+            if(cursor.getCount() == 0) {
+                importDB();
+            }
+            cursor.close();
+        }
+
+        cursor = getContentResolver().query(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null, null, null);
+        if(cursor != null) {
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios._ID);
+                portfolioId = cursor.getLong(itemColumnIndex);
+            }
+            cursor.close();
+            if(portfolioId > 0) {
+                return portfolioId;
+            }
+
+        }
+        throw new IllegalStateException("illegal portfolio id");
+    }
+
 
     @Override
     protected void onResume() {
@@ -443,13 +449,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
-        mPortfolioCurrentValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
         mPortfolioProfit24h.setText(KeyboardHelper.cut(profit24h));
-        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", CreateTransactionActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
+        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", TransactionAddActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
         mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
-        mPortfolioOriginalValueUnit.setText(CreateTransactionActivity.DEFAULT_SYMBOL);
+        mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
         mPortfolioProfitAll.setText(KeyboardHelper.cut(profitAll));
-        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", CreateTransactionActivity.DEFAULT_SYMBOL, profitAllPercent));
+        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL, profitAllPercent));
 
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));
@@ -526,7 +532,7 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         // Exchanges
         ContentValues values = new ContentValues(1);
-        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, CreateTransactionActivity.DEFAULT_EXCHANGE);
+        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, TransactionAddActivity.DEFAULT_EXCHANGE);
         getContentResolver().insert(CryptoContract.CryptoExchanges.CONTENT_URI, values);
 
         Resources res = getResources();
@@ -577,20 +583,10 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         refreshPrices();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if(requestCode == AutocompleteListActivity.REQUEST_COIN && resultCode == RESULT_OK) {
-            Coin coin = data.getParcelableExtra(AutocompleteListActivity.EXTRA_COIN);
-            CreateTransactionActivity.start(this, mPortfolioId, coin.getId(), coin.getSymbol());
-        }
-    }
-
     private void refreshPrices() {
 
 
-        RestClientMinApi.INSTANCE.getClient().prices(CreateTransactionActivity.DEFAULT_SYMBOL, implode(mCoins), null)
+        RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
 
                 .subscribeOn(Schedulers.io())
@@ -610,13 +606,13 @@ public class MainActivity extends BaseActivity implements LoaderManager.LoaderCa
         cal.add(Calendar.DAY_OF_YEAR, -1);
 
 
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(CreateTransactionActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
-                            write24hPrices(response.get(CreateTransactionActivity.DEFAULT_SYMBOL));
+                            write24hPrices(response.get(TransactionAddActivity.DEFAULT_SYMBOL));
                             mSwipeRefresh.setRefreshing(false);
                         },
                         error -> {

@@ -14,7 +14,7 @@ class TransactionsListAdapter extends CursorRecyclerViewAdapter<TransactionsList
 
     @Override
     public TransactionsListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_transactions, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.transaction_list_item, parent, false);
         return new TransactionsListViewHolder(v);
     }
 

@@ -26,11 +26,12 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
 
 
-public class AutocompleteListActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CoinAutocompleteActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_COIN = "coin";
 
-    public static final int REQUEST_COIN = 100;
+    public static final int REQUEST_COIN        = 100;
+    public static final int REQUEST_CURRENTEY   = 101;
 
     private static final long DELAY_IN_MILLIS = 500;
     public static final int MIN_LENGTH_TO_START = 1;
@@ -46,13 +47,13 @@ public class AutocompleteListActivity extends BaseActivity implements LoaderMana
     PublishSubject<Coin> mCoinPlusSubject = PublishSubject.create();
 
 
-    public static void start(Activity activity) {
-        Intent intent = new Intent(activity, AutocompleteListActivity.class);
-        activity.startActivityForResult(intent, REQUEST_COIN);
+    public static void start(Activity activity, int request) {
+        Intent intent = new Intent(activity, CoinAutocompleteActivity.class);
+        activity.startActivityForResult(intent, request);
     }
-    public static void start(Activity activity, ActivityOptions options) {
-        Intent intent = new Intent(activity, AutocompleteListActivity.class);
-        activity.startActivityForResult(intent, REQUEST_COIN, options.toBundle());
+    public static void start(Activity activity, ActivityOptions options, int request) {
+        Intent intent = new Intent(activity, CoinAutocompleteActivity.class);
+        activity.startActivityForResult(intent, request, options.toBundle());
     }
 
 
@@ -60,7 +61,7 @@ public class AutocompleteListActivity extends BaseActivity implements LoaderMana
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_autocomplete_list);
+        setContentView(R.layout.activity_coin_autocomplete);
     }
 
     @Override

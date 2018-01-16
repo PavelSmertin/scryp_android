@@ -40,14 +40,16 @@
             android:value="4d97e2d44e4bae844d86c4d8ab033d9347b8d054" />
 
         <activity
-            android:name=".CreateTransactionActivity"
+            android:name=".TransactionAddActivity"
             android:label="@string/title_activity_transaction" />
         <activity
-            android:name=".AutocompleteActivity"
-            android:label="@string/title_activity_autocomplete"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:name=".TransactionBuySellActivity"
+            android:label="@string/title_activity_buy_sell_transaction" />
         <activity
-            android:name=".AutocompleteListActivity"
+            android:name=".TransactionEditActivity"
+            android:label="@string/title_activity_edit_transaction" />
+        <activity
+            android:name=".CoinAutocompleteActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/title_activity_autocomplete"
         />
