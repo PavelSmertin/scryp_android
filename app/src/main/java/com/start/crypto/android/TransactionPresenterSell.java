@@ -21,7 +21,11 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
     public void updatePortfolioByTransaction(PortfolioCoin portfolioCoin, Transaction transaction) {
         mPortfolioCoin = portfolioCoin;
         mTransaction = transaction;
-        updateCoin();
+        if(getPortfolioCoinOriginal() == 0) {
+            removeCoin();
+        } else {
+            updateCoin();
+        }
         mPortfolioPairId = insertPair(new PortfolioCoin(portfolioCoin.getPortfolioId(), mTransaction.getPairId(), portfolioCoin.getExchangeId()));
         insertTransaction();
     }
@@ -43,6 +47,9 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
 
     @Override
     protected ContentValues createTransactionValues() {
+        if(mTransaction.getPairId() <= 0 || mPortfolioPairId <= 0) {
+            throw new IllegalStateException("transaction is not correct");
+        }
         ContentValues values = super.createTransactionValues();
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID, mTransaction.getPairId());
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID, mPortfolioPairId);
@@ -63,4 +70,22 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
         return selectId(uri);
     }
 
+
+    private  void removeCoin() {
+        mContentResolver.delete(
+                CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                CryptoContract.CryptoPortfolioCoins._ID + "=" + mTransaction.getPortfolioCoinId(),
+                null
+        );
+        mContentResolver.delete(
+                CryptoContract.CryptoTransactions.CONTENT_URI,
+                CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID + "=" + mTransaction.getPortfolioCoinId(),
+                null
+        );
+        mContentResolver.delete(
+                CryptoContract.CryptoNotifications.CONTENT_URI,
+                CryptoContract.CryptoNotifications.COLUMN_NAME_COIN_ID + "=" + mPortfolioCoin.getCoinId(),
+                null
+        );
+    }
 }

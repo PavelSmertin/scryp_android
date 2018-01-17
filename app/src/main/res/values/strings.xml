@@ -66,6 +66,7 @@
 
     <string name="transaction_amount_error">You can\'t sell more of a position than %f</string>
     <string name="transaction_amount_error_parse">Amount is not correct</string>
+    <string name="transaction_menu_done">Done</string>
     <string name="transaction_description_error">Descriptions length restricted by 160 characters</string>
     <string name="transition_autocomplete_coin">TRANSITION:AUTOCOMLETE_COIN</string>
     <string name="transition_autocomplete_clear">TRANSITION:AUTOCOMLETE_CLEAR</string>

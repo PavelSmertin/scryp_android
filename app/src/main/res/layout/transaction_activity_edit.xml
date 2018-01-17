@@ -11,6 +11,7 @@
     >
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/scroll_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -30,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@string/title_activity_transaction"
+            android:text="@string/title_activity_edit_transaction"
             style="@style/AppButton"
 
             app:layout_constraintTop_toBottomOf="@+id/form_create_transaction"

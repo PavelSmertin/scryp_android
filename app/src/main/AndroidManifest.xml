@@ -41,12 +41,15 @@
 
         <activity
             android:name=".TransactionAddActivity"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_transaction" />
         <activity
             android:name=".TransactionBuySellActivity"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_buy_sell_transaction" />
         <activity
             android:name=".TransactionEditActivity"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_edit_transaction" />
         <activity
             android:name=".CoinAutocompleteActivity"

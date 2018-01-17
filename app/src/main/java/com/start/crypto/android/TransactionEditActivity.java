@@ -38,20 +38,19 @@ public class TransactionEditActivity extends TransactionAddActivity {
             return;
         }
         RxView.clicks(mTransactionButton).subscribe(v -> {
-            mTransactionButton.setEnabled(false);
-
-            double price = mPrice;
-            if(!mPriceSwitch.isChecked() && mAmount > 0) {
-                price = mPrice / mAmount;
-            }
-            mPresenter.updatePortfolioByTransaction(
-                    new PortfolioCoin(argPortfolioId, mCoinId, argExchangeId, mPortfolioCoinOriginal),
-                    new Transaction(argPortfolioCoinId, mAmount, price, mDate, mDescription, mBasePrice)
-            );
-            finish();
+            createTransaction();
         });
     }
 
+    @Override
+    protected void createTransaction() {
+        mTransactionButton.setEnabled(false);
+        mPresenter.updatePortfolioByTransaction(
+                new PortfolioCoin(argPortfolioId, mCoinId, argExchangeId, mPortfolioCoinOriginal),
+                new Transaction(argPortfolioCoinId, mAmount, getPrice(), mDate, mDescription, mBasePrice)
+        );
+        finish();
+    }
 
     @Override
     protected void initLoaderManager() {
@@ -67,5 +66,10 @@ public class TransactionEditActivity extends TransactionAddActivity {
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
         mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
         mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+    }
+
+    @Override
+    protected int getScrollBottom() {
+        return mTransactionButton.getBottom();
     }
 }

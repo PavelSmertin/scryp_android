@@ -12,6 +12,10 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -56,6 +60,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     public static final String DEFAULT_EXCHANGE         = "CCCAGG";
     private static final int MAX_DESCRIPTION_LENGTH     = 160;
 
+    @BindView(R.id.scroll_container)        View mScrollContainer;
     @BindView(R.id.currentey_complete)      EditText mCurrenteyComplete;
     @BindView(R.id.clear_coin_button)       ImageView mClearCoinButton;
     @BindView(R.id.exchange_complete)       AutoCompleteTextView mExchangeComplete;
@@ -89,7 +94,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     protected long      mCurrenteyId;
 
     protected double    mAmount;
-    protected double    mPrice;
+    protected double    mPricePerCoin;
+    protected double    mPriceInTotal;
     protected double    mBasePrice = 1;
     protected long      mDate;
     protected String    mDescription;
@@ -103,6 +109,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     BehaviorSubject<Integer> mDescribtionFieldObservable    = BehaviorSubject.create();
 
     protected CompositeDisposable compositeDisposable = new CompositeDisposable();
+
+    private Menu mMenu;
 
     public static void start(Context context, long portfolioId) {
         Intent starter = new Intent(context, TransactionAddActivity.class);
@@ -144,7 +152,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         CoinAutocompleteActivity.start(this, CoinAutocompleteActivity.REQUEST_COIN);
                     }
                 });
-        mScrollView.post(() -> mScrollView.scrollTo(0, mCurrenteyComplete.getBottom()));
 
         // Coin pair (Currentey)
         mCurrenteyComplete.setFocusable(false);
@@ -161,8 +168,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         CoinAutocompleteActivity.start(this, CoinAutocompleteActivity.REQUEST_CURRENTEY);
                     }
                 });
-        mScrollView.post(() -> mScrollView.scrollTo(0, mCurrenteyComplete.getBottom()));
-
 
         // Exchange
         argExchangeId = getIntent().getLongExtra(EXTRA_EXCHANGE_ID, 0);
@@ -183,21 +188,41 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                     mExchangesFieldObservable.onNext(0L);
                 })
         );
+        compositeDisposable.add(RxView.focusChanges(mExchangeComplete)
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .subscribe(focus -> {
+                    if(focus) {
+                        if(mTransactionButton != null) {
+                            mScrollView.post(() -> mScrollView.scrollTo(0, getScrollBottom()));
+                        }
+                    }
+                })
+        );
+
 
         // Price
         RxTextView.textChanges(mPriceView)
                 .debounce(100, TimeUnit.MILLISECONDS)
                 .subscribe(price -> {
                     double priceDouble = 0;
+                    String priceWithoutSpace = price.toString().replaceAll("\\s", "");
                     try{
-                        priceDouble = Double.parseDouble(price.toString());
+                        priceDouble = Double.parseDouble(priceWithoutSpace);
                     }catch(NumberFormatException e){
                         // not double
                     } finally {
-                        mPrice = priceDouble;
+                        setPrice(priceDouble);
                         mPriceFieldObservable.onNext(priceDouble);
                     }
                 });
+
+        mPriceSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked) {
+                mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+            } else {
+                mPriceView.setText(KeyboardHelper.format(mPriceInTotal));
+            }
+        });
 
         // Amount
         mAmountView.setOnFocusChangeListener((v, hasFocus) -> {
@@ -246,9 +271,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                             myCalendar.get(Calendar.MONTH),
                             myCalendar.get(Calendar.DAY_OF_MONTH)
                     ).show();
+                    mScrollView.post(() -> mScrollView.scrollTo(0, getScrollBottom()));
                 })
         );
         updateDateOfTransaction();
+
 
         // Description
         RxTextView.textChanges(mDescribtionView)
@@ -262,6 +289,16 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                     mDescribtionFieldObservable.onNext(mDescription.length());
 
                 });
+
+        compositeDisposable.add(RxView.focusChanges(mDescribtionView)
+                .debounce(500, TimeUnit.MILLISECONDS) //fix чтобы скролл работал после появления клавиатуры
+                .subscribe(focus -> {
+                    if(focus) {
+                        mScrollView.post(() -> mScrollView.scrollTo(0, getScrollBottom()));
+                    }
+                })
+        );
+
 
         // Retrive price
         compositeDisposable.add(Observable.combineLatest(
@@ -299,34 +336,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         //
         initLoaderManager();
 
-    }
-
-
-    protected void bindActions() {
-        mPresenter = new TransactionPresenterAdd(getContentResolver());
-
-        if(mTransactionButton == null) {
-            return;
-        }
-        RxView.clicks(mTransactionButton).subscribe(v -> {
-            mTransactionButton.setEnabled(false);
-            double price = mPrice;
-            if(!mPriceSwitch.isChecked() && mAmount > 0) {
-                price = mPrice / mAmount;
-            }
-            mPresenter.updatePortfolioByTransaction(
-                    new PortfolioCoin(argPortfolioId, mCoinId, argExchangeId),
-                    new Transaction(mAmount, price, mDate, mDescription, mBasePrice)
-            );
-            finish();
-        });
-    }
-
-    protected void onValid(boolean res) {
-        if(mTransactionButton == null) {
-            return;
-        }
-        mTransactionButton.setEnabled(res);
     }
 
     @Override
@@ -412,6 +421,51 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.transaction_menu_done:
+                createTransaction();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.transaction, menu);
+        mMenu = menu;
+        return true;
+    }
+
+    protected void bindActions() {
+        mPresenter = new TransactionPresenterAdd(getContentResolver());
+
+        if(mTransactionButton == null) {
+            return;
+        }
+        RxView.clicks(mTransactionButton).subscribe(v -> {
+            createTransaction();
+        });
+    }
+
+    protected void createTransaction() {
+        mTransactionButton.setEnabled(false);
+        mPresenter.updatePortfolioByTransaction(
+                new PortfolioCoin(argPortfolioId, mCoinId, argExchangeId),
+                new Transaction(mAmount, getPrice(), mDate, mDescription, mBasePrice)
+        );
+        finish();
+    }
+
+    protected void onValid(boolean res) {
+        if(mTransactionButton == null) {
+            return;
+        }
+        mTransactionButton.setEnabled(res);
+        mMenu.findItem(R.id.transaction_menu_done).setEnabled(res);
+    }
+
     protected boolean validate(long exchange, long coin, long pair, long dateInMillis, double price, double amount, int descriptionLength) {
         return exchange > 0 &&
                 coin > 0 &&
@@ -436,7 +490,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 null
         );
     }
-
     private Loader<Cursor> getCoinsLoader() {
         return new CursorLoader(
                 this,
@@ -476,6 +529,14 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         mCoinFieldObservable.onNext(coin.getId());
     }
 
+    protected double getPrice() {
+        double price = mPricePerCoin;
+        if (!mPriceSwitch.isChecked() && mAmount > 0) {
+            price = mPriceInTotal / mAmount;
+        }
+        return price;
+    }
+
     private void setPair(Coin coin) {
         mCurrenteyId = coin.getId();
         mCurrenteyComplete.setText(coin.getSymbol());
@@ -505,7 +566,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                     .subscribe(
                             prices -> {
                                 stopProgressDialog();
-                                setPrice(prices);
+                                setRetrievedPrice(prices);
                             },
                             e -> {
                                 stopProgressDialog();
@@ -528,7 +589,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         response -> {
                             stopProgressDialog();
                             HashMap<String, Double> prices = response.get(mCurrenteySymbol);
-                            setPrice(prices);
+                            setRetrievedPrice(prices);
                         },
                         e -> {
                             stopProgressDialog();
@@ -538,15 +599,26 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
 
     }
 
-    private void setPrice(HashMap<String, Double> prices) {
+    private void setRetrievedPrice(HashMap<String, Double> prices) {
         if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
             mBasePrice = 1 / prices.get(DEFAULT_SYMBOL);
         }
-        if(!mPriceSwitch.isChecked()) {
-            return;
+        mPricePerCoin = 1/prices.get(mCoinSymbol);
+        if(mPriceSwitch.isChecked()) {
+            mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
         }
-        mPrice = 1/prices.get(mCoinSymbol);
-        mPriceView.setText(KeyboardHelper.format(mPrice));
     }
 
+    private void setPrice(double price) {
+        if(mPriceSwitch.isChecked()) {
+            mPricePerCoin = price;
+        } else {
+            mPriceInTotal = price;
+        }
+
+    }
+
+    protected int getScrollBottom() {
+        return mTransactionButton.getBottom();
+    }
 }

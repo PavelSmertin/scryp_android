@@ -3,6 +3,7 @@ package com.start.crypto.android;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.view.Menu;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -55,10 +56,6 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
             mBuyTransactionButton.setEnabled(false);
             mSellTransactionButton.setEnabled(false);
 
-            double price = mPrice;
-            if(!mPriceSwitch.isChecked() && mAmount > 0) {
-                price = mPrice / mAmount;
-            }
             mPresenterBuy.updatePortfolioByTransaction(
                     new PortfolioCoin(
                             argPortfolioId,
@@ -70,7 +67,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
                     new Transaction(
                             argPortfolioCoinId,
                             mAmount,
-                            price,
+                            getPrice(),
                             mDate,
                             mDescription,
                             mBasePrice
@@ -84,11 +81,6 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
             if(!(mAmount > 0 && (mAmount <= mAmountMax || mAmountMax <= 0))) {
                 Toast.makeText(getBaseContext(), String.format(Locale.US, getString(R.string.transaction_amount_error), mAmountMax), Toast.LENGTH_SHORT).show();
                 return;
-            }
-
-            double price = mPrice;
-            if(!mPriceSwitch.isChecked() && mAmount > 0) {
-                price = mPrice / mAmount;
             }
 
             mBuyTransactionButton.setEnabled(false);
@@ -105,7 +97,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
                             argPortfolioCoinId,
                             mCurrenteyId,
                             mAmount,
-                            price,
+                            getPrice(),
                             mDate,
                             mDescription,
                             mBasePrice
@@ -138,7 +130,19 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
         );
 
         mCoinComplete.setEnabled(false);
+
+        mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
+    }
+
+    @Override
+    protected int getScrollBottom() {
+        return mBuyTransactionButton.getBottom();
+    }
 }

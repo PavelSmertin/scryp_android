@@ -30,6 +30,14 @@ abstract public class TransactionPresenterBase {
     }
 
     protected ContentValues createTransactionValues() {
+        if(
+                mTransaction.getPortfolioCoinId() <= 0 ||
+                mPortfolioCoin.getCoinId() <= 0 ||
+                mPortfolioCoin.getPortfolioId() <= 0 ||
+                mPortfolioCoin.getExchangeId() <= 0
+                ){
+            throw new IllegalStateException("transaction is not correct");
+        }
         ContentValues values = new ContentValues();
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID, mTransaction.getPortfolioCoinId());
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_ID,           mPortfolioCoin.getCoinId());
