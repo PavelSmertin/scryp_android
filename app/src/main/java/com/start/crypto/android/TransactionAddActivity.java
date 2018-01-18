@@ -192,9 +192,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribe(focus -> {
                     if(focus) {
-                        if(mTransactionButton != null) {
-                            mScrollView.post(() -> mScrollView.scrollTo(0, getScrollBottom()));
-                        }
+                        mScrollView.post(() -> mScrollView.scrollTo(0, getScrollBottom()));
                     }
                 })
         );

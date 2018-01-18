@@ -22,11 +22,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+
+        >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,6 +68,7 @@
             android:name=".NotificationFormActivity"
             android:label="@string/title_activity_notification"
             android:windowSoftInputMode="stateVisible|adjustResize" />
+
         <activity
             android:name=".account.SigninActivity"
             android:label="@string/title_activity_auth"
@@ -90,7 +92,6 @@
         <activity
             android:name=".publicPortfolio.PortfolioActivity"
             android:label="@string/title_activity_portfolios"
-            android:theme="@style/AppTheme.NoActionBar"
             />
 
 

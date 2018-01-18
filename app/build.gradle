@@ -91,4 +91,12 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+
+    compile 'com.bluelinelabs:conductor:2.1.4'
+    compile 'com.bluelinelabs:conductor-rxlifecycle2:2.1.4', {
+        exclude group: 'com.android.support'
+    }
+    compile 'com.bluelinelabs:conductor-support:2.1.4'
+
 }

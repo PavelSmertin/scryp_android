@@ -22,6 +22,11 @@ public abstract class BaseActivity extends RxAppCompatActivity implements BaseVi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if(! (this instanceof MainActivity)) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         // Layout
         setupLayout();
         ButterKnife.bind(this);
@@ -33,6 +38,12 @@ public abstract class BaseActivity extends RxAppCompatActivity implements BaseVi
 //        if(mLoading != null) {
 //            setLoadingStyle();
 //        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     // Цвета анимации загрузки

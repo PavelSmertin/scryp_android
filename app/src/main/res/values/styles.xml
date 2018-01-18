@@ -26,6 +26,11 @@
         <item name="editTextStyle">@style/AppEditTextStyle</item>
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
         <item name="android:itemBackground">@drawable/item_menu_bg</item>
+        <item name="actionBarStyle">@style/ActionBar.Solid.MyAppTheme</item>
+    </style>
+
+    <style name="ActionBar.Solid.MyAppTheme" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="background">@drawable/bottom_border</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

@@ -126,5 +126,15 @@ public class PortfolioCoin {
     }
 
 
+    public void setPriceNow(double priceNow) {
+        this.priceNow = priceNow;
+    }
 
+    public void setPrice24h(double price24h) {
+        this.price24h = price24h;
+    }
+
+    public void setPrice7d(double price7d) {
+        this.price7d = price7d;
+    }
 }

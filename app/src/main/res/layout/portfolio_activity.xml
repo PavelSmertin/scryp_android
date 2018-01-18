@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/coordinator_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:fitsSystemWindows="true"
+    >
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        >
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimaryDark"
+            app:layout_scrollFlags="scroll|enterAlways">
+
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/activity_horizontal_margin"
+                android:paddingEnd="@dimen/activity_horizontal_margin"
+                android:paddingBottom="@dimen/activity_horizontal_margin"
+                app:layout_collapseMode="parallax"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/bottom_border_black"
+
+                android:id="@+id/header"
+                >
+
+                <android.support.constraint.Guideline
+                    android:id="@+id/line_1"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:layout_editor_absoluteY="97dp"
+                    tools:layout_editor_absoluteX="192dp" />
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:id="@+id/user_block"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="0"
+                        android:layout_marginTop="5dp"
+                        android:id="@+id/user_logo"
+                        app:srcCompat="@drawable/ic_user_default"
+
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@+id/user_name"
+                        />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        tools:text="User Name"
+                        android:id="@+id/user_name"
+                        android:layout_marginStart="15dp"
+
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintLeft_toRightOf="@+id/user_logo"
+
+                        />
+                </android.support.constraint.ConstraintLayout>
+
+
+                <TextView
+                    android:id="@+id/holdings_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text = "Holdings"
+                    style="@style/AppLabelStyle"
+
+                    app:layout_constraintTop_toBottomOf="@+id/user_block"
+                    app:layout_constraintBottom_toTopOf="@+id/portfolio_current_value"
+                    app:layout_constraintRight_toLeftOf="@+id/line_1"
+                    app:layout_constraintVertical_chainStyle="packed"
+                    app:layout_constraintVertical_bias="1.0"
+                    />
+
+                <TextView
+                    android:id="@+id/profit_all_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text = "Profit 24h"
+                    style="@style/AppLabelStyle"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/holdings_label"
+                    app:layout_constraintRight_toRightOf="parent"
+                    />
+
+                <TextView
+                    android:id="@+id/portfolio_current_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    tools:text = "1 700 000"
+                    android:textSize="30dp"
+                    android:gravity="end"
+
+                    app:layout_constraintTop_toBottomOf="@+id/holdings_label"
+                    app:layout_constraintBottom_toTopOf="@+id/original_label"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/portfolio_current_value_unit"
+                    />
+                <TextView
+                    android:id="@+id/portfolio_current_value_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text = "USDT"
+                    android:textSize="14dp"
+                    android:gravity="end"
+                    android:textColor="@color/colorTextLabel"
+                    android:layout_marginLeft="5dp"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/portfolio_current_value"
+                    app:layout_constraintLeft_toRightOf="@+id/portfolio_current_value"
+                    app:layout_constraintRight_toLeftOf="@+id/line_1"
+                    />
+                <TextView
+                    android:id="@+id/portfolio_profit_24h"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text = "25 000"
+                    android:textSize="20dp"
+                    android:textColor="@color/colorUpValue"
+                    android:gravity="end"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/portfolio_current_value"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/portfolio_profit_24h_unit"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    />
+                <TextView
+                    android:id="@+id/portfolio_profit_24h_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text = "USD (30%)"
+                    android:textColor="@color/colorUpValue"
+                    android:gravity="end"
+                    android:layout_marginLeft="5dp"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/portfolio_current_value"
+                    app:layout_constraintLeft_toRightOf="@+id/portfolio_profit_24h"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_marginStart="5dp" />
+
+
+
+                <TextView
+                    android:id="@+id/original_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text = "Original"
+                    android:layout_marginTop="10dp"
+                    style="@style/AppLabelStyle"
+
+                    app:layout_constraintTop_toBottomOf="@+id/portfolio_current_value"
+                    app:layout_constraintBottom_toTopOf="@+id/portfolio_original_value"
+                    app:layout_constraintRight_toLeftOf="@+id/line_1"
+                    />
+                <TextView
+                    android:id="@+id/profit_24h_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text = "Profit all time"
+                    style="@style/AppLabelStyle"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/original_label"
+                    app:layout_constraintRight_toRightOf="parent"
+
+                    />
+
+                <TextView
+                    android:id="@+id/portfolio_original_value"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    tools:text = "975 000"
+                    android:textSize="20dp"
+                    android:gravity="end"
+
+                    app:layout_constraintTop_toBottomOf="@+id/original_label"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/portfolio_original_value_unit"
+                    />
+
+                <TextView
+                    android:id="@+id/portfolio_original_value_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text = "USDT"
+                    android:textSize="14dp"
+                    android:gravity="end"
+                    android:textColor="@color/colorTextLabel"
+                    android:layout_marginStart="5dp"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/portfolio_original_value"
+                    app:layout_constraintLeft_toRightOf="@+id/portfolio_original_value"
+                    app:layout_constraintRight_toLeftOf="@+id/line_1"
+                    />
+                <TextView
+                    android:id="@+id/portfolio_profit_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text = "-1 735"
+                    android:textSize="20dp"
+                    android:textColor="@color/colorUpValue"
+                    android:gravity="end"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/portfolio_original_value"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/portfolio_profit_all_unit"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    />
+                <TextView
+                    android:id="@+id/portfolio_profit_all_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text = "USD (-1.06%)"
+                    android:textColor="@color/colorUpValue"
+                    android:gravity="end"
+                    android:layout_marginLeft="5dp"
+
+                    app:layout_constraintBaseline_toBaselineOf="@+id/portfolio_original_value"
+                    app:layout_constraintLeft_toRightOf="@+id/portfolio_profit_all"
+                    app:layout_constraintRight_toRightOf="parent"
+                    android:layout_marginStart="5dp" />
+
+            </android.support.constraint.ConstraintLayout>
+
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/coins_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            />
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

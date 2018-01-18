@@ -17,13 +17,14 @@
         android:gravity="center"
         >
 
-        <Button
+        <ImageView
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:id="@+id/change"
             android:background="@drawable/button_coin_buy"
+            app:srcCompat="@drawable/ic_swap_horiz_black_24px"
             >
-        </Button>
+        </ImageView>
 
     </LinearLayout>
 

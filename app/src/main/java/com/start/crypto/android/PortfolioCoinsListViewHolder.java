@@ -5,13 +5,12 @@ import android.database.Cursor;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.start.crypto.android.data.ColumnsCoin;
-import com.start.crypto.android.data.ColumnsExchange;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.utils.KeyboardHelper;
 
@@ -28,7 +27,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
     private TextView         coinProfitValueView;
     private SwipeLayout      swipeLayout;
     private View             bottomWraper;
-    private Button           changeButton;
+    private ImageView        changeButton;
     private ConstraintLayout mListRow;
 
     private double mOriginal;
@@ -43,7 +42,7 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         coinPriceView           = itemView.findViewById(R.id.coin_price);
         coinProfitView          = itemView.findViewById(R.id.coin_profit);
         coinHoldingsView        = itemView.findViewById(R.id.coin_holdings);
-        coinProfitValueView        = itemView.findViewById(R.id.coin_profit_value);
+        coinProfitValueView     = itemView.findViewById(R.id.coin_profit_value);
         swipeLayout             = itemView.findViewById(R.id.swipe_layout);
         bottomWraper            = itemView.findViewById(R.id.bottom_wrapper);
         changeButton            = itemView.findViewById(R.id.change);
@@ -56,7 +55,6 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
 
         ColumnsPortfolioCoin.ColumnsMap columnsMap      = new ColumnsPortfolioCoin.ColumnsMap(data);
         ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(data);
-        ColumnsExchange.ColumnsMap columnsExchangesMap  = new ColumnsExchange.ColumnsMap(data);
 
         mPortfolioId = data.getLong(columnsMap.mColumnPortfolioId);
         mPortfolioCoinId = data.getLong(columnsMap.mColumnId);
@@ -88,8 +86,8 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         coinPriceView.setText(String.format(Locale.US, "%s",
                 KeyboardHelper.format(priceNow)
         ));
-        if(priceNow < 0) {
-            coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        if(profit24h < 0) {
+            coinPriceView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
         if(Double.isInfinite(profit24h)) {
@@ -130,10 +128,10 @@ class PortfolioCoinsListViewHolder extends RecyclerView.ViewHolder  {
         });
 
         //set show mode.
-        swipeLayout.setShowMode(SwipeLayout.ShowMode.PullOut);
+        swipeLayout.setShowMode(SwipeLayout.ShowMode.LayDown);
 
         //add drag edge.(If the BottomView has 'layout_gravity' attribute, this line is unnecessary)
-        swipeLayout.addDrag(SwipeLayout.DragEdge.Left, bottomWraper);
+        swipeLayout.addDrag(SwipeLayout.DragEdge.Right, bottomWraper);
 
         swipeLayout.addSwipeListener(new SwipeLayout.SwipeListener() {
             @Override

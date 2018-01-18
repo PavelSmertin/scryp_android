@@ -65,6 +65,10 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         coinPriceView.setText(String.format(Locale.US, "%s",
                 KeyboardHelper.format(priceNow)
         ));
+        if(profit24h < 0) {
+            coinPriceView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        }
+
 
         if(Double.isInfinite(profit24h)) {
             return;

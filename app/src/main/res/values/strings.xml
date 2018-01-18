@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Easy crypt</string>
+    <string name="app_name">CryptoPie</string>
     <string name="all_next">Next</string>
     <string name="all_clear_text">Clear</string>
     <string name="all_loading">Loading</string>
@@ -23,6 +23,7 @@
 
     <string name="title_home">Chart</string>
     <string name="title_settings">Pie</string>
+    <string name="title_portfolio">Portfolio</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_activity_transaction">Add transaction</string>
     <string name="title_activity_buy_sell_transaction">Buy/Sell coin</string>

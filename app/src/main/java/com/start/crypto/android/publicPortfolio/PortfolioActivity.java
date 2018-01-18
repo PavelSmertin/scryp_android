@@ -3,9 +3,9 @@ package com.start.crypto.android.publicPortfolio;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,21 +14,30 @@ import com.start.crypto.android.R;
 import com.start.crypto.android.TransactionAddActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
+import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.utils.KeyboardHelper;
+import com.trello.rxlifecycle2.android.ActivityEvent;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class PortfolioActivity extends BaseActivity {
+public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String EXTRA_USER_ID = "user_id";
     public static final String EXTRA_USER_NAME = "user_name";
+
+    @BindView(R.id.swipe_refresh)               SwipeRefreshLayout mSwipeRefresh;
 
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;
 
@@ -51,6 +60,9 @@ public class PortfolioActivity extends BaseActivity {
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+    private List<PortfolioCoin> mCoins = new ArrayList<>();
+
+
     public static void start(Context context, long portfolioId, String username) {
         Intent intent = new Intent(context, PortfolioActivity.class);
         intent.putExtra(EXTRA_USER_ID, portfolioId);
@@ -60,17 +72,12 @@ public class PortfolioActivity extends BaseActivity {
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_portfolio);
+        setContentView(R.layout.portfolio_activity);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-
-        toolbar.setTitle(null);
 
         argUserId = getIntent().getLongExtra(EXTRA_USER_ID, 0);
         if(argUserId <= 0) {
@@ -90,6 +97,8 @@ public class PortfolioActivity extends BaseActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
+        mSwipeRefresh.setOnRefreshListener(this);
+
         retrieveCoins();
 
     }
@@ -100,6 +109,108 @@ public class PortfolioActivity extends BaseActivity {
         compositeDisposable.dispose();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //mSwipeRefresh.post(() -> mSwipeRefresh.setRefreshing(true));
+        //refreshPrices();
+    }
+
+    @Override
+    public void onRefresh() {
+        refreshPrices();
+    }
+
+    private void refreshPrices() {
+
+        if(mCoins.size() == 0) {
+            return;
+        }
+
+        RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), null)
+                .compose(bindUntilEvent(ActivityEvent.PAUSE))
+
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        response -> {
+                            writePrices(response);
+                            mSwipeRefresh.setRefreshing(false);
+                            mAdapter.update(mCoins);
+                            calculatePortfolioValues();
+                        },
+                        error -> {
+                            mSwipeRefresh.setRefreshing(false);
+                        }
+                );
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -1);
+
+
+        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+                .compose(bindUntilEvent(ActivityEvent.PAUSE))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        response -> {
+                            write24hPrices(response.get(TransactionAddActivity.DEFAULT_SYMBOL));
+                            mSwipeRefresh.setRefreshing(false);
+                            mAdapter.update(mCoins);
+                            calculatePortfolioValues();
+                        },
+                        error -> {
+                            mSwipeRefresh.setRefreshing(false);
+                        }
+                );
+    }
+
+    private void writePrices(HashMap<String, Double> prices) {
+        for (Map.Entry<String, Double> currency : prices.entrySet()) {
+            updateCoinPriceNow(currency.getKey(), 1/currency.getValue());
+        }
+    }
+
+    private void updateCoinPriceNow(String symbol, double price) {
+        for(PortfolioCoin portfolioCoin : mCoins) {
+            if(portfolioCoin.getSymbol().equals(symbol)) {
+                portfolioCoin.setPriceNow(price);
+            }
+        }
+    }
+
+    private void write24hPrices(HashMap<String, Double> prices) {
+        for (Map.Entry<String, Double> currency : prices.entrySet()) {
+            updateCoinPrice24h(currency.getKey(), 1/currency.getValue());
+        }
+    }
+
+    private void updateCoinPrice24h(String symbol, double price) {
+        for (PortfolioCoin portfolioCoin : mCoins) {
+            if (portfolioCoin.getSymbol().equals(symbol)) {
+                portfolioCoin.setPriceNow(price);
+            }
+        }
+    }
+
+    private String implode(List<PortfolioCoin> coins) {
+
+        StringBuilder builder = new StringBuilder();
+
+        Iterator<PortfolioCoin> iterator = coins.iterator();
+        while (iterator.hasNext()) {
+            PortfolioCoin el = iterator.next();
+            builder.append(el.getSymbol());
+            if(iterator.hasNext()) {
+                builder.append(",");
+            }
+        }
+
+        return builder.toString();
+    }
+
+
+
     public void retrieveCoins() {
         compositeDisposable.add(
                 MainServiceGenerator.createService(MainApiService.class, this).publicPortfolio(Long.toString(argUserId))
@@ -107,8 +218,9 @@ public class PortfolioActivity extends BaseActivity {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 response -> {
+                                    mCoins = response.getPortfolioCoins();
                                     mAdapter.update(response.getPortfolioCoins());
-                                    calculatePortfolioValues(response.getPortfolioCoins());
+                                    calculatePortfolioValues();
                                 },
                                 error -> {
                                     Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -118,13 +230,13 @@ public class PortfolioActivity extends BaseActivity {
     }
 
 
-    private void calculatePortfolioValues(List<PortfolioCoin> portfolioCoins) {
+    private void calculatePortfolioValues() {
 
         double valueAll = 0;
         double value24h = 0;
         double valueHoldings = 0;
 
-        for (PortfolioCoin portfolioCoin : portfolioCoins) {
+        for (PortfolioCoin portfolioCoin : mCoins) {
             double original = portfolioCoin.getOriginal();
             double priceOriginal = portfolioCoin.getPriceOriginal();
             double priceNow = portfolioCoin.getPriceNow();

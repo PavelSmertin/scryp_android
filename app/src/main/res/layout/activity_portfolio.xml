@@ -53,7 +53,7 @@
                         tools:layout_editor_absoluteY="97dp"
                         tools:layout_editor_absoluteX="192dp" />
 
-                        <android.support.constraint.ConstraintLayout
+                    <android.support.constraint.ConstraintLayout
                             android:layout_width="0dp"
                             android:layout_height="50dp"
                             android:id="@+id/user_block"
@@ -88,7 +88,6 @@
 
                             />
                     </android.support.constraint.ConstraintLayout>
-
 
                     <TextView
                         android:id="@+id/holdings_label"
