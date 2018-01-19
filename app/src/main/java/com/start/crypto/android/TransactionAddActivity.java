@@ -213,10 +213,17 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 });
 
         mPriceSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            double price;
             if(isChecked) {
-                mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+                price = mPricePerCoin;
             } else {
-                mPriceView.setText(KeyboardHelper.format(mPriceInTotal));
+                price = mPriceInTotal;
+            }
+
+            if(price != 0) {
+                mPriceView.setText(KeyboardHelper.format(price));
+            } else {
+                mPriceView.setText(null);
             }
         });
 
@@ -601,7 +608,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         }
         mPricePerCoin = 1/prices.get(mCoinSymbol);
         if(mPriceSwitch.isChecked()) {
-            mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+            if(mPricePerCoin != 0 ) {
+                mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+            } else {
+                mPriceView.setText(null);
+            }
         }
     }
 
