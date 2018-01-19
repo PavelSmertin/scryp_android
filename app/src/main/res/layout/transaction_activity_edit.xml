@@ -5,12 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.start.crypto.android.TransactionAddActivity"
     android:id="@+id/scroll_view"
     >
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:id="@+id/scroll_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,19 +27,15 @@
 
         <Button
             android:id="@+id/add_transaction"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/title_activity_edit_transaction"
             style="@style/AppButton"
-
-            app:layout_constraintTop_toBottomOf="@+id/form_create_transaction"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
             android:enabled="false"
             />
 
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 </ScrollView>
 
 

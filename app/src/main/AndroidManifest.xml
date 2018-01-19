@@ -54,7 +54,6 @@
             android:label="@string/title_activity_edit_transaction" />
         <activity
             android:name=".CoinAutocompleteActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/title_activity_autocomplete"
         />
 

@@ -9,19 +9,23 @@
     android:layout_height="wrap_content"
     android:focusable="true"
     android:focusableInTouchMode="true"
+
     >
 
     <TextView
-        android:id="@+id/currentey_select_label"
+        android:id="@+id/pair_label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/pair"
 
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/coin_block"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+
         />
 
     <FrameLayout
@@ -29,10 +33,11 @@
         android:layout_width="0dp"
         android:layout_height="60dp"
 
-        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintTop_toBottomOf="@id/pair_label"
+        app:layout_constraintBottom_toTopOf="@+id/amount_label"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/delimiter"
-        app:layout_constraintTop_toBottomOf="@id/currentey_select_label"
         >
 
         <EditText
@@ -121,8 +126,9 @@
         android:labelFor="@+id/amount"
         android:text="@string/amount"
 
-        app:layout_constraintTop_toBottomOf="@id/currentey_block"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintTop_toBottomOf="@id/coin_block"
+        app:layout_constraintBottom_toTopOf="@+id/amount"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         />
@@ -133,24 +139,26 @@
         android:layout_height="60dp"
         android:inputType="numberDecimal"
 
+        app:layout_constraintTop_toBottomOf="@id/amount_label"
+        app:layout_constraintBottom_toTopOf="@+id/price_label"
+
         app:layout_constraintLeft_toLeftOf="@id/amount_label"
         app:layout_constraintRight_toRightOf="@id/amount_label"
-        app:layout_constraintTop_toBottomOf="@id/amount_label"
         />
-
 
     <TextView
         android:id="@+id/price_label"
         android:layout_width="@dimen/toggle_width"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:labelFor="@+id/date"
+        android:labelFor="@+id/price"
         android:text="@string/price_of_coin"
 
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/amount"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/price"
 
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
 
     <EditText
         android:id="@+id/price"
@@ -158,9 +166,12 @@
         android:layout_height="60dp"
         android:inputType="numberDecimal"
 
+        app:layout_constraintTop_toBottomOf="@id/price_label"
+        app:layout_constraintBottom_toTopOf="@+id/exchange_label"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/switch_widget"
-        app:layout_constraintTop_toBottomOf="@id/price_label"
+
         />
 
     <android.support.constraint.ConstraintLayout
@@ -170,7 +181,8 @@
 
         app:layout_constraintBottom_toBottomOf="@+id/price"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginBottom="8dp"
+        app:layout_constraintLeft_toRightOf="@+id/price"
+        android:layout_marginBottom="6dp"
 
         >
         <Switch
@@ -213,19 +225,21 @@
             />
     </android.support.constraint.ConstraintLayout>
 
-
-
     <TextView
-        android:id="@+id/exchange_select_label"
+        android:id="@+id/exchange_label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:labelFor="@+id/exchange_complete"
         android:text="@string/exchange"
 
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintTop_toBottomOf="@id/price"
+        app:layout_constraintBottom_toTopOf="@+id/exchange_complete"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/date_label"
-        app:layout_constraintTop_toBottomOf="@id/price"
+
         />
 
     <AutoCompleteTextView
@@ -240,9 +254,11 @@
         android:popupBackground="@color/colorPrimaryDark"
         tools:ignore="RtlSymmetry"
 
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/date"
-        app:layout_constraintTop_toBottomOf="@id/exchange_select_label"
+        app:layout_constraintTop_toBottomOf="@id/exchange_label"
+        app:layout_constraintBottom_toTopOf="@+id/describtion_label"
+
+        app:layout_constraintLeft_toLeftOf="@id/exchange_label"
+        app:layout_constraintRight_toRightOf="@id/exchange_label"
         />
 
     <ImageView
@@ -260,7 +276,6 @@
         app:layout_constraintTop_toTopOf="@+id/exchange_complete"
         />
 
-
     <TextView
         android:id="@+id/date_label"
         android:layout_width="0dp"
@@ -269,9 +284,10 @@
         android:labelFor="@+id/date"
         android:text="@string/date"
 
-        app:layout_constraintLeft_toRightOf="@id/exchange_select_label"
+        app:layout_constraintBaseline_toBaselineOf="@id/exchange_label"
+        app:layout_constraintLeft_toRightOf="@id/exchange_label"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/price"
+
         />
 
     <EditText
@@ -281,11 +297,10 @@
         android:focusable="false"
         android:inputType="date"
 
-        app:layout_constraintLeft_toRightOf="@id/exchange_complete"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/date_label"
+        app:layout_constraintBaseline_toBaselineOf="@id/exchange_complete"
+        app:layout_constraintLeft_toLeftOf="@id/date_label"
+        app:layout_constraintRight_toRightOf="@id/date_label"
         />
-
 
     <TextView
         android:id="@+id/describtion_label"
@@ -295,9 +310,10 @@
         android:labelFor="@+id/describtion"
         android:text="@string/description"
 
+        app:layout_constraintTop_toBottomOf="@+id/exchange_complete"
+        app:layout_constraintBottom_toTopOf="@+id/describtion"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date"
         />
 
     <EditText
@@ -306,12 +322,12 @@
         android:layout_height="60dp"
         android:inputType="textMultiLine"
 
+        app:layout_constraintTop_toBottomOf="@id/describtion_label"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/describtion_label"
         app:layout_constraintRight_toRightOf="@id/describtion_label"
-        app:layout_constraintTop_toBottomOf="@id/describtion_label"
+
         />
-
-
 </android.support.constraint.ConstraintLayout>
 
 

@@ -22,7 +22,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.view.RxView;
@@ -69,7 +68,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @BindView(R.id.price)                   EditText mPriceView;
     @BindView(R.id.date)                    EditText mDateView;
     @BindView(R.id.describtion)             EditText mDescribtionView;
-    @BindView(R.id.currentey_select_label)  TextView mCurrenteyLabelView;
     @BindView(R.id.scroll_view)             ScrollView mScrollView;
     @BindView(R.id.coin_complete)           EditText mCoinComplete;
     @BindView(R.id.clear_currentey_button)  ImageView mClearCurrenteyButton;
