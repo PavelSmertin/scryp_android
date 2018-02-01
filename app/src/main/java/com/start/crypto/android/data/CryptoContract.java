@@ -61,6 +61,7 @@ public final class CryptoContract {
     public static final String SQL_CREATE_PORTFOLIOS =
             "CREATE TABLE " + CryptoPortfolios.TABLE_NAME + " (" +
                     CryptoPortfolios._ID + " INTEGER PRIMARY KEY," +
+                    CryptoPortfolios.COLUMN_NAME_USER_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_BASE_COIN_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_BALANCE + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
@@ -69,7 +70,6 @@ public final class CryptoContract {
                     CryptoPortfolios.COLUMN_NAME_PRICE_24H + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
 
                     CryptoPortfolios.COLUMN_NAME_COINS_COUNT + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolios.COLUMN_NAME_USER_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_USERNAME + TEXT_TYPE + TEXT_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_PROFIT24H + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolios.COLUMN_NAME_PROFIT7D + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
@@ -84,13 +84,32 @@ public final class CryptoContract {
 
 
 
+    /* PORTFOLIO_COINS */
+    public static final String SQL_CREATE_PORTFOLIO_COINS =
+            "CREATE TABLE " + CryptoPortfolioCoins.TABLE_NAME + " (" +
+                    CryptoPortfolioCoins._ID + " INTEGER PRIMARY KEY," +
+                    CryptoPortfolioCoins.COLUMN_NAME_USER_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H + REAL_TYPE + REAL_TYPE_DEFAULT  + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + INTEGER_TYPE + CURRENT_TIMESTAMP + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT + INTEGER_TYPE + INTEGER_TYPE_DEFAULT +
+                    " )";
+
+    public static final String SQL_DELETE_PORTFOLIO_COINS =
+            "DROP TABLE IF EXISTS " + CryptoPortfolioCoins.TABLE_NAME;
+
 
     /* TRANSACTIONS */
     public static final String SQL_CREATE_TRANSACTIONS =
             "CREATE TABLE " + CryptoTransactions.TABLE_NAME + " (" +
                     CryptoTransactions._ID + " INTEGER PRIMARY KEY," +
                     CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
+                    CryptoTransactions.COLUMN_NAME_PORTFOLIO_PAIR_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
                     CryptoTransactions.COLUMN_NAME_COIN_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
                     CryptoTransactions.COLUMN_NAME_PORTFOLIO_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
                     CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
@@ -106,29 +125,6 @@ public final class CryptoContract {
 
     public static final String SQL_DELETE_TRANSACTIONS =
             "DROP TABLE IF EXISTS " + CryptoTransactions.TABLE_NAME;
-
-
-
-
-
-    /* PORTFOLIO_COINS */
-    public static final String SQL_CREATE_PORTFOLIO_COINS =
-            "CREATE TABLE " + CryptoPortfolioCoins.TABLE_NAME + " (" +
-                    CryptoPortfolioCoins._ID + " INTEGER PRIMARY KEY," +
-                    CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID + INTEGER_TYPE + INTEGER_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H + REAL_TYPE + REAL_TYPE_DEFAULT  + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + INTEGER_TYPE + CURRENT_TIMESTAMP + COMMA_SEP +
-                    CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT + INTEGER_TYPE + INTEGER_TYPE_DEFAULT +
-                    " )";
-
-    public static final String SQL_DELETE_PORTFOLIO_COINS =
-            "DROP TABLE IF EXISTS " + CryptoPortfolioCoins.TABLE_NAME;
-
 
 
 
@@ -173,16 +169,17 @@ public final class CryptoContract {
 
         public static final int     PORTFOLIOS_ID_PATH_POSITION           = 1;
 
+        public static final String COLUMN_NAME_USER_ID          = "user_id";
         public static final String COLUMN_NAME_BASE_COIN_ID     = "base_coin_id";
+
+        // denormalized fields
+        public static final String COLUMN_NAME_USERNAME         = "user_name";
+        public static final String COLUMN_NAME_COINS_COUNT      = "coins_count";
         public static final String COLUMN_NAME_BALANCE          = "balance";
         public static final String COLUMN_NAME_ORIGINAL         = "original";
         public static final String COLUMN_NAME_PRICE_NOW        = "price_now";
         public static final String COLUMN_NAME_PRICE_ORIGINAL   = "price_original";
         public static final String COLUMN_NAME_PRICE_24H        = "price_24h";
-
-        public static final String COLUMN_NAME_COINS_COUNT      = "coins_count";
-        public static final String COLUMN_NAME_USER_ID          = "user_id";
-        public static final String COLUMN_NAME_USERNAME         = "user_name";
         public static final String COLUMN_NAME_PROFIT24H        = "profit_24h";
         public static final String COLUMN_NAME_PROFIT7D         = "profit_7d";
 
@@ -192,22 +189,136 @@ public final class CryptoContract {
 
         public static final String[] DEFAULT_PROJECTION = new String[] {
                 CryptoPortfolios._ID,
+                CryptoPortfolios.COLUMN_NAME_USER_ID,
                 CryptoPortfolios.COLUMN_NAME_BASE_COIN_ID,
+
+                // denormalized fields
+                CryptoPortfolios.COLUMN_NAME_USERNAME,
                 CryptoPortfolios.COLUMN_NAME_BALANCE,
                 CryptoPortfolios.COLUMN_NAME_ORIGINAL,
                 CryptoPortfolios.COLUMN_NAME_PRICE_NOW,
                 CryptoPortfolios.COLUMN_NAME_PRICE_ORIGINAL,
                 CryptoPortfolios.COLUMN_NAME_PRICE_24H,
-
                 CryptoPortfolios.COLUMN_NAME_COINS_COUNT,
-                CryptoPortfolios.COLUMN_NAME_USER_ID,
-                CryptoPortfolios.COLUMN_NAME_USERNAME,
                 CryptoPortfolios.COLUMN_NAME_PROFIT24H,
                 CryptoPortfolios.COLUMN_NAME_PROFIT7D,
 
                 CryptoPortfolios.COLUMN_NAME_CREATED_AT,
                 CryptoPortfolios.COLUMN_NAME_UPDATED_AT
         };
+    }
+
+    public static final class CryptoPortfolioCoins implements BaseColumns {
+
+        public static final String TABLE_NAME                   = "crypto_portfolio_coins";
+        public static final String SCHEME                       = "content://";
+        public static final String PATH_PORTFOLIO_COINS         = "/crypto_portfolio_coins";
+        public static final String PATH_PORTFOLIO_COINS_ID      = "/crypto_portfolio_coins/";
+        public static final Uri CONTENT_URI                     = Uri.parse(SCHEME + AUTHORITY + PATH_PORTFOLIO_COINS);
+        public static final Uri CONTENT_ID_URI_BASE             = Uri.parse(SCHEME + AUTHORITY + PATH_PORTFOLIO_COINS_ID);
+        public static final String CONTENT_TYPE                 = "vnd.android.cursor.dir/vnd.google.crypto_portfolio_coins";
+        public static final String CONTENT_ITEM_TYPE            = "vnd.android.cursor.item/vnd.google.crypto_portfolio_coins";
+        public static final String DEFAULT_SORT_ORDER           = CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins._ID + " ASC";
+
+        public static final int     PORTFOLIO_COINS_ID_PATH_POSITION = 1;
+
+
+        public static final String COLUMN_NAME_USER_ID          = "user_id";
+        public static final String COLUMN_NAME_PORTFOLIO_ID     = "portfolio_id";
+        public static final String COLUMN_NAME_COIN_ID          = "coin_id";
+        public static final String COLUMN_NAME_EXCHANGE_ID      = "exchange_id";
+        public static final String COLUMN_NAME_ORIGINAL         = "original";
+        public static final String COLUMN_NAME_PRICE_NOW        = "price_now";
+        public static final String COLUMN_NAME_PRICE_ORIGINAL   = "price_original";
+        public static final String COLUMN_NAME_PRICE_24H        = "price_24h";
+
+        public static final String COLUMN_NAME_CREATED_AT       = "created_at";
+        public static final String COLUMN_NAME_UPDATED_AT       = "updated_at";
+
+        public static final String[] DEFAULT_PROJECTION = new String[] {
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins._ID,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_USER_ID,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_COIN_ID,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
+
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
+        };
+        public static final String[] DEFAULT_PROJECTION_SIMPLE = new String[] {
+                CryptoPortfolioCoins._ID,
+                CryptoPortfolioCoins.COLUMN_NAME_USER_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_COIN_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID,
+                CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
+
+                CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
+                CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
+        };
+    }
+
+    public static final class CryptoTransactions implements BaseColumns {
+
+        public static final String TABLE_NAME          = "crypto_transactions";
+        public static final String SCHEME              = "content://";
+        public static final String PATH_TRANSACTIONS        = "/crypto_transactions";
+        public static final String PATH_TRANSACTIONS_ID     = "/crypto_transactions/";
+        public static final Uri CONTENT_URI            = Uri.parse(SCHEME + AUTHORITY + PATH_TRANSACTIONS);
+        public static final Uri CONTENT_ID_URI_BASE    = Uri.parse(SCHEME + AUTHORITY + PATH_TRANSACTIONS_ID);
+        public static final String CONTENT_TYPE        = "vnd.android.cursor.dir/vnd.google.crypto_transactions";
+        public static final String CONTENT_ITEM_TYPE   = "vnd.android.cursor.item/vnd.google.crypto_transactions";
+        public static final String DEFAULT_SORT_ORDER  = "_id ASC";
+
+        public static final int     TRANSACTIONS_ID_PATH_POSITION = 1;
+
+        public static final String COLUMN_NAME_PORTFOLIO_ID             = "portfolio_id";
+        public static final String COLUMN_NAME_PORTFOLIO_COIN_ID        = "portfolio_coin_id";
+        public static final String COLUMN_NAME_PORTFOLIO_PAIR_ID        = "portfolio_pair_id";  // for sellings transactions
+        public static final String COLUMN_NAME_EXCHANGE_ID              = "exchange_id";
+
+        public static final String COLUMN_NAME_AMOUNT                   = "amount";
+        public static final String COLUMN_NAME_PRICE                    = "price";
+        public static final String COLUMN_NAME_DATETIME                 = "datetime";
+        public static final String COLUMN_NAME_DESCRIPTION              = "description";
+
+        // deprecated fields
+        public static final String COLUMN_NAME_PROTFOLIO_BALANCE        = "portfolio_balance";
+        public static final String COLUMN_NAME_COIN_ID                  = "coin_id";
+        public static final String COLUMN_NAME_COIN_CORRESPOND_ID       = "coin_correspond_id";
+
+
+        public static final String COLUMN_NAME_CREATED_AT               = "created_at";
+        public static final String COLUMN_NAME_UPDATED_AT               = "updated_at";
+
+
+        public static final String[] DEFAULT_PROJECTION = new String[] {
+                CryptoTransactions._ID,
+                CryptoTransactions.COLUMN_NAME_PORTFOLIO_ID,
+                CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID,
+                CryptoTransactions.COLUMN_NAME_PORTFOLIO_PAIR_ID,
+                CryptoTransactions.COLUMN_NAME_AMOUNT,
+                CryptoTransactions.COLUMN_NAME_PRICE,
+                CryptoTransactions.COLUMN_NAME_DATETIME,
+                CryptoTransactions.COLUMN_NAME_DESCRIPTION,
+
+                // deprecated fields
+                CryptoTransactions.COLUMN_NAME_PROTFOLIO_BALANCE,
+                CryptoTransactions.COLUMN_NAME_COIN_ID,
+                CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID,
+                CryptoTransactions.COLUMN_NAME_EXCHANGE_ID,
+
+                CryptoTransactions.COLUMN_NAME_CREATED_AT,
+                CryptoTransactions.COLUMN_NAME_UPDATED_AT
+        };
+
     }
 
     public static final class CryptoCoins implements BaseColumns {
@@ -241,56 +352,6 @@ public final class CryptoContract {
 
     }
 
-    public static final class CryptoTransactions implements BaseColumns {
-
-        public static final String TABLE_NAME          = "crypto_transactions";
-        public static final String SCHEME              = "content://";
-        public static final String PATH_TRANSACTIONS        = "/crypto_transactions";
-        public static final String PATH_TRANSACTIONS_ID     = "/crypto_transactions/";
-        public static final Uri CONTENT_URI            = Uri.parse(SCHEME + AUTHORITY + PATH_TRANSACTIONS);
-        public static final Uri CONTENT_ID_URI_BASE    = Uri.parse(SCHEME + AUTHORITY + PATH_TRANSACTIONS_ID);
-        public static final String CONTENT_TYPE        = "vnd.android.cursor.dir/vnd.google.crypto_transactions";
-        public static final String CONTENT_ITEM_TYPE   = "vnd.android.cursor.item/vnd.google.crypto_transactions";
-        public static final String DEFAULT_SORT_ORDER  = "_id ASC";
-
-        public static final int     TRANSACTIONS_ID_PATH_POSITION = 1;
-
-        public static final String COLUMN_NAME_PORTFOLIO_COIN_ID        = "portfolio_coin_id";
-        public static final String COLUMN_NAME_PORTFOLIO_CURRENTEY_ID   = "portfolio_currentey_id";
-        public static final String COLUMN_NAME_COIN_ID                  = "coin_id";
-        public static final String COLUMN_NAME_PORTFOLIO_ID             = "portfolio_id";
-        public static final String COLUMN_NAME_COIN_CORRESPOND_ID       = "coin_correspond_id";
-        public static final String COLUMN_NAME_EXCHANGE_ID              = "exchange_id";
-        public static final String COLUMN_NAME_PROTFOLIO_BALANCE        = "portfolio_balance";
-        public static final String COLUMN_NAME_AMOUNT                   = "amount";
-        public static final String COLUMN_NAME_PRICE                    = "price";
-        public static final String COLUMN_NAME_DATETIME                 = "datetime";
-        public static final String COLUMN_NAME_DESCRIPTION              = "description";
-
-        public static final String COLUMN_NAME_CREATED_AT               = "created_at";
-        public static final String COLUMN_NAME_UPDATED_AT               = "updated_at";
-
-
-        public static final String[] DEFAULT_PROJECTION = new String[] {
-                CryptoTransactions._ID,
-                CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID,
-                CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID,
-                CryptoTransactions.COLUMN_NAME_COIN_ID,
-                CryptoTransactions.COLUMN_NAME_PORTFOLIO_ID,
-                CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID,
-                CryptoTransactions.COLUMN_NAME_EXCHANGE_ID,
-                CryptoTransactions.COLUMN_NAME_PROTFOLIO_BALANCE,
-                CryptoTransactions.COLUMN_NAME_AMOUNT,
-                CryptoTransactions.COLUMN_NAME_PRICE,
-                CryptoTransactions.COLUMN_NAME_DATETIME,
-                CryptoTransactions.COLUMN_NAME_DESCRIPTION,
-
-                CryptoTransactions.COLUMN_NAME_CREATED_AT,
-                CryptoTransactions.COLUMN_NAME_UPDATED_AT
-        };
-
-    }
-
     public static final class CryptoExchanges implements BaseColumns {
 
         public static final String TABLE_NAME          = "crypto_exchanges";
@@ -315,60 +376,6 @@ public final class CryptoContract {
                 CryptoExchanges.COLUMN_NAME_NAME,
                 CryptoExchanges.COLUMN_NAME_EXTERNAL_ID,
                 CryptoExchanges.COLUMN_NAME_API_URL
-        };
-    }
-
-    public static final class CryptoPortfolioCoins implements BaseColumns {
-
-        public static final String TABLE_NAME                   = "crypto_portfolio_coins";
-        public static final String SCHEME                       = "content://";
-        public static final String PATH_PORTFOLIO_COINS         = "/crypto_portfolio_coins";
-        public static final String PATH_PORTFOLIO_COINS_ID      = "/crypto_portfolio_coins/";
-        public static final Uri CONTENT_URI                     = Uri.parse(SCHEME + AUTHORITY + PATH_PORTFOLIO_COINS);
-        public static final Uri CONTENT_ID_URI_BASE             = Uri.parse(SCHEME + AUTHORITY + PATH_PORTFOLIO_COINS_ID);
-        public static final String CONTENT_TYPE                 = "vnd.android.cursor.dir/vnd.google.crypto_portfolio_coins";
-        public static final String CONTENT_ITEM_TYPE            = "vnd.android.cursor.item/vnd.google.crypto_portfolio_coins";
-        public static final String DEFAULT_SORT_ORDER           = CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins._ID + " ASC";
-
-        public static final int     PORTFOLIO_COINS_ID_PATH_POSITION = 1;
-
-
-        public static final String COLUMN_NAME_PORTFOLIO_ID     = "portfolio_id";
-        public static final String COLUMN_NAME_COIN_ID          = "coin_id";
-        public static final String COLUMN_NAME_EXCHANGE_ID      = "exchange_id";
-        public static final String COLUMN_NAME_ORIGINAL         = "original";
-        public static final String COLUMN_NAME_PRICE_NOW        = "price_now";
-        public static final String COLUMN_NAME_PRICE_ORIGINAL   = "price_original";
-        public static final String COLUMN_NAME_PRICE_24H        = "price_24h";
-
-        public static final String COLUMN_NAME_CREATED_AT       = "created_at";
-        public static final String COLUMN_NAME_UPDATED_AT       = "updated_at";
-
-        public static final String[] DEFAULT_PROJECTION = new String[] {
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins._ID,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_COIN_ID,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
-
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
-                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
-        };
-        public static final String[] DEFAULT_PROJECTION_SIMPLE = new String[] {
-                CryptoPortfolioCoins._ID,
-                CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID,
-                CryptoPortfolioCoins.COLUMN_NAME_COIN_ID,
-                CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID,
-                CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL,
-                CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
-                CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
-                CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
-
-                CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
-                CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
         };
     }
 

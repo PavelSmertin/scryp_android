@@ -99,7 +99,7 @@ public class PortfolioCoinActivity extends BaseActivity implements LoaderManager
             if(data == null || data.getCount() == 0) {
                 return;
             }
-            data.moveToNext();
+            data.moveToFirst();
             ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
             ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
 

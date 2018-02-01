@@ -7,15 +7,12 @@ import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
 import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -30,7 +27,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,16 +46,16 @@ import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.CoinResponse;
 import com.start.crypto.android.api.model.CoinsResponse;
+import com.start.crypto.android.api.model.ExchangeResponse;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsExchange;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.data.DBHelper;
-import com.start.crypto.android.sync.SyncAdapter;
+import com.start.crypto.android.sync.SyncPresenter;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.start.crypto.android.utils.PreferencesHelper;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,6 +78,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -106,7 +103,9 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     private static final String STATE_DIALOG = "state_dialog";
 
-    private static final int LOADER_ID = 1;
+    private static final int LOADER_PORTFOLIO_COINS_ID = 1;
+
+    private static final boolean DUMP_DB = false;
 
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;
     @BindView(R.id.add_transaction)             FloatingActionButton addTransactionView;
@@ -129,12 +128,12 @@ public class PortfolioController extends BaseController implements LoaderManager
     private PortfolioCoinsListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
-    private HashMap<String, Long> mCoins = new HashMap<>();
-    private ArrayList<String> mExchanges = new ArrayList<>();
+    private HashMap<String, Long> mCoinsForRefresh = new HashMap<>();
+    private ArrayList<String> mExchangesForRefresh = new ArrayList<>();
 
     private HashMap<String, Double> mPieData = new HashMap<>();
 
-    private ArrayList<ContentProviderOperation> mOperations = new ArrayList<>();
+    private SyncPresenter mSyncPresenter;
 
     private Socket mSocket;
     private OkHttpClient mClient;
@@ -145,11 +144,7 @@ public class PortfolioController extends BaseController implements LoaderManager
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
-    public PortfolioController() {
-    }
-
-    @NonNull
-    @Override
+    @NonNull @Override
     protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
         return inflater.inflate(R.layout.portfolio_controller, container, false);
     }
@@ -164,6 +159,8 @@ public class PortfolioController extends BaseController implements LoaderManager
 
         CryptoApp app = (CryptoApp) getActivity().getApplication();
         mSocket = app.getSocket();
+
+        mSyncPresenter = new SyncPresenter(getActivity().getContentResolver());
 
         mAdapter = new PortfolioCoinsListAdapter(getActivity(), null);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -185,22 +182,22 @@ public class PortfolioController extends BaseController implements LoaderManager
             }
         });
 
-        ((AppCompatActivity)getActivity()).getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+        ((AppCompatActivity)getActivity()).getSupportLoaderManager().initLoader(LOADER_PORTFOLIO_COINS_ID, null, this);
 
-        long portfolioId = selectPortfolioId();
+        long portfolioId = DUMP_DB ? 1 : selectPortfolioId();
+
         RxView.clicks(addTransactionView).subscribe(success -> TransactionAddActivity.start(getActivity(), portfolioId));
-        RxView.clicks(preInsertView).subscribe(success ->
-//                {
-//                    mSwipeRefresh.setRefreshing(true);
-//                    reset();
-//                    mSwipeRefresh.setRefreshing(false);
-//                }
-                {
-                    if(PreferencesHelper.getInstance().getLogin() == null) {
-                        getTokenForAccountCreateIfNeeded(SigninActivity.ACCOUNT_TYPE, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
-                    }
+        RxView.clicks(preInsertView).subscribe(success -> {
+            if (DUMP_DB) {
+                mSwipeRefresh.setRefreshing(true);
+                reset();
+                mSwipeRefresh.setRefreshing(false);
+            } else {
+                if (PreferencesHelper.getInstance().getLogin() == null) {
+                    getTokenForAccountCreateIfNeeded(SigninActivity.ACCOUNT_TYPE, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
                 }
-        );
+            }
+        });
 
         if(PreferencesHelper.getInstance().getLogin() != null) {
             preInsertView.setVisibility(View.GONE);
@@ -288,7 +285,6 @@ public class PortfolioController extends BaseController implements LoaderManager
 //                        headers.put("Cookie", Arrays.asList("foo=1;"));
                 }
             });
-
             transport.on(Transport.EVENT_RESPONSE_HEADERS, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -314,36 +310,6 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
     }
 
-    private long selectPortfolioId() {
-
-        long portfolioId = -1;
-
-        Cursor cursor = getActivity().getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
-
-        if(cursor != null) {
-            if(cursor.getCount() == 0) {
-                importDB();
-            }
-            cursor.close();
-        }
-
-        cursor = getActivity().getContentResolver().query(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null, null, null);
-        if(cursor != null) {
-            if(cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios._ID);
-                portfolioId = cursor.getLong(itemColumnIndex);
-            }
-            cursor.close();
-            if(portfolioId > 0) {
-                return portfolioId;
-            }
-
-        }
-        throw new IllegalStateException("illegal portfolio id");
-    }
-
-
     @Override
     protected void onAttach(@NonNull View view) {
         super.onAttach(view);
@@ -353,26 +319,76 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if(id != LOADER_ID) {
-            throw new IllegalArgumentException("no id handled!");
+        if(id == LOADER_PORTFOLIO_COINS_ID) {
+            return new CursorLoader(getActivity(), CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC");
         }
-        return new CursorLoader(getActivity(), CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC");
+        throw new IllegalArgumentException("no id handled!");
+
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(loader.getId() != LOADER_ID) {
+        if(loader.getId() != LOADER_PORTFOLIO_COINS_ID) {
             throw new IllegalArgumentException("no id handled!");
         }
 
         calculatePortfolioValues(data);
+        if(PreferencesHelper.getInstance().getLogin() != null) {
+            mSyncPresenter.triggerRefresh(PreferencesHelper.getInstance().getLogin());
+        }
 
         data.moveToFirst();
         mAdapter.changeCursor(data);
+    }
 
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if(loader.getId() != LOADER_PORTFOLIO_COINS_ID) {
+            throw new IllegalArgumentException("no id handled!");
+        }
+        if (mAdapter != null) {
+            mAdapter.changeCursor(null);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
+
+        mSocket.disconnect();
+        mSocket.off("SubAdd", onSubAdd);
 
     }
 
+    @Override
+    public void onRefresh() {
+        refreshPrices();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
+            dumpDB();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mAlertDialog != null && mAlertDialog.isShowing()) {
+            outState.putBoolean(STATE_DIALOG, true);
+        }
+    }
+
+    @Override
+    public String getPageTitle(Context context) {
+        return context.getString(R.string.title_activity_main);
+    }
+
+    // Вызывается при изменении локальных данных(обновление цен, добавление удаление монеты и т.д.)
+    // Расчитывает параметры портфолио
     private void calculatePortfolioValues(Cursor data) {
 
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
@@ -383,8 +399,8 @@ public class PortfolioController extends BaseController implements LoaderManager
         double value24h = 0;
         double valueHoldings = 0;
 
-        mCoins = new HashMap<>();
-        mExchanges = new ArrayList<>();
+        mCoinsForRefresh = new HashMap<>();
+        mExchangesForRefresh = new ArrayList<>();
 
 
         String symbol;
@@ -403,13 +419,13 @@ public class PortfolioController extends BaseController implements LoaderManager
 
             symbol = data.getString(columnsCoinsMap.mColumnSymbol);
             long coinId = data.getLong(columnsMap.mColumnCoinId);
-            if (!mCoins.containsKey(symbol)) {
-                mCoins.put(symbol, coinId);
+            if (!mCoinsForRefresh.containsKey(symbol)) {
+                mCoinsForRefresh.put(symbol, coinId);
             }
 
             exchange = data.getString(columnsExchangeMap.mColumnName);
-            if (!mExchanges.contains(exchange)) {
-                mExchanges.add(exchange);
+            if (!mExchangesForRefresh.contains(exchange)) {
+                mExchangesForRefresh.add(exchange);
             }
 
             mPieData.put(data.getString(columnsCoinsMap.mColumnSymbol), original * priceNow);
@@ -448,127 +464,13 @@ public class PortfolioController extends BaseController implements LoaderManager
             mPortfolioProfitAll.setTextColor(getResources().getColor(R.color.colorDownValue));
             mPortfolioProfitAllUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
         }
-
-
-        // push to server
-        if (PreferencesHelper.getInstance().getLogin() != null && data.getCount() > 0 && profit24h != 0 && profitAll != 0) {
-            compositeDisposable.add(
-                    MainServiceGenerator.createService(MainApiService.class, getActivity()).pushPortfolio(PreferencesHelper.getInstance().getLogin(), data.getCount(), profit24h, profitAll)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(
-                                    response -> {
-                                    },
-                                    error -> {
-                                        logout();
-                                    }
-                            )
-            );
-        }
-
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        if(loader.getId() != LOADER_ID) {
-            throw new IllegalArgumentException("no id handled!");
-        }
-        if (mAdapter != null) {
-            mAdapter.changeCursor(null);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        compositeDisposable.dispose();
-
-        mSocket.disconnect();
-        mSocket.off("SubAdd", onSubAdd);
-
-    }
-
-    private void insert() {
-
-        // Coins
-//        mSwipeRefresh.setRefreshing(true);
-//        RestClientMinApi.INSTANCE.getClient().coins()
-//                .compose(bindUntilEvent(ActivityEvent.PAUSE))
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(Schedulers.computation())
-//                .doOnNext(this::refreshCoins)
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(
-//                        response -> {
-//                            mSwipeRefresh.setRefreshing(false);
-//                        },
-//                        error -> {
-//                            mSwipeRefresh.setRefreshing(false);
-//                        }
-//                );
-
-        String coinsJson = loadCoinsFromRaw();
-        Type collectionType = new TypeToken<HashMap<String, CoinResponse>>() {}.getType();
-        HashMap<String, CoinResponse> coins = new Gson().fromJson(coinsJson, collectionType);
-        refreshCoins(coins);
-
-        // Exchanges
-        ContentValues values = new ContentValues(1);
-        values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, TransactionAddActivity.DEFAULT_EXCHANGE);
-        getActivity().getContentResolver().insert(CryptoContract.CryptoExchanges.CONTENT_URI, values);
-
-        Resources res = getResources();
-        String[] exchanges = res.getStringArray(R.array.exchanges);
-
-        for (String exchange : exchanges) {
-            values = new ContentValues(1);
-            values.put(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, exchange);
-            getActivity().getContentResolver().insert(CryptoContract.CryptoExchanges.CONTENT_URI, values);
-        }
-
-        // Portfolio
-        values = new ContentValues();
-        values.put(CryptoContract.CryptoPortfolios.COLUMN_NAME_BASE_COIN_ID, 1);
-        getActivity().getContentResolver().insert(CryptoContract.CryptoPortfolios.CONTENT_URI, values);
-    }
-
-    public void reset() {
-
-        if(isStoragePermissionGranted()) {
-            dumpDB();
-        }
-
-        getActivity().getContentResolver().delete(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null);
-        mAdapter.changeCursor(null);
-
-        SQLiteDatabase db = new DBHelper(getActivity()).getWritableDatabase();
-
-        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIOS);
-        db.execSQL(CryptoContract.SQL_DELETE_COINS);
-        db.execSQL(CryptoContract.SQL_DELETE_TRANSACTIONS);
-        db.execSQL(CryptoContract.SQL_DELETE_EXCHANGES);
-        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIO_COINS);
-        db.execSQL(CryptoContract.SQL_DELETE_NOTIFICATIONS);
-
-        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIOS);
-        db.execSQL(CryptoContract.SQL_CREATE_COINS);
-        db.execSQL(CryptoContract.SQL_CREATE_TRANSACTIONS);
-        db.execSQL(CryptoContract.SQL_CREATE_EXCHANGES);
-        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIO_COINS);
-        db.execSQL(CryptoContract.SQL_CREATE_NOTIFICATIONS);
-
-        insert();
-    }
-
-    @Override
-    public void onRefresh() {
-        refreshPrices();
-    }
-
+    //region prices
     private void refreshPrices() {
 
 
-        RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), null)
+        RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), null)
                 .compose(bindUntilEvent(ControllerEvent.DETACH))
 
                 .subscribeOn(Schedulers.io())
@@ -577,7 +479,6 @@ public class PortfolioController extends BaseController implements LoaderManager
                         response -> {
                             writePrices(response);
                             mSwipeRefresh.setRefreshing(false);
-                            triggerRefresh();
                         },
                         error -> {
                             mSwipeRefresh.setRefreshing(false);
@@ -588,7 +489,7 @@ public class PortfolioController extends BaseController implements LoaderManager
         cal.add(Calendar.DAY_OF_YEAR, -1);
 
 
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), Long.toString(cal.getTimeInMillis()), null)
                 .compose(bindUntilEvent(ControllerEvent.DETACH))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -620,7 +521,7 @@ public class PortfolioController extends BaseController implements LoaderManager
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, 1/currency.getValue());
-            getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoins.get(currency.getKey()), null);
+            getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
         }
 
     }
@@ -629,10 +530,90 @@ public class PortfolioController extends BaseController implements LoaderManager
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1/currency.getValue());
-            getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoins.get(currency.getKey()), null);
+            getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
         }
 
     }
+    //endregion
+
+    //region initial db
+    private long selectPortfolioId() {
+
+        long portfolioId = -1;
+
+        Cursor cursor = getActivity().getContentResolver().query(CryptoContract.CryptoCoins.CONTENT_URI, CryptoContract.CryptoCoins.DEFAULT_PROJECTION, null, null, null);
+
+        if(cursor != null) {
+            if(cursor.getCount() == 0) {
+                importDB();
+            }
+            cursor.close();
+        }
+
+        cursor = getActivity().getContentResolver().query(CryptoContract.CryptoPortfolios.CONTENT_URI, null, null, null, null);
+        if(cursor != null) {
+            if(cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios._ID);
+                portfolioId = cursor.getLong(itemColumnIndex);
+            }
+            cursor.close();
+            if(portfolioId > 0) {
+                return portfolioId;
+            }
+
+        }
+        throw new IllegalStateException("illegal portfolio id");
+    }
+
+    private void reset() {
+
+        if(isStoragePermissionGranted()) {
+            dumpDB();
+        }
+
+        getActivity().getContentResolver().delete(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null);
+        mAdapter.changeCursor(null);
+
+        SQLiteDatabase db = new DBHelper(getActivity()).getWritableDatabase();
+
+        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIOS);
+        db.execSQL(CryptoContract.SQL_DELETE_COINS);
+        db.execSQL(CryptoContract.SQL_DELETE_TRANSACTIONS);
+        db.execSQL(CryptoContract.SQL_DELETE_EXCHANGES);
+        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIO_COINS);
+        db.execSQL(CryptoContract.SQL_DELETE_NOTIFICATIONS);
+
+        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIOS);
+        db.execSQL(CryptoContract.SQL_CREATE_COINS);
+        db.execSQL(CryptoContract.SQL_CREATE_TRANSACTIONS);
+        db.execSQL(CryptoContract.SQL_CREATE_EXCHANGES);
+        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIO_COINS);
+        db.execSQL(CryptoContract.SQL_CREATE_NOTIFICATIONS);
+
+        insert();
+    }
+
+    private void insert() {
+
+        // Coins
+        String coinsJson = loadCoinsFromRaw();
+        Type collectionCoinType = new TypeToken<HashMap<String, CoinResponse>>() {}.getType();
+        HashMap<String, CoinResponse> coins = new Gson().fromJson(coinsJson, collectionCoinType);
+        refreshCoins(coins);
+
+        // Exchanges
+        String exchangesJson = loadExchangesFromRaw();
+        Type collectionExchangeType = new TypeToken<List<ExchangeResponse>>() {}.getType();
+        List<ExchangeResponse> exchanges = new Gson().fromJson(exchangesJson, collectionExchangeType);
+        refreshExchanges(exchanges);
+
+        // Default Portfolio
+        ContentValues values = new ContentValues();
+        values.put(CryptoContract.CryptoPortfolios.COLUMN_NAME_BASE_COIN_ID, TransactionAddActivity.DEFAULT_COIN_ID);
+        getActivity().getContentResolver().insert(CryptoContract.CryptoPortfolios.CONTENT_URI, values);
+    }
+
 
     private void refreshCoins(CoinsResponse coinsResponse) {
         HashMap<String, CoinResponse> coins = coinsResponse.getData();
@@ -647,10 +628,13 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     }
 
+
     private void refreshCoins(HashMap<String, CoinResponse> coins) {
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
 
         for (Map.Entry<String, CoinResponse> coin : coins.entrySet()) {
-            mOperations.add(ContentProviderOperation.newInsert(CryptoContract.CryptoCoins.CONTENT_URI)
+            operations.add(ContentProviderOperation.newInsert(CryptoContract.CryptoCoins.CONTENT_URI)
+                    .withValue(CryptoContract.CryptoCoins._ID,                      coin.getValue().getId())
                     .withValue(CryptoContract.CryptoCoins.COLUMN_NAME_NAME,         coin.getValue().getFullName())
                     .withValue(CryptoContract.CryptoCoins.COLUMN_NAME_LOGO,         coin.getValue().getImageUrl())
                     .withValue(CryptoContract.CryptoCoins.COLUMN_NAME_SORT_ORDER,   coin.getValue().getSortOrder())
@@ -660,15 +644,36 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
 
         try {
-            getActivity().getContentResolver().applyBatch(CryptoContract.AUTHORITY, mOperations);
+            getActivity().getContentResolver().applyBatch(CryptoContract.AUTHORITY, operations);
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (OperationApplicationException e) {
             e.printStackTrace();
         }
 
+        operations.clear();
+    }
 
-        mOperations.clear();
+    private void refreshExchanges(List<ExchangeResponse> exchanges) {
+        ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+
+        for (ExchangeResponse exchange : exchanges) {
+            operations.add(ContentProviderOperation.newInsert(CryptoContract.CryptoExchanges.CONTENT_URI)
+                    .withValue(CryptoContract.CryptoExchanges._ID, exchange.getId())
+                    .withValue(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME, exchange.getName())
+                    .withYieldAllowed(true)
+                    .build());
+        }
+
+        try {
+            getActivity().getContentResolver().applyBatch(CryptoContract.AUTHORITY, operations);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (OperationApplicationException e) {
+            e.printStackTrace();
+        }
+
+        operations.clear();
     }
 
     private String implode(HashMap<String, Long> map) {
@@ -688,10 +693,29 @@ public class PortfolioController extends BaseController implements LoaderManager
         return builder.toString();
     }
 
-    public String loadCoinsFromRaw() {
+    private String loadCoinsFromRaw() {
         Writer writer = new StringWriter();
         char[] buffer = new char[1024];
         try (InputStream is = getResources().openRawResource(R.raw.coins)) {
+            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            int n;
+            while ((n = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, n);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return writer.toString();
+
+    }
+
+    private String loadExchangesFromRaw() {
+        Writer writer = new StringWriter();
+        char[] buffer = new char[1024];
+        try (InputStream is = getResources().openRawResource(R.raw.exchanges)) {
             Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             int n;
             while ((n = reader.read(buffer)) != -1) {
@@ -727,7 +751,7 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
     }
 
-    public void dumpDB() {
+    private void dumpDB() {
         File sd = Environment.getExternalStorageDirectory();
 
         if (isExternalStorageWritable()) {
@@ -749,20 +773,12 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
     }
 
-    public boolean isExternalStorageWritable() {
+    private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            dumpDB();
-        }
-    }
-
-    public  boolean isStoragePermissionGranted() {
+    private boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (getActivity().checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 return true;
@@ -775,20 +791,9 @@ public class PortfolioController extends BaseController implements LoaderManager
             return true;
         }
     }
+    //endregion
 
-
-
-
-
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mAlertDialog != null && mAlertDialog.isShowing()) {
-            outState.putBoolean(STATE_DIALOG, true);
-        }
-    }
-
+    //region account
     private void addNewAccount(String accountType, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, getActivity(),
                 future1 -> {
@@ -815,10 +820,11 @@ public class PortfolioController extends BaseController implements LoaderManager
 
                 final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
                 mAccountManager.invalidateAuthToken(account.type, authtoken);
-                showMessage(account.name + " invalidated");
+                Toast.makeText(getActivity(), account.name + " invalidated", Toast.LENGTH_SHORT).show();
+
             } catch (Exception e) {
                 e.printStackTrace();
-                showMessage(e.getMessage());
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }).start();
     }
@@ -840,7 +846,7 @@ public class PortfolioController extends BaseController implements LoaderManager
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
                                         .subscribe(
-                                                succ -> doSync(succ.string()),
+                                                response -> mSyncPresenter.restorePortfolio(response.string()),
                                                 error -> {
                                                     Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                                                 }
@@ -855,10 +861,6 @@ public class PortfolioController extends BaseController implements LoaderManager
                 , null);
     }
 
-    private void doSync(String response) {
-        saveJsonCollections(response);
-    }
-
     private void getExistingAccountAuthToken(Account account, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, getActivity(), null, null);
 
@@ -867,13 +869,15 @@ public class PortfolioController extends BaseController implements LoaderManager
                 Bundle bnd = future.getResult();
 
                 final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                showMessage((authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL");
+                if(authtoken == null) {
+                    Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
+                }
                 PreferencesHelper.getInstance().setLogin(account.name);
                 mAuthButtonSubject.onNext(false);
 
             } catch (Exception e) {
                 e.printStackTrace();
-                showMessage(e.getMessage());
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }).start();
     }
@@ -911,90 +915,16 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
         preInsertView.setVisibility(View.VISIBLE);
     }
+    //endregion
 
-    private void triggerRefresh() {
-        if(PreferencesHelper.getInstance().getLogin() == null) {
-            return;
-        }
-        Bundle b = new Bundle();
-        // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        ContentResolver.requestSync(
-                new Account(PreferencesHelper.getInstance().getLogin(), SigninActivity.ACCOUNT_TYPE),
-                CryptoContract.AUTHORITY,
-                b);
-    }
+    //region socket
+    private void start() {
 
-    private void showMessage(final String msg) {
-        if (TextUtils.isEmpty(msg))
-            return;
+        Request request = new Request.Builder().url("wss://streamer.cryptocompare.com").build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        WebSocket ws = mClient.newWebSocket(request, listener);
 
-        getActivity().runOnUiThread(() -> Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show());
-    }
-
-
-    private void saveJsonCollections(String response) {
-        JSONArray jsonPortfolios = null;
-        try {
-            jsonPortfolios = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIOS);
-            saveJsonToDatabase(CryptoContract.CryptoPortfolios.CONTENT_URI, jsonPortfolios, CryptoContract.CryptoPortfolios.DEFAULT_PROJECTION);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-        try {
-            JSONArray jsonPortfolioCoins = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_PORTFOLIO_COINS);
-            saveJsonToDatabase(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, jsonPortfolioCoins, CryptoContract.CryptoPortfolioCoins.DEFAULT_PROJECTION_SIMPLE);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            JSONArray jsonTransactions = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_TRANSACTIONS);
-            saveJsonToDatabase(CryptoContract.CryptoTransactions.CONTENT_URI, jsonTransactions, CryptoContract.CryptoTransactions.DEFAULT_PROJECTION);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            JSONArray jsonNotifications = (new JSONObject(response)).getJSONArray(SyncAdapter.COLLECTION_NOTIFICATIONS);
-            saveJsonToDatabase(CryptoContract.CryptoNotifications.CONTENT_URI, jsonNotifications, CryptoContract.CryptoNotifications.DEFAULT_PROJECTION);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveJsonToDatabase(Uri uri, JSONArray jsonPortfolios, String[] projection) {
-
-        for (int i = 0; i < jsonPortfolios.length(); i++) {
-            JSONObject row;
-            try {
-                row = jsonPortfolios.getJSONObject(i);
-                ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(uri);
-                for( String field : projection) {
-                    builder.withValue(field, row.getString(field));
-                }
-                builder.withYieldAllowed(true);
-                mOperations.add(builder.withYieldAllowed(true).build());
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
-            try {
-                getActivity().getContentResolver().applyBatch(CryptoContract.AUTHORITY, mOperations);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            } catch (OperationApplicationException e) {
-                e.printStackTrace();
-            }
-
-
-            mOperations.clear();
-        }
+        mClient.dispatcher().executorService().shutdown();
     }
 
     private Emitter.Listener onConnect = args -> {
@@ -1004,15 +934,6 @@ public class PortfolioController extends BaseController implements LoaderManager
     private Emitter.Listener onDisconnect = args -> {
         Log.d("DEBUG_INFO", "EVENT_MESSAGE");
     };
-
-    private void start() {
-
-        Request request = new Request.Builder().url("wss://streamer.cryptocompare.com").build();
-        EchoWebSocketListener listener = new EchoWebSocketListener();
-        WebSocket ws = mClient.newWebSocket(request, listener);
-
-        mClient.dispatcher().executorService().shutdown();
-    }
 
     private Emitter.Listener onSubAdd = args -> {
         Log.d("DEBUG_INFO", "onSubAdd");
@@ -1112,10 +1033,6 @@ public class PortfolioController extends BaseController implements LoaderManager
 //            mNetworkEventReporter.webSocketFrameReceived();
 //        }
 //    }
+    //endregion
 
-
-    @Override
-    public String getPageTitle(Context context) {
-        return context.getString(R.string.title_activity_main);
-    }
 }

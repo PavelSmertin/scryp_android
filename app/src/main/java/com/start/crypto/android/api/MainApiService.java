@@ -49,16 +49,6 @@ public interface MainApiService {
   @GET("portfolios.json")
   Observable<List<Portfolio>> portfolios();
 
-  @POST("portfolios.json")
-  Observable<Object> pushPortfolio(
-          @Query("portfolio[user_name]") String userName,
-          @Query("portfolio[coins_count]") int coinsCount,
-          @Query("portfolio[profit_24h]") double profit24h,
-          @Query("portfolio[profit_7d]") double profit7d
-
-  );
-
-
   @GET("public_portfolio/{user_id}")
   Observable<PublicPortfolioResponse> publicPortfolio(@Path("user_id") String resource);
 

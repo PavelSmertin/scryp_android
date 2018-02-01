@@ -320,7 +320,9 @@
         android:id="@+id/describtion"
         android:layout_width="0dp"
         android:layout_height="60dp"
+        android:maxLines="10"
         android:inputType="textMultiLine"
+        android:maxLength="160"
 
         app:layout_constraintTop_toBottomOf="@id/describtion_label"
         app:layout_constraintBottom_toBottomOf="parent"

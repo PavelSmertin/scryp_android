@@ -33,16 +33,17 @@ public class PortfolioCoin {
     @SerializedName("price_7d")
     private double price7d;
 
+    @SerializedName("name")
+    private String exchangeName;
+
+    private String symbol;
+
     @SerializedName("created_at")
     private String createdAt;
 
     @SerializedName("updated_at")
     private String updatedAt;
 
-    @SerializedName("name")
-    private String exchangeName;
-
-    private String symbol;
 
     public PortfolioCoin(long portfolioId, long coinId, long exchangeId) {
         this.portfolioId = portfolioId;

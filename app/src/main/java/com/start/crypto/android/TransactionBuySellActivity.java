@@ -116,7 +116,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
 
     @Override
     protected void onPortofolioCoinLoaded(Cursor data) {
-        data.moveToNext();
+        data.moveToFirst();
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
         mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
         mPortfolioCoinPriceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);

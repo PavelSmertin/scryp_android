@@ -55,9 +55,10 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     public static final String EXTRA_PORTFOLIO_ID               = "portfolio_id";
     public static final String EXTRA_EXCHANGE_ID                = "exchange_id";
 
-    public static final String DEFAULT_SYMBOL           = "USDT";
-    public static final String DEFAULT_EXCHANGE         = "CCCAGG";
-    private static final int MAX_DESCRIPTION_LENGTH     = 160;
+    public static final String  DEFAULT_SYMBOL           = "USDT";
+    public static final int     DEFAULT_COIN_ID          = 171986;
+    public static final String  DEFAULT_EXCHANGE         = "CCCAGG";
+    private static final int MAX_DESCRIPTION_LENGTH      = 160;
 
     @BindView(R.id.scroll_container)        View mScrollContainer;
     @BindView(R.id.currentey_complete)      EditText mCurrenteyComplete;

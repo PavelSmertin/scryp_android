@@ -45,11 +45,11 @@ public class TransactionEditActivity extends TransactionAddActivity {
     @Override
     protected void createTransaction() {
         mTransactionButton.setEnabled(false);
+        finish();
         mPresenter.updatePortfolioByTransaction(
                 new PortfolioCoin(argPortfolioId, mCoinId, argExchangeId, mPortfolioCoinOriginal),
                 new Transaction(argPortfolioCoinId, mAmount, getPrice(), mDate, mDescription, mBasePrice)
         );
-        finish();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class TransactionEditActivity extends TransactionAddActivity {
 
     @Override
     protected void onPortofolioCoinLoaded(Cursor data) {
-        data.moveToNext();
+        data.moveToFirst();
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
         mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
         mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));

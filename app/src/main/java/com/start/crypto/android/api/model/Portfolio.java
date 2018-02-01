@@ -2,6 +2,8 @@ package com.start.crypto.android.api.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class Portfolio {
 
     private int id;
@@ -20,6 +22,13 @@ public class Portfolio {
 
     @SerializedName("profit_7d")
     private double profit7d;
+
+    @SerializedName("portfolio_coins")
+    List<PortfolioCoin> portfolioCoins;
+
+    @SerializedName("transactions")
+    List<Transaction> transactions;
+
 
     public long getId() {
         return id;
@@ -43,5 +52,13 @@ public class Portfolio {
 
     public double getProfit7d() {
         return profit7d;
+    }
+
+    public List<PortfolioCoin> getPortfolioCoins() {
+        return portfolioCoins;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
     }
 }

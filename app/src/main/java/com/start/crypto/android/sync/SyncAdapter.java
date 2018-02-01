@@ -81,7 +81,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         JSONObject json = packCollectionsToJson();
 
-        Response<Object> newResponse = null;
+        Response newResponse = null;
         try {
             newResponse = MainServiceGenerator.createService(MainApiService.class, mContext).syncUpload(json.toString()).execute();
         } catch (IOException e) {
@@ -291,7 +291,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 //                        jsonTransaction.put(CryptoContract.CryptoTransactions.COLUMN_NAME_EXCHANGE_ID, cursor.getLong(columnsMap.mExchangeId));
 //
 //                        jsonTransaction.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID, cursor.getDouble(columnsMap.mOriginal));
-//                        jsonTransaction.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID, cursor.getDouble(columnsMap.mColumnPriceNow));
+//                        jsonTransaction.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_PAIR_ID, cursor.getDouble(columnsMap.mColumnPriceNow));
 //                        jsonTransaction.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID, cursor.getDouble(columnsMap.mColumnPriceOriginal));
 //                        jsonTransaction.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PROTFOLIO_BALANCE, cursor.getDouble(columnsMap.mColumnPrice24h));
 //

@@ -52,7 +52,7 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
         }
         ContentValues values = super.createTransactionValues();
         values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_COIN_CORRESPOND_ID, mTransaction.getPairId());
-        values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID, mPortfolioPairId);
+        values.put(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_PAIR_ID, mPortfolioPairId);
         return values;
     }
 

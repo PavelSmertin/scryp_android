@@ -79,7 +79,7 @@ public class ColumnsTransaction {
             }
 
             try {
-                mColumnPortfolioCurrenteyId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_CURRENTEY_ID);
+                mColumnPortfolioCurrenteyId = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_PAIR_ID);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
