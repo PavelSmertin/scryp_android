@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.start.crypto.android.PortfolioCoinsHeaderViewHolder;
 import com.start.crypto.android.R;
-import com.start.crypto.android.api.model.PortfolioCoin;
+import com.start.crypto.android.api.model.PortfolioCoinResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<RecyclerView.View
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
 
-    List<PortfolioCoin> mPortfolioCoins = new ArrayList<>();
+    List<PortfolioCoinResponse> mPortfolioCoins = new ArrayList<>();
 
     public PublicPortfolioCoinsAdapter() {
     }
@@ -34,7 +34,7 @@ class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    public void update(List<PortfolioCoin> portfolioCoins) {
+    public void update(List<PortfolioCoinResponse> portfolioCoins) {
         mPortfolioCoins = portfolioCoins;
         notifyDataSetChanged();
     }

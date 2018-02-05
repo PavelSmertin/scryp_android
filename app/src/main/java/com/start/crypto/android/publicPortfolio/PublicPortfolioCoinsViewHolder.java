@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.start.crypto.android.R;
 import com.start.crypto.android.TransactionAddActivity;
-import com.start.crypto.android.api.model.PortfolioCoin;
+import com.start.crypto.android.api.model.PortfolioCoinResponse;
 import com.start.crypto.android.utils.KeyboardHelper;
 
 import java.util.Locale;
@@ -32,7 +32,7 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         coinProfitValueView     = itemView.findViewById(R.id.coin_profit_value);
     }
 
-    public void bindData(Context context, PortfolioCoin portfolioCoin) {
+    public void bindData(Context context, PortfolioCoinResponse portfolioCoin) {
 
         double original         = portfolioCoin.getOriginal();
         double priceOriginal    = portfolioCoin.getPriceOriginal();

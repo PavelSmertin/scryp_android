@@ -39,6 +39,7 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
         holder.itemView.setOnClickListener(v -> PortfolioActivity.start(
                 ((ViewHolder) holder).itemView.getContext(),
                 mPortfolios.get(position).getUserId(),
+                mPortfolios.get(position).getId(),
                 mPortfolios.get(position).getUserName()
 
         ));

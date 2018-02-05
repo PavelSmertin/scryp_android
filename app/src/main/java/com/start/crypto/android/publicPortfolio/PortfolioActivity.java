@@ -15,7 +15,7 @@ import com.start.crypto.android.TransactionAddActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
-import com.start.crypto.android.api.model.PortfolioCoin;
+import com.start.crypto.android.api.model.PortfolioCoinResponse;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 
@@ -34,8 +34,9 @@ import io.reactivex.schedulers.Schedulers;
 
 public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    public static final String EXTRA_USER_ID = "user_id";
-    public static final String EXTRA_USER_NAME = "user_name";
+    public static final String EXTRA_USER_ID        = "user_id";
+    public static final String EXTRA_PORTFOLIO_ID   = "portfolio_id";
+    public static final String EXTRA_USER_NAME      = "user_name";
 
     @BindView(R.id.swipe_refresh)               SwipeRefreshLayout mSwipeRefresh;
 
@@ -55,17 +56,19 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     private PublicPortfolioCoinsAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
+    private long argPortfolioId;
     private long argUserId;
     private String argUsername;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
-    private List<PortfolioCoin> mCoins = new ArrayList<>();
+    private List<PortfolioCoinResponse> mCoins = new ArrayList<>();
 
 
-    public static void start(Context context, long portfolioId, String username) {
+    public static void start(Context context, long userId, long portfolioId, String username) {
         Intent intent = new Intent(context, PortfolioActivity.class);
-        intent.putExtra(EXTRA_USER_ID, portfolioId);
+        intent.putExtra(EXTRA_USER_ID, userId);
+        intent.putExtra(EXTRA_PORTFOLIO_ID, portfolioId);
         intent.putExtra(EXTRA_USER_NAME, username);
         context.startActivity(intent);
     }
@@ -82,6 +85,11 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
         argUserId = getIntent().getLongExtra(EXTRA_USER_ID, 0);
         if(argUserId <= 0) {
             throw new IllegalStateException("undefined user_id");
+        }
+
+        argPortfolioId = getIntent().getLongExtra(EXTRA_PORTFOLIO_ID, 0);
+        if(argPortfolioId <= 0) {
+            throw new IllegalStateException("undefined portfolio_id");
         }
 
         argUsername = getIntent().getStringExtra(EXTRA_USER_NAME);
@@ -172,7 +180,7 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     }
 
     private void updateCoinPriceNow(String symbol, double price) {
-        for(PortfolioCoin portfolioCoin : mCoins) {
+        for(PortfolioCoinResponse portfolioCoin : mCoins) {
             if(portfolioCoin.getSymbol().equals(symbol)) {
                 portfolioCoin.setPriceNow(price);
             }
@@ -186,20 +194,20 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     }
 
     private void updateCoinPrice24h(String symbol, double price) {
-        for (PortfolioCoin portfolioCoin : mCoins) {
+        for (PortfolioCoinResponse portfolioCoin : mCoins) {
             if (portfolioCoin.getSymbol().equals(symbol)) {
                 portfolioCoin.setPriceNow(price);
             }
         }
     }
 
-    private String implode(List<PortfolioCoin> coins) {
+    private String implode(List<PortfolioCoinResponse> coins) {
 
         StringBuilder builder = new StringBuilder();
 
-        Iterator<PortfolioCoin> iterator = coins.iterator();
+        Iterator<PortfolioCoinResponse> iterator = coins.iterator();
         while (iterator.hasNext()) {
-            PortfolioCoin el = iterator.next();
+            PortfolioCoinResponse el = iterator.next();
             builder.append(el.getSymbol());
             if(iterator.hasNext()) {
                 builder.append(",");
@@ -213,13 +221,13 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
 
     public void retrieveCoins() {
         compositeDisposable.add(
-                MainServiceGenerator.createService(MainApiService.class, this).publicPortfolio(Long.toString(argUserId))
+                MainServiceGenerator.createService(MainApiService.class, this).publicPortfolio(Long.toString(argUserId), Long.toString(argPortfolioId))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 response -> {
-                                    mCoins = response.getPortfolioCoins();
-                                    mAdapter.update(response.getPortfolioCoins());
+                                    mCoins = response;
+                                    mAdapter.update(response);
                                     calculatePortfolioValues();
                                 },
                                 error -> {
@@ -236,7 +244,7 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
         double value24h = 0;
         double valueHoldings = 0;
 
-        for (PortfolioCoin portfolioCoin : mCoins) {
+        for (PortfolioCoinResponse portfolioCoin : mCoins) {
             double original = portfolioCoin.getOriginal();
             double priceOriginal = portfolioCoin.getPriceOriginal();
             double priceNow = portfolioCoin.getPriceNow();

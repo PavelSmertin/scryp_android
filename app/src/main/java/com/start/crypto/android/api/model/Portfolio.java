@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Portfolio {
 
+    @SerializedName("portfolio_id")
     private int id;
 
     @SerializedName("coins_count")
