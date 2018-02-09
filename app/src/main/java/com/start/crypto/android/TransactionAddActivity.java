@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.view.RxView;
@@ -66,7 +67,9 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @BindView(R.id.exchange_complete)       AutoCompleteTextView mExchangeComplete;
     @BindView(R.id.clear_exchange_button)   ImageView mClearExchangeButton;
     @BindView(R.id.amount)                  EditText mAmountView;
+    @BindView(R.id.amount_symbol)           TextView mAmountSymbolView;
     @BindView(R.id.price)                   EditText mPriceView;
+    @BindView(R.id.price_symbol)            TextView mPriceSymbolView;
     @BindView(R.id.date)                    EditText mDateView;
     @BindView(R.id.describtion)             EditText mDescribtionView;
     @BindView(R.id.scroll_view)             ScrollView mScrollView;
@@ -360,6 +363,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         if(requestCode == CoinAutocompleteActivity.REQUEST_CURRENTEY && resultCode == RESULT_OK) {
             Coin coin = data.getParcelableExtra(CoinAutocompleteActivity.EXTRA_COIN);
             setPair(coin);
+            mPriceSymbolView.setText(coin.getSymbol());
         }
     }
 
@@ -531,6 +535,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         mCoinComplete.setText(coin.getSymbol());
         mCoinSymbol = coin.getSymbol();
         mCoinFieldObservable.onNext(coin.getId());
+        mAmountSymbolView.setText(coin.getSymbol());
     }
 
     protected double getPrice() {
@@ -541,10 +546,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         return price;
     }
 
-    private void setPair(Coin coin) {
+    protected void setPair(Coin coin) {
         mCurrenteyId = coin.getId();
         mCurrenteyComplete.setText(coin.getSymbol());
         mCurrenteySymbol = coin.getSymbol();
+        mPriceSymbolView.setText(coin.getSymbol());
         mPairFieldObservable.onNext(coin.getId());
     }
 
@@ -604,10 +610,10 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     }
 
     private void setRetrievedPrice(HashMap<String, Double> prices) {
-        if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            mBasePrice = 1 / prices.get(DEFAULT_SYMBOL);
-        }
         mPricePerCoin = 1/prices.get(mCoinSymbol);
+        if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            mBasePrice = prices.get(DEFAULT_SYMBOL);
+        }
         if(mPriceSwitch.isChecked()) {
             if(mPricePerCoin != 0 ) {
                 mPriceView.setText(KeyboardHelper.format(mPricePerCoin));

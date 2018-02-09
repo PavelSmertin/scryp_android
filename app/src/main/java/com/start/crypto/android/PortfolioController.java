@@ -84,6 +84,7 @@ import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -469,39 +470,37 @@ public class PortfolioController extends BaseController implements LoaderManager
     //region prices
     private void refreshPrices() {
 
+        Cursor cursor = getActivity().getContentResolver().query(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC");
 
-        RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), null)
-                .compose(bindUntilEvent(ControllerEvent.DETACH))
+        if(cursor != null) {
+            calculatePortfolioValues(cursor);
+            cursor.close();
+        }
 
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        response -> {
-                            writePrices(response);
-                            mSwipeRefresh.setRefreshing(false);
-                        },
-                        error -> {
-                            mSwipeRefresh.setRefreshing(false);
-                        }
-                );
+        Observable<HashMap<String, Double>> pricesObservable =
+                RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), null)
+                .subscribeOn(Schedulers.io());
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
+        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
+                RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), Long.toString(cal.getTimeInMillis()), null)
+                .subscribeOn(Schedulers.io());
 
-
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), Long.toString(cal.getTimeInMillis()), null)
+        compositeDisposable.add(Observable.combineLatest(
+                    pricesObservable,
+                    pricesHistoricalObservable,
+                    this::updatePrices)
                 .compose(bindUntilEvent(ControllerEvent.DETACH))
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        response -> {
-                            write24hPrices(response.get(TransactionAddActivity.DEFAULT_SYMBOL));
-                            mSwipeRefresh.setRefreshing(false);
-                        },
-                        error -> {
-                            mSwipeRefresh.setRefreshing(false);
-                        }
-                );
+                .subscribe(success -> mSwipeRefresh.setRefreshing(false))
+        );
+    }
+
+    private boolean updatePrices(HashMap<String, Double> prices, HashMap<String, HashMap<String, Double>> pricesHistorical) {
+        writePrices(prices);
+        write24hPrices(pricesHistorical.get(TransactionAddActivity.DEFAULT_SYMBOL));
+        return true;
     }
 
     private void writePrices(HashMap<String, Double> prices) {
@@ -522,6 +521,7 @@ public class PortfolioController extends BaseController implements LoaderManager
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, 1/currency.getValue());
             getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
+            Log.d("DEBUG_INFO", "price of " + currency.getKey() + ": " + 1/currency.getValue());
         }
 
     }
@@ -531,6 +531,8 @@ public class PortfolioController extends BaseController implements LoaderManager
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1/currency.getValue());
             getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
+            Log.d("DEBUG_INFO", "price24 of " + currency.getKey() + ": " + 1/currency.getValue());
+
         }
 
     }

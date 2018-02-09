@@ -76,8 +76,15 @@
     <string name="transaction_amount_error_parse">Amount is not correct</string>
     <string name="transaction_menu_done">Done</string>
     <string name="transaction_description_error">Descriptions length restricted by 160 characters</string>
+    <string name="transaction_buy_button">Buy %s</string>
+    <string name="transaction_sell_button">Sell %s</string>
+
+
+    <string name="transition_user_logo">TRANSITION:USER_LOGO</string>
     <string name="transition_autocomplete_coin">TRANSITION:AUTOCOMLETE_COIN</string>
     <string name="transition_autocomplete_clear">TRANSITION:AUTOCOMLETE_CLEAR</string>
+
+
     <string name="portfolio_coin_edit">Edit</string>
     <string name="portfolio_coin_remove">Remove</string>
 

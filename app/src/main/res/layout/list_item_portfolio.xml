@@ -16,6 +16,28 @@
     >
 
 
+    <android.support.constraint.Guideline
+        android:id="@+id/line_1"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.60"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/line_2"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <android.support.constraint.Guideline
+        android:id="@+id/line_3"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
     <ImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -23,6 +45,8 @@
         android:layout_marginTop="5dp"
         android:id="@+id/user_logo"
         app:srcCompat="@drawable/ic_user_default"
+
+        android:transitionName="@string/transition_user_logo"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -63,22 +87,6 @@
         app:layout_constraintRight_toLeftOf="@+id/profit_24h"
         />
 
-
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/portfolio_profit_24h"
-        android:id="@+id/profit_24h_label"
-        android:gravity="center"
-        style="@style/AppLabelStyle"
-        app:layout_constraintHorizontal_weight="1"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/profit_24h"
-        app:layout_constraintLeft_toRightOf="@+id/coins_count"
-        app:layout_constraintRight_toLeftOf="@+id/profit_7d"
-        />
-
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -88,25 +96,10 @@
         android:textColor="@color/colorUpValue"
         app:layout_constraintHorizontal_weight="1"
 
-        app:layout_constraintTop_toBottomOf="@+id/profit_24h_label"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/coins_count"
-        app:layout_constraintRight_toLeftOf="@+id/profit_7d"
-        />
-
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/portfolio_profit_7d"
-        android:id="@+id/profit_7d_label"
-        android:gravity="center"
-        style="@style/AppLabelStyle"
-        app:layout_constraintHorizontal_weight="1"
-
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/profit_7d"
-        app:layout_constraintLeft_toRightOf="@+id/profit_24h"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/line_2"
+        app:layout_constraintLeft_toLeftOf="@+id/line_1"
         />
 
     <TextView
@@ -118,10 +111,10 @@
         android:textColor="@color/colorUpValue"
         app:layout_constraintHorizontal_weight="1"
 
-        app:layout_constraintTop_toBottomOf="@+id/profit_7d_label"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/profit_24h"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/line_3"
+        app:layout_constraintLeft_toLeftOf="@+id/line_2"
         />
 
 

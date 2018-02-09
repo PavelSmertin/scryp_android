@@ -171,11 +171,14 @@ public class UserController extends BaseController {
 
         mAvatarProcessView.setVisibility(View.GONE);
 
-        // create RequestBody instance from file
-        RequestBody requestFile = RequestBody.create(MediaType.parse(getActivity().getContentResolver().getType(mSelectedImage)), mAvatarFile);
+        MultipartBody.Part body = null;
+        if(mSelectedImage != null) {
+            // create RequestBody instance from file
+            RequestBody requestFile = RequestBody.create(MediaType.parse(getActivity().getContentResolver().getType(mSelectedImage)), mAvatarFile);
 
-        // MultipartBody.Part is used to send also the actual file name
-        MultipartBody.Part body = MultipartBody.Part.createFormData("avatar", mAvatarFile.getName(), requestFile);
+            // MultipartBody.Part is used to send also the actual file name
+            body = MultipartBody.Part.createFormData("avatar", mAvatarFile.getName(), requestFile);
+        }
 
         // add another part within the multipart request
         String firstNameString = mFirstNameView.getText().toString().trim();

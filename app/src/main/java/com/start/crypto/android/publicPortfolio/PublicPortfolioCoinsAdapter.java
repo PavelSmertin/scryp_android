@@ -34,11 +34,6 @@ class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    public void update(List<PortfolioCoinResponse> portfolioCoins) {
-        mPortfolioCoins = portfolioCoins;
-        notifyDataSetChanged();
-    }
-
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == TYPE_HEADER) {
@@ -61,10 +56,13 @@ class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<RecyclerView.View
         return TYPE_ITEM;
     }
 
+    public void update(List<PortfolioCoinResponse> portfolioCoins) {
+        mPortfolioCoins = portfolioCoins;
+        notifyDataSetChanged();
+    }
+
     private boolean isPositionHeader(int position) {
         return position == 0;
     }
-
-
 
 }

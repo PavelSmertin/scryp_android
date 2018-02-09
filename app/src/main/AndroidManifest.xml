@@ -84,9 +84,6 @@
             android:name=".account.RestorePasswordActivity"
             android:label="@string/title_activity_restore"
             android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity
-            android:name=".PortfoliosActivity"
-            android:label="@string/title_activity_portfolios" />
         <activity android:name=".PortfolioCoinActivity" />
         <activity
             android:name=".publicPortfolio.PortfolioActivity"

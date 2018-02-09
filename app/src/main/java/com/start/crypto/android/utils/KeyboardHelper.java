@@ -48,7 +48,9 @@ public final class KeyboardHelper {
     }
 
     public static String format(double value) {
-        if (value > -1 && value < 1) {
+        if (value > -0.5d && value < 0.5d) {
+            return formatter.format(new BigDecimal(value).setScale(8, BigDecimal.ROUND_FLOOR).doubleValue());
+        } else if (value > -1 && value < 1) {
             return formatter.format(new BigDecimal(value).setScale(5, BigDecimal.ROUND_FLOOR).doubleValue());
         }
         return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());

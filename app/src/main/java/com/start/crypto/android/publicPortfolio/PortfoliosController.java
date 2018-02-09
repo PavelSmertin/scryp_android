@@ -48,7 +48,7 @@ public class PortfoliosController extends BaseController implements SwipeRefresh
 
         super.onViewBound(view);
 
-        mAdapter = new PortfoliosAdapter();
+        mAdapter = new PortfoliosAdapter(getActivity());
         mLayoutManager = new LinearLayoutManager(getActivity());
 
         mRecyclerView.setHasFixedSize(true);

@@ -1,61 +1,100 @@
 package com.start.crypto.android;
 
 
-import android.content.Context;
-import android.support.annotation.Nullable;
+import android.app.Activity;
+import android.app.ActivityOptions;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.request.RequestOptions;
 import com.start.crypto.android.api.model.Portfolio;
-import com.start.crypto.android.imageLoader.GlideApp;
 import com.start.crypto.android.publicPortfolio.PortfolioActivity;
+import com.start.crypto.android.publicPortfolio.PortfolioHeaderViewHolder;
+import com.start.crypto.android.publicPortfolio.PortfolioViewHolder;
 
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 public class PortfoliosAdapter extends RecyclerView.Adapter {
 
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
+
     private final List<Portfolio> mPortfolios = new LinkedList<>();
+    private final Activity mContext;
 
 
-    public PortfoliosAdapter() {
-    }
-
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.list_item_portfolio, parent, false);
-        return new ViewHolder(view, inflater);
-    }
-
-    @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ((ViewHolder) holder).bind(mPortfolios.get(position));
-        holder.itemView.setOnClickListener(v -> PortfolioActivity.start(
-                ((ViewHolder) holder).itemView.getContext(),
-                mPortfolios.get(position).getUserId(),
-                mPortfolios.get(position).getId(),
-                mPortfolios.get(position).getUserName()
-        ));
+    public PortfoliosAdapter(Activity context) {
+        mContext = context;
     }
 
     @Override
     public int getItemCount() {
-        return mPortfolios.size();
+        return mPortfolios.size() + 1;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof PortfolioViewHolder) {
+            ((PortfolioViewHolder)holder).bind(mPortfolios.get(position - 1));
+            holder.itemView.setOnClickListener(v -> {
+
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                    View userLogoView = holder.itemView.findViewById(R.id.user_logo);
+
+                    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+                            mContext,
+                            Pair.create(
+                                    userLogoView,
+                                    mContext.getString(R.string.transition_user_logo)
+                            )
+                    );
+                    PortfolioActivity.start(
+                            mContext,
+                            options,
+                            mPortfolios.get(position - 1).getUserId(),
+                            mPortfolios.get(position - 1).getId(),
+                            mPortfolios.get(position - 1).getUserName(),
+                            mPortfolios.get(position - 1).getAvatar()
+                    );
+                } else {
+                    PortfolioActivity.start(
+                            mContext,
+                            mPortfolios.get(position).getUserId(),
+                            mPortfolios.get(position).getId(),
+                            mPortfolios.get(position).getUserName(),
+                            mPortfolios.get(position - 1).getAvatar()
+                    );
+                }
+            });
+        }
+    }
+
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == TYPE_HEADER) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio_header, parent, false);
+            return  new PortfolioHeaderViewHolder(v);
+        }
+
+        if(viewType == TYPE_ITEM)  {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio, parent, false);
+            return new PortfolioViewHolder(v);
+        }
+        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
     }
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        if(isPositionHeader(position)) {
+            return TYPE_HEADER;
+        }
+        return TYPE_ITEM;
     }
 
     public void updatePortfolios(List<Portfolio> portfolios) {
@@ -64,64 +103,8 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        private static final int AVATAR_IMAGE_WIDTH = 96;
-        private static final int AVATAR_IMAGE_HEIGHT = 96;
-
-
-        private Context mContext;
-        protected LayoutInflater mInflater;
-
-        private int mUpTendColor;
-        private int mDownTendColor;
-
-        @Nullable @BindView(R.id.user_logo)        ImageView mAvatar;
-        @Nullable @BindView(R.id.user_name)     TextView mUserName;
-        @Nullable @BindView(R.id.coins_count)   TextView mCoinsCount;
-        @Nullable @BindView(R.id.profit_24h)    TextView mProfit24h;
-        @Nullable @BindView(R.id.profit_7d)     TextView mprofit7d;
-
-
-        public ViewHolder(View view, LayoutInflater inflater) {
-            super(view);
-            mInflater = inflater;
-            mContext = view.getContext();
-            ButterKnife.bind(this, view);
-
-            mDownTendColor = view.getResources().getColor(R.color.colorDownValue);
-            mUpTendColor = view.getResources().getColor(R.color.colorUpValue);
-        }
-
-        public void bind(Portfolio portfolio) {
-
-            if(portfolio.getAvatar() != null) {
-                GlideApp.with(mContext)
-                        .load(portfolio.getAvatar())
-                        .centerCrop()
-                        .override(AVATAR_IMAGE_WIDTH, AVATAR_IMAGE_HEIGHT)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(mAvatar);
-            }
-
-            mUserName.setText(portfolio.getUserName());
-            mCoinsCount.setText(String.format("%d coins", portfolio.getCoinsCount()));
-            mProfit24h.setText(new BigDecimal(portfolio.getProfit24h()).setScale(0, BigDecimal.ROUND_FLOOR)+ "%");
-            mprofit7d.setText(new BigDecimal(portfolio.getProfit7d()).setScale(0, BigDecimal.ROUND_FLOOR) + "%");
-
-            if(portfolio.getProfit24h() < 0) {
-                mProfit24h.setTextColor(mDownTendColor);
-            } else {
-                mProfit24h.setTextColor(mUpTendColor);
-            }
-
-            if(portfolio.getProfit7d() < 0) {
-                mprofit7d.setTextColor(mDownTendColor);
-            } else {
-                mprofit7d.setTextColor(mUpTendColor);
-            }
-        }
+    private boolean isPositionHeader(int position) {
+        return position == 0;
     }
-
 
 }

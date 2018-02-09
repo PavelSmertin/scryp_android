@@ -1,14 +1,18 @@
 package com.start.crypto.android.publicPortfolio;
 
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.start.crypto.android.BaseActivity;
 import com.start.crypto.android.R;
 import com.start.crypto.android.TransactionAddActivity;
@@ -16,6 +20,7 @@ import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.PortfolioCoinResponse;
+import com.start.crypto.android.imageLoader.GlideApp;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 
@@ -28,6 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -37,12 +43,14 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     public static final String EXTRA_USER_ID        = "user_id";
     public static final String EXTRA_PORTFOLIO_ID   = "portfolio_id";
     public static final String EXTRA_USER_NAME      = "user_name";
+    public static final String EXTRA_AVATAR         = "avatar";
 
     @BindView(R.id.swipe_refresh)               SwipeRefreshLayout mSwipeRefresh;
 
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;
 
 
+    @BindView(R.id.user_logo)                       ImageView mAvatar;
     @BindView(R.id.portfolio_current_value)         TextView mPortfolioCurrentValue;
     @BindView(R.id.portfolio_current_value_unit)    TextView mPortfolioCurrentValueUnit;
     @BindView(R.id.portfolio_profit_24h)            TextView mPortfolioProfit24h;
@@ -59,19 +67,33 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     private long argPortfolioId;
     private long argUserId;
     private String argUsername;
+    private String argAvatar;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     private List<PortfolioCoinResponse> mCoins = new ArrayList<>();
 
 
-    public static void start(Context context, long userId, long portfolioId, String username) {
+    public static void start(Context context, long userId, long portfolioId, String username, String avatar) {
         Intent intent = new Intent(context, PortfolioActivity.class);
         intent.putExtra(EXTRA_USER_ID, userId);
         intent.putExtra(EXTRA_PORTFOLIO_ID, portfolioId);
         intent.putExtra(EXTRA_USER_NAME, username);
+        intent.putExtra(EXTRA_AVATAR, avatar);
         context.startActivity(intent);
     }
+
+    public static void start(Context context, ActivityOptions options, long userId, long portfolioId, String username, String avatar) {
+        Intent intent = new Intent(context, PortfolioActivity.class);
+        intent.putExtra(EXTRA_USER_ID, userId);
+        intent.putExtra(EXTRA_PORTFOLIO_ID, portfolioId);
+        intent.putExtra(EXTRA_USER_NAME, username);
+        intent.putExtra(EXTRA_AVATAR, avatar);
+        context.startActivity(intent, options.toBundle());
+    }
+
+
+
 
     @Override
     protected void setupLayout() {
@@ -95,6 +117,16 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
         argUsername = getIntent().getStringExtra(EXTRA_USER_NAME);
         if(argUsername != null) {
             mUsernameView.setText(argUsername);
+        }
+
+        argAvatar = getIntent().getStringExtra(EXTRA_AVATAR);
+        if(argAvatar != null) {
+            GlideApp.with(this)
+                    .load(argAvatar)
+                    .centerCrop()
+                    .override(PortfolioViewHolder.AVATAR_IMAGE_WIDTH, PortfolioViewHolder.AVATAR_IMAGE_HEIGHT)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(mAvatar);
         }
 
         mAdapter = new PublicPortfolioCoinsAdapter();
@@ -135,47 +167,42 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
             return;
         }
 
-        RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), null)
-                .compose(bindUntilEvent(ActivityEvent.PAUSE))
-
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        response -> {
-                            writePrices(response);
-                            mSwipeRefresh.setRefreshing(false);
-                            mAdapter.update(mCoins);
-                            calculatePortfolioValues();
-                        },
-                        error -> {
-                            mSwipeRefresh.setRefreshing(false);
-                        }
-                );
+        Observable<HashMap<String, Double>> pricesObservable =
+                RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), null)
+                        .subscribeOn(Schedulers.io());
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -1);
+        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
+                RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+                        .subscribeOn(Schedulers.io());
 
-
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
+        compositeDisposable.add(Observable.combineLatest(
+                pricesObservable,
+                pricesHistoricalObservable,
+                this::updatePrices)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
-                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        response -> {
-                            write24hPrices(response.get(TransactionAddActivity.DEFAULT_SYMBOL));
-                            mSwipeRefresh.setRefreshing(false);
-                            mAdapter.update(mCoins);
-                            calculatePortfolioValues();
-                        },
-                        error -> {
-                            mSwipeRefresh.setRefreshing(false);
-                        }
-                );
+                .subscribe(success -> updatePortfolio())
+        );
+    }
+
+    private void updatePortfolio() {
+        mAdapter.update(mCoins);
+        calculatePortfolioValues();
+        mSwipeRefresh.setRefreshing(false);
+    }
+
+    private boolean updatePrices(HashMap<String, Double> prices, HashMap<String, HashMap<String, Double>> pricesHistorical) {
+        writePrices(prices);
+        write24hPrices(pricesHistorical.get(TransactionAddActivity.DEFAULT_SYMBOL));
+        return true;
     }
 
     private void writePrices(HashMap<String, Double> prices) {
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             updateCoinPriceNow(currency.getKey(), 1/currency.getValue());
+            Log.d("DEBUG_INFO", "public price of " + currency.getKey() + ": " + 1/currency.getValue());
         }
     }
 
@@ -190,13 +217,14 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     private void write24hPrices(HashMap<String, Double> prices) {
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             updateCoinPrice24h(currency.getKey(), 1/currency.getValue());
+            Log.d("DEBUG_INFO", "public price24 of " + currency.getKey() + ": " + 1/currency.getValue());
         }
     }
 
     private void updateCoinPrice24h(String symbol, double price) {
-        for (PortfolioCoinResponse portfolioCoin : mCoins) {
-            if (portfolioCoin.getSymbol().equals(symbol)) {
-                portfolioCoin.setPriceNow(price);
+        for(PortfolioCoinResponse portfolioCoin : mCoins) {
+            if(portfolioCoin.getSymbol().equals(symbol)) {
+                portfolioCoin.setPrice24h(price);
             }
         }
     }
@@ -217,8 +245,6 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
         return builder.toString();
     }
 
-
-
     public void retrieveCoins() {
         compositeDisposable.add(
                 MainServiceGenerator.createService(MainApiService.class, this).publicPortfolio(Long.toString(argUserId), Long.toString(argPortfolioId))
@@ -236,7 +262,6 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
                         )
         );
     }
-
 
     private void calculatePortfolioValues() {
 

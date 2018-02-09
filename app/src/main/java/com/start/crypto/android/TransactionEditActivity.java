@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.database.Cursor;
 
 import com.jakewharton.rxbinding2.view.RxView;
+import com.start.crypto.android.api.model.Coin;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.api.model.Transaction;
+import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
 
@@ -66,6 +68,13 @@ public class TransactionEditActivity extends TransactionAddActivity {
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
         mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
         mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+
+        ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
+        setCoin(new Coin(
+                data.getLong(columnsCoinMap.mColumnId),
+                data.getString(columnsCoinMap.mColumnSymbol),
+                data.getString(columnsCoinMap.mColumnName))
+        );
     }
 
     @Override

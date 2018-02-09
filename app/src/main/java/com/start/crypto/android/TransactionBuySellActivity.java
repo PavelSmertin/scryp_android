@@ -135,6 +135,18 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
 
     }
 
+    @Override
+    protected void setCoin(Coin coin) {
+        super.setCoin(coin);
+        mBuyTransactionButton.setText(String.format(Locale.getDefault(), getString(R.string.transaction_buy_button), coin.getSymbol()));
+    }
+
+    @Override
+    protected void setPair(Coin coin) {
+        super.setPair(coin);
+        mSellTransactionButton.setText(String.format(Locale.getDefault(), getString(R.string.transaction_sell_button), coin.getSymbol()));
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
