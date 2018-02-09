@@ -42,12 +42,12 @@ public class RestorePasswordActivity extends BaseActivity {
         argUserId = getIntent().getStringExtra(RestoreRequestActivity.EXTRA_USER_ID);
 
         RxView.clicks(mNextButton).subscribe(success -> {
-            startProgressDialog(R.string.all_loading);
+            startProgressDialog();
             MainServiceGenerator.createService(MainApiService.class, this).restorePassword(
                         argUserId,
-                        mCodeView.getText().toString(),
-                        mPasswordView.getText().toString(),
-                        mPasswordRepeatView.getText().toString()
+                        mCodeView.getText().toString().trim(),
+                        mPasswordView.getText().toString().trim(),
+                        mPasswordRepeatView.getText().toString().trim()
                     )
                     .compose(bindUntilEvent(ActivityEvent.PAUSE))
                     .subscribeOn(Schedulers.io())

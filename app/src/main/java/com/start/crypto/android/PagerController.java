@@ -45,7 +45,7 @@ public class PagerController extends BaseController {
 
     public PagerController() {
 
-        List<Controller> controllers = Arrays.asList(new PortfoliosController(), new PortfolioController(), new NotificationsController());
+        List<Controller> controllers = Arrays.asList(new PortfoliosController(), new HomeController(), new NotificationsController());
 
         mPagerAdapter = new RouterPagerAdapter(this) {
             @Override

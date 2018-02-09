@@ -99,4 +99,9 @@ dependencies {
     }
     compile 'com.bluelinelabs:conductor-support:2.1.4'
 
+
+    compile 'com.github.bumptech.glide:glide:4.6.1', { exclude group: 'com.android.support' }
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+    compile 'com.github.bumptech.glide:recyclerview-integration:4.6.1', { transitive = false }
+
 }

@@ -1,8 +1,7 @@
 package com.start.crypto.android.api.model;
 
 import com.google.gson.annotations.SerializedName;
-
-import java.util.List;
+import com.start.crypto.android.api.RestClientMainApi;
 
 public class Portfolio {
 
@@ -18,17 +17,14 @@ public class Portfolio {
     @SerializedName("user_name")
     private String userName;
 
+    @SerializedName("avatar")
+    private String avatar;
+
     @SerializedName("profit_24h")
     private double profit24h;
 
     @SerializedName("profit_7d")
     private double profit7d;
-
-    @SerializedName("portfolio_coins")
-    List<PortfolioCoin> portfolioCoins;
-
-    @SerializedName("transactions")
-    List<Transaction> transactions;
 
 
     public long getId() {
@@ -47,6 +43,13 @@ public class Portfolio {
         return userName;
     }
 
+    public String getAvatar() {
+        if(avatar == null) {
+            return null;
+        }
+        return RestClientMainApi.BASE_URL + avatar;
+    }
+
     public double getProfit24h() {
         return profit24h;
     }
@@ -55,11 +58,5 @@ public class Portfolio {
         return profit7d;
     }
 
-    public List<PortfolioCoin> getPortfolioCoins() {
-        return portfolioCoins;
-    }
 
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
 }

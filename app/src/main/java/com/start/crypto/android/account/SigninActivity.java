@@ -102,8 +102,8 @@ public class SigninActivity extends AccountAuthenticatorActivity {
 
     public void submit() {
 
-        String userName = mEmailView.getText().toString();
-        String userPass = mPasswordView.getText().toString();
+        String userName = mEmailView.getText().toString().trim();
+        String userPass = mPasswordView.getText().toString().trim();
 
 
         compositeDisposable.add(

@@ -13,7 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public enum RestClientMainApi {
 
     INSTANCE;
-    private static final String BASE_URL = "http://cards.ff.ru/";
+    public static final String BASE_URL = "http://cards.ff.ru";
     private  MainApiService mMainApiService;
     private ApiInterceptor mMainApiInterceptor;
 

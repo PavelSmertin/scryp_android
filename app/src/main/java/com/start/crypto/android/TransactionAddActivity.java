@@ -557,7 +557,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     }
 
     private void retrivePrice() {
-        startProgressDialog(R.string.all_loading);
+        startProgressDialog();
         if(Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
             RestClientMinApi.INSTANCE.getClient().prices(
                     mCurrenteySymbol,

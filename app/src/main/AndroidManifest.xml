@@ -92,7 +92,10 @@
             android:name=".publicPortfolio.PortfolioActivity"
             android:label="@string/title_activity_portfolios"
             />
-
+        <activity
+            android:name=".account.UserActivity"
+            android:label="@string/account_edit"
+            />
 
 
 

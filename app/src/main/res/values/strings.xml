@@ -1,17 +1,24 @@
 <resources>
     <string name="app_name">CryptoPie</string>
     <string name="all_next">Next</string>
+    <string name="all_ok">Ok</string>
     <string name="all_clear_text">Clear</string>
     <string name="all_loading">Loading</string>
 
 
     <string name="account_email">Email</string>
+    <string name="account_edit">Account</string>
     <string name="account_code">Digital code</string>
     <string name="account_password">Password</string>
     <string name="account_password_repeat">Repeat password</string>
-
     <string name="account_email_error">Email not valid</string>
     <string name="account_code_was_sent">Code was sent to your email</string>
+    <string name="account_was_updated">Account was updated</string>
+    <string name="account_first_name">First name</string>
+    <string name="account_last_name">Last name</string>
+    <string name="account_gallery_denied">To change avatar you have to grant external storage permission</string>
+    <string name="account_gallery_explanation">To change avatar it need access to gallery</string>
+
 
     <string name="title_activity_auth">Sign in</string>
     <string name="title_activity_signup">Sign up</string>

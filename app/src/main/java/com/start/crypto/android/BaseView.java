@@ -9,6 +9,7 @@ public interface BaseView {
     void startProgress(@StringRes int stringId);
     void stopProgress();
     void startProgressDialog(@StringRes int stringId);
+    void startProgressDialog();
     void stopProgressDialog();
 
     void onForbidden();

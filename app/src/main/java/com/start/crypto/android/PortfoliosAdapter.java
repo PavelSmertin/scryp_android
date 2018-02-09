@@ -1,14 +1,18 @@
 package com.start.crypto.android;
 
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
 import com.start.crypto.android.api.model.Portfolio;
+import com.start.crypto.android.imageLoader.GlideApp;
 import com.start.crypto.android.publicPortfolio.PortfolioActivity;
 
 import java.math.BigDecimal;
@@ -41,7 +45,6 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
                 mPortfolios.get(position).getUserId(),
                 mPortfolios.get(position).getId(),
                 mPortfolios.get(position).getUserName()
-
         ));
     }
 
@@ -63,19 +66,27 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
+        private static final int AVATAR_IMAGE_WIDTH = 96;
+        private static final int AVATAR_IMAGE_HEIGHT = 96;
+
+
+        private Context mContext;
         protected LayoutInflater mInflater;
 
         private int mUpTendColor;
         private int mDownTendColor;
 
+        @Nullable @BindView(R.id.user_logo)        ImageView mAvatar;
         @Nullable @BindView(R.id.user_name)     TextView mUserName;
         @Nullable @BindView(R.id.coins_count)   TextView mCoinsCount;
         @Nullable @BindView(R.id.profit_24h)    TextView mProfit24h;
         @Nullable @BindView(R.id.profit_7d)     TextView mprofit7d;
 
+
         public ViewHolder(View view, LayoutInflater inflater) {
             super(view);
             mInflater = inflater;
+            mContext = view.getContext();
             ButterKnife.bind(this, view);
 
             mDownTendColor = view.getResources().getColor(R.color.colorDownValue);
@@ -83,6 +94,16 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
         }
 
         public void bind(Portfolio portfolio) {
+
+            if(portfolio.getAvatar() != null) {
+                GlideApp.with(mContext)
+                        .load(portfolio.getAvatar())
+                        .centerCrop()
+                        .override(AVATAR_IMAGE_WIDTH, AVATAR_IMAGE_HEIGHT)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(mAvatar);
+            }
+
             mUserName.setText(portfolio.getUserName());
             mCoinsCount.setText(String.format("%d coins", portfolio.getCoinsCount()));
             mProfit24h.setText(new BigDecimal(portfolio.getProfit24h()).setScale(0, BigDecimal.ROUND_FLOOR)+ "%");

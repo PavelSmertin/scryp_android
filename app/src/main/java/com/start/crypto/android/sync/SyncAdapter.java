@@ -14,6 +14,7 @@ import android.os.Bundle;
 import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
+import com.start.crypto.android.api.model.SyncData;
 import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.utils.PreferencesHelper;
 
@@ -83,7 +84,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         Response newResponse = null;
         try {
-            newResponse = MainServiceGenerator.createService(MainApiService.class, mContext).syncUpload(json.toString()).execute();
+            newResponse = MainServiceGenerator.createService(MainApiService.class, mContext).syncUpload(new SyncData(json.toString())).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -100,6 +100,16 @@ public abstract class BaseActivity extends RxAppCompatActivity implements BaseVi
     }
 
     @Override
+    public void startProgressDialog() {
+        mLoaderFragment = DialogFactory.showLoader(this);
+        try {
+            mLoaderFragment.show(getSupportFragmentManager(), getClass().getName());
+        }catch (IllegalStateException ex){
+            //ErrorReportHelper.report(ex);
+        }
+    }
+
+    @Override
     public void stopProgressDialog() {
         if (mLoaderFragment != null) {
             try {

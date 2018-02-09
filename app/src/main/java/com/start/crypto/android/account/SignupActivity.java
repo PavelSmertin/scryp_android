@@ -41,7 +41,7 @@ public class SignupActivity extends BaseActivity {
 
         RxView.clicks(mNextButton).subscribe(success -> {
             mUserName = mEmailView.getText().toString();
-            MainServiceGenerator.createService(MainApiService.class, this).signup(mEmailView.getText().toString(), mPasswordView.getText().toString(), mPasswordRepeatView.getText().toString())
+            MainServiceGenerator.createService(MainApiService.class, this).signup(mEmailView.getText().toString().trim(), mPasswordView.getText().toString().trim(), mPasswordRepeatView.getText().toString().trim())
                     .compose(bindUntilEvent(ActivityEvent.PAUSE))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

@@ -49,9 +49,9 @@ public class RestoreRequestActivity extends BaseActivity {
         }
 
         RxView.clicks(mNextButton).subscribe(success -> {
-            startProgressDialog(R.string.all_loading);
+            startProgressDialog();
 
-            mUserName = mEmailView.getText().toString();
+            mUserName = mEmailView.getText().toString().trim();
 
             MainServiceGenerator.createService(MainApiService.class, this).restoreRequest(mUserName)
                     .compose(bindUntilEvent(ActivityEvent.PAUSE))
@@ -67,7 +67,7 @@ public class RestoreRequestActivity extends BaseActivity {
                             },
                             error -> {
                                 showError(error.getMessage());
-                                startProgressDialog(R.string.all_loading);
+                                startProgressDialog();
                             }
                     );
         });

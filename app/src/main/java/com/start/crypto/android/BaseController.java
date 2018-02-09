@@ -67,6 +67,9 @@ public abstract class BaseController extends ButterKnifeController implements Ba
 
     @Override
     public void showAlert(int message) {
+        if(getActivity() != null) {
+            Toast.makeText(getActivity(), getResources().getString(message), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -84,6 +87,13 @@ public abstract class BaseController extends ButterKnifeController implements Ba
     public void startProgressDialog(@StringRes int stringId) {
         if(getActivity() != null && getActivity() instanceof BaseActivity) {
             ((BaseActivity) getActivity()).startProgressDialog(stringId);
+        }
+    }
+
+    @Override
+    public void startProgressDialog() {
+        if(getActivity() != null && getActivity() instanceof BaseActivity) {
+            ((BaseActivity) getActivity()).startProgressDialog();
         }
     }
 

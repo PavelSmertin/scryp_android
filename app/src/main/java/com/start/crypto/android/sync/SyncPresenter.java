@@ -74,21 +74,22 @@ public class SyncPresenter {
         ArrayList<ContentProviderOperation> operations = new ArrayList<>();
 
         for (int i = 0; i < jsonPortfolios.length(); i++) {
-            JSONObject row;
-            try {
-                row = jsonPortfolios.getJSONObject(i);
+            JSONObject row = null;
+                try {
+                    row = jsonPortfolios.getJSONObject(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(row == null) {
+                    continue;
+                }
                 ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(uri);
                 for( String field : projection) {
-                    if(row.getString(field) != null) {
-                        builder.withValue(field, row.getString(field));
-                    }
+                    builder.withValue(field, row.optString(field));
                 }
                 builder.withYieldAllowed(true);
                 operations.add(builder.withYieldAllowed(true).build());
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
 
             try {
                 mContentResolver.applyBatch(CryptoContract.AUTHORITY, operations);
