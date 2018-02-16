@@ -237,7 +237,13 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 mAmountView.setText(null);
             }
             if(!hasFocus && mAmountView.getText().length() == 0) {
-                mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
+                if(mAmount < 0.5D) {
+                    mAmountView.setText(String.format(Locale.US, "%.08f", mAmount));
+                } else if(mAmount < 1D){
+                    mAmountView.setText(String.format(Locale.US, "%.05f", mAmount));
+                } else {
+                    mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
+                }
             }
         });
 
@@ -479,7 +485,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 coin > 0 &&
                 pair > 0 &&
                 dateInMillis > 0 &&
-                price >= 0 &&
+                price > 0 &&
                 descriptionLength < MAX_DESCRIPTION_LENGTH;
     }
 

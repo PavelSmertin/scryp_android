@@ -117,21 +117,27 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
     @Override
     protected void onPortofolioCoinLoaded(Cursor data) {
         data.moveToFirst();
-        ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
-        mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
-        mPortfolioCoinPriceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
+        ColumnsPortfolioCoin.ColumnsMap columnsPortfolioCoinMap = new ColumnsPortfolioCoin.ColumnsMap(data);
+        mPortfolioCoinOriginal = data.getDouble(columnsPortfolioCoinMap.mColumnOriginal);
+        mPortfolioCoinPriceOriginal = data.getDouble(columnsPortfolioCoinMap.mColumnPriceOriginal);
         mAmountMax = mPortfolioCoinOriginal;
 
         ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
         setCoin(new Coin(
-                data.getLong(columnsCoinMap.mColumnId),
+                data.getLong(columnsPortfolioCoinMap.mColumnCoinId),
                 data.getString(columnsCoinMap.mColumnSymbol),
                 data.getString(columnsCoinMap.mColumnName))
         );
 
         mCoinComplete.setEnabled(false);
 
-        mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+        if(mPortfolioCoinOriginal < 0.5D) {
+            mAmountView.setText(String.format(Locale.US, "%.08f", mPortfolioCoinOriginal));
+        } else if(mPortfolioCoinOriginal < 1D){
+            mAmountView.setText(String.format(Locale.US, "%.05f", mPortfolioCoinOriginal));
+        } else {
+            mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+        }
 
     }
 

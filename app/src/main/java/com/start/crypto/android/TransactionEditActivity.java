@@ -66,11 +66,11 @@ public class TransactionEditActivity extends TransactionAddActivity {
     @Override
     protected void onPortofolioCoinLoaded(Cursor data) {
         data.moveToFirst();
-        ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
-        mPortfolioCoinOriginal      = data.getDouble(columnsMap.mColumnOriginal);
+        ColumnsPortfolioCoin.ColumnsMap columnsPortfolioCoinMap = new ColumnsPortfolioCoin.ColumnsMap(data);
+        mPortfolioCoinOriginal      = data.getDouble(columnsPortfolioCoinMap.mColumnOriginal);
 
         // init price
-        double portfolioCoinPriceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
+        double portfolioCoinPriceOriginal = data.getDouble(columnsPortfolioCoinMap.mColumnPriceOriginal);
         mPricePerCoin = portfolioCoinPriceOriginal;
         mPriceInTotal = portfolioCoinPriceOriginal * mPortfolioCoinOriginal;
         if(mPriceSwitch.isChecked()) {
@@ -81,12 +81,18 @@ public class TransactionEditActivity extends TransactionAddActivity {
 
 
         // init amount
-        mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+        if(mPortfolioCoinOriginal < 0.5D) {
+            mAmountView.setText(String.format(Locale.US, "%.08f", mPortfolioCoinOriginal));
+        } else if(mPortfolioCoinOriginal < 1D){
+            mAmountView.setText(String.format(Locale.US, "%.05f", mPortfolioCoinOriginal));
+        } else {
+            mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
+        }
 
         // init coin
         ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
         setCoin(new Coin(
-                data.getLong(columnsCoinMap.mColumnId),
+                data.getLong(columnsPortfolioCoinMap.mColumnCoinId),
                 data.getString(columnsCoinMap.mColumnSymbol),
                 data.getString(columnsCoinMap.mColumnName))
         );

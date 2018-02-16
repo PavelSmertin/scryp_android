@@ -130,19 +130,26 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
             mCoinSymbol = data.getString(columnsCoinMap.mColumnSymbol);
             mPortfolioId = data.getLong(columnsMap.mColumnPortfolioId);
 
-            double original = data.getDouble(columnsMap.mColumnOriginal);
-            double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
-            double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
-            double price24h = data.getDouble(columnsMap.mColumnPrice24h);
-            double profit24h = (priceNow - price24h) * 100 / price24h;
+            double original             = data.getDouble(columnsMap.mColumnOriginal);
+            double priceOriginal        = data.getDouble(columnsMap.mColumnPriceOriginal);
+            double priceNow             = data.getDouble(columnsMap.mColumnPriceNow);
+            double price24h             = data.getDouble(columnsMap.mColumnPrice24h);
+            double profit24h            = (priceNow - price24h) * 100 / price24h;
+            double profitAll            = original * (priceNow - priceOriginal);
+            double profitAllPercent = 0;
+            if(priceOriginal > 0) {
+                profitAllPercent     = (priceNow - priceOriginal) * 100 / priceOriginal;
+            }
 
             getActivity().setTitle(mCoinSymbol);
 
-            mAllTimeProfitView.setText(String.format(Locale.US, "%s", KeyboardHelper.format(original * (priceNow - priceOriginal))));
+            mAllTimeProfitView.setText(String.format(Locale.US, "%s", KeyboardHelper.format(profitAll)));
             mSymbolAllTimeProfitView .setText(TransactionAddActivity.DEFAULT_SYMBOL);
-            mPercentAllTimeProfitView .setText(String.format(Locale.US, "(%.2f%%)", (priceNow - priceOriginal) * 100 / priceOriginal));
+            if(priceOriginal > 0) {
+                mPercentAllTimeProfitView.setText(String.format(Locale.US, "(%.2f%%)", profitAllPercent));
+            }
 
-            if (profit24h < 0) {
+            if (profitAll < 0) {
                 mAllTimeProfitView.setTextColor(getResources().getColor(R.color.colorDownValue));
                 mAllTimeProfitView.setTextColor(getResources().getColor(R.color.colorDownValue));
                 mPercentAllTimeProfitView.setTextColor(getResources().getColor(R.color.colorDownValue));

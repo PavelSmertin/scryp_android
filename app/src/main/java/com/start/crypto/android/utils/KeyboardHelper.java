@@ -21,6 +21,7 @@ public final class KeyboardHelper {
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
         symbols.setGroupingSeparator(' ');
         formatter.setDecimalFormatSymbols(symbols);
+        formatter.setMaximumFractionDigits(8);
     }
 
 

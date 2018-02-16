@@ -47,17 +47,17 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
         coinSymbolView.setText(coinSymbol);
 
-        double priceDelta = 0;
-        if(priceNow > 0) {
-            priceDelta = (priceNow - price24h) * 100 / priceNow;
+        double priceDelta24h = 0;
+        if(price24h > 0) {
+            priceDelta24h = (priceNow - price24h) * 100 / price24h;
         }
 
         double priceDeltaAll = 0;
-        if(priceNow > 0) {
-            priceDeltaAll = (priceNow - priceOriginal) * 100 / priceNow;
+        if(priceOriginal > 0) {
+            priceDeltaAll = (priceNow - priceOriginal) * 100 / priceOriginal;
         }
 
-        coinOriginalView.setText(String.format(Locale.US, "Total %s %s",
+        coinOriginalView.setText(String.format(Locale.US, "Value %s %s",
                 KeyboardHelper.cut(coinHolding),
                 TransactionAddActivity.DEFAULT_SYMBOL
         ));
@@ -69,17 +69,25 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
             coinPriceView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
-
         if(Double.isInfinite(profit24h)) {
             return;
         }
 
-        coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(priceDeltaAll)));
+        if(priceOriginal > 0) {
+            if(priceDeltaAll < 1000D) {
+                coinProfitView.setText(String.format(Locale.US, "%.2f%%", priceDeltaAll));
+            } else {
+                coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(priceDeltaAll)));
+            }
+        }
+
         if(priceDeltaAll < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         }
 
-        coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDelta));
+        if(price24h > 0) {
+            coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDelta24h));
+        }
 
         double deltaValueAll = 0;
         if(priceNow > 0) {
