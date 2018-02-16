@@ -623,7 +623,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         }
     }
 
-    private void setPrice(double price) {
+    protected void setPrice(double price) {
         if(mPriceSwitch.isChecked()) {
             mPricePerCoin = price;
         } else {

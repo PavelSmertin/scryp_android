@@ -5,10 +5,12 @@ import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,6 +20,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
@@ -29,6 +32,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -41,6 +47,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.start.crypto.android.account.SigninActivity;
+import com.start.crypto.android.account.UserActivity;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
@@ -104,9 +111,14 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     private static final String STATE_DIALOG = "state_dialog";
 
-    private static final int LOADER_PORTFOLIO_COINS_ID = 1;
+    private static final int LOADER_PORTFOLIO_COINS_ID = 301;
 
     private static final boolean DUMP_DB = false;
+
+    public static final int REQUEST_USER_ACCOUNT = 301;
+    public static final int RESULT_LOGOUT = 91;
+    private static final int REQUEST_USER_SIGNIN = 302;
+
 
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;
     @BindView(R.id.add_transaction)             FloatingActionButton addTransactionView;
@@ -153,6 +165,8 @@ public class PortfolioController extends BaseController implements LoaderManager
     @Override
     protected void onViewBound(@NonNull View view) {
         super.onViewBound(view);
+
+        setHasOptionsMenu(true);
 
         mClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor())
@@ -220,6 +234,7 @@ public class PortfolioController extends BaseController implements LoaderManager
         compositeDisposable.add(
                 mAuthButtonSubject.observeOn(AndroidSchedulers.mainThread())
                         .subscribe(res -> {
+                            resetMenu();
                             if(!res) {
                                 preInsertView.setVisibility(View.GONE);
                             } else {
@@ -314,7 +329,7 @@ public class PortfolioController extends BaseController implements LoaderManager
     @Override
     protected void onAttach(@NonNull View view) {
         super.onAttach(view);
-        mSwipeRefresh.post(() -> mSwipeRefresh.setRefreshing(true));
+        mSwipeRefresh.setRefreshing(true);
         refreshPrices();
     }
 
@@ -388,6 +403,38 @@ public class PortfolioController extends BaseController implements LoaderManager
         return context.getString(R.string.title_activity_main);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_USER_ACCOUNT && resultCode == Activity.RESULT_OK) {
+            logout();
+        }
+    }
+
+    private void resetMenu() {
+        getActivity().invalidateOptionsMenu();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.user_edit:
+                Intent intent = new Intent(getActivity(), UserActivity.class);
+                startActivityForResult(intent, PortfolioController.REQUEST_USER_ACCOUNT);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if(PreferencesHelper.getInstance().getLogin() == null) {
+            return;
+        }
+        inflater.inflate(R.menu.main, menu);
+    }
+
     // Вызывается при изменении локальных данных(обновление цен, добавление удаление монеты и т.д.)
     // Расчитывает параметры портфолио
     private void calculatePortfolioValues(Cursor data) {
@@ -459,11 +506,17 @@ public class PortfolioController extends BaseController implements LoaderManager
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));
             mPortfolioProfit24hUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
+        } else {
+            mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorUpValue));
+            mPortfolioProfit24hUnit.setTextColor(getResources().getColor(R.color.colorUpValue));
         }
 
         if (profitAll < 0) {
             mPortfolioProfitAll.setTextColor(getResources().getColor(R.color.colorDownValue));
             mPortfolioProfitAllUnit.setTextColor(getResources().getColor(R.color.colorDownValue));
+        } else {
+            mPortfolioProfitAll.setTextColor(getResources().getColor(R.color.colorUpValue));
+            mPortfolioProfitAllUnit.setTextColor(getResources().getColor(R.color.colorUpValue));
         }
     }
 
@@ -475,6 +528,11 @@ public class PortfolioController extends BaseController implements LoaderManager
         if(cursor != null) {
             calculatePortfolioValues(cursor);
             cursor.close();
+        }
+
+        if(mCoinsForRefresh.size() == 0) {
+            mSwipeRefresh.setRefreshing(false);
+            return;
         }
 
         Observable<HashMap<String, Double>> pricesObservable =
@@ -493,7 +551,7 @@ public class PortfolioController extends BaseController implements LoaderManager
                     this::updatePrices)
                 .compose(bindUntilEvent(ControllerEvent.DETACH))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(success -> mSwipeRefresh.setRefreshing(false))
+                .subscribe(success -> mSwipeRefresh.setRefreshing(false), e -> mSwipeRefresh.setRefreshing(false))
         );
     }
 
@@ -801,7 +859,6 @@ public class PortfolioController extends BaseController implements LoaderManager
                 future1 -> {
                     try {
                         Bundle bnd = future1.getResult();
-                        Toast.makeText(getActivity(), "Account was created", Toast.LENGTH_SHORT).show();
                         final String accountName = bnd.getString(AccountManager.KEY_ACCOUNT_NAME);
                         PreferencesHelper.getInstance().setLogin(accountName);
                         mAuthButtonSubject.onNext(false);
@@ -813,35 +870,14 @@ public class PortfolioController extends BaseController implements LoaderManager
                 }, null);
     }
 
-    private void invalidateAuthToken(final Account account, String authTokenType) {
-        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, getActivity(), null,null);
-
-        new Thread(() -> {
-            try {
-                Bundle bnd = future.getResult();
-
-                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                mAccountManager.invalidateAuthToken(account.type, authtoken);
-                Toast.makeText(getActivity(), account.name + " invalidated", Toast.LENGTH_SHORT).show();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }).start();
-    }
-
     private void getTokenForAccountCreateIfNeeded(String accountType, String authTokenType) {
         final AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(accountType, authTokenType, null, getActivity(), null, null,
                 future1 -> {
                     try {
                         Bundle bnd = future1.getResult();
-                        final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
                         final String accountName = bnd.getString(AccountManager.KEY_ACCOUNT_NAME);
-                        Toast.makeText(getActivity(), (authtoken != null) ? "SUCCESS!\ntoken: " + authtoken : "FAIL", Toast.LENGTH_SHORT).show();
                         PreferencesHelper.getInstance().setLogin(accountName);
                         mAuthButtonSubject.onNext(false);
-
 
                         compositeDisposable.add(
                                 MainServiceGenerator.createService(MainApiService.class, getActivity()).syncDownload()
@@ -861,27 +897,6 @@ public class PortfolioController extends BaseController implements LoaderManager
                     }
                 }
                 , null);
-    }
-
-    private void getExistingAccountAuthToken(Account account, String authTokenType) {
-        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, getActivity(), null, null);
-
-        new Thread(() -> {
-            try {
-                Bundle bnd = future.getResult();
-
-                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                if(authtoken == null) {
-                    Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
-                }
-                PreferencesHelper.getInstance().setLogin(account.name);
-                mAuthButtonSubject.onNext(false);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }).start();
     }
 
     private void showAccountPicker(final String authTokenType) {
@@ -907,6 +922,27 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
     }
 
+    private void getExistingAccountAuthToken(Account account, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, getActivity(), null, null);
+
+        new Thread(() -> {
+            try {
+                Bundle bnd = future.getResult();
+
+                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                if(authtoken == null) {
+                    Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
+                }
+                PreferencesHelper.getInstance().setLogin(account.name);
+                mAuthButtonSubject.onNext(false);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).start();
+    }
+
     private void logout() {
         PreferencesHelper.getInstance().logout();
         Account[] accounts = mAccountManager.getAccountsByType(SigninActivity.ACCOUNT_TYPE);
@@ -916,6 +952,24 @@ public class PortfolioController extends BaseController implements LoaderManager
             }
         }
         preInsertView.setVisibility(View.VISIBLE);
+    }
+
+    private void invalidateAuthToken(final Account account, String authTokenType) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, getActivity(), null,null);
+
+        new Thread(() -> {
+            try {
+                Bundle bnd = future.getResult();
+
+                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+                mAccountManager.invalidateAuthToken(account.type, authtoken);
+                Toast.makeText(getActivity(), account.name + " invalidated", Toast.LENGTH_SHORT).show();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }).start();
     }
     //endregion
 

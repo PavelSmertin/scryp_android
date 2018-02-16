@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -52,6 +53,7 @@ public class UserController extends BaseController {
     @BindView(R.id.first_name)              EditText mFirstNameView;
     @BindView(R.id.last_name)               EditText mLastNameView;
     @BindView(R.id.next)                    Button mNextButton;
+    @BindView(R.id.logout)                  Button mLogoutButton;
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private User mUser;
@@ -71,6 +73,9 @@ public class UserController extends BaseController {
     @Override
     protected void onViewBound(@NonNull View view) {
         super.onViewBound(view);
+
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
 
         startProgressDialog();
         compositeDisposable.add(
@@ -96,11 +101,18 @@ public class UserController extends BaseController {
             getActivity().finish();
         });
 
+        RxView.clicks(mLogoutButton).subscribe(v -> {
+            Intent intent = new Intent();
+            getActivity().setResult(Activity.RESULT_OK, intent);
+            getActivity().finish();
+        });
+
 
         RxView.clicks(mAvatarView).subscribe(v -> {
             requestGalleryPermission();
         });
     }
+
 
     @Override
     protected void onDestroy() {

@@ -2,12 +2,14 @@ package com.start.crypto.android.account;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.start.crypto.android.BaseActivity;
 import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
@@ -19,7 +21,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 
-public class SigninActivity extends AccountAuthenticatorActivity {
+public class AuthActivity extends BaseActivity {
 
     public final static String ARG_ACCOUNT_TYPE = "account_type";
     public final static String ARG_AUTH_TYPE = "auth_type";
@@ -86,9 +88,9 @@ public class SigninActivity extends AccountAuthenticatorActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // The sign up activity returned that the user has successfully created an account
         if (requestCode == REQ_SIGNUP && resultCode == RESULT_OK) {
-            finishLogin(data);
+            finishLogin(data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME), data.getStringExtra(AccountManager.KEY_AUTHTOKEN));
         } else if (requestCode == REQ_RESTORE && resultCode == RESULT_OK) {
-            finishLogin(data);
+            finishLogin(data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME), data.getStringExtra(AccountManager.KEY_AUTHTOKEN));
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -115,7 +117,7 @@ public class SigninActivity extends AccountAuthenticatorActivity {
                             Intent intent = new Intent();
                             intent.putExtra(AccountManager.KEY_ACCOUNT_NAME, userName);
                             intent.putExtra(AccountManager.KEY_AUTHTOKEN, response.getJwt());
-                            finishLogin(intent);
+                            finishLogin(userName, response.getJwt());
                         },
                         error -> {
                             Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
@@ -124,45 +126,30 @@ public class SigninActivity extends AccountAuthenticatorActivity {
         );
     }
 
-    private void finishLogin(Intent intent) {
-        String authtoken    = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
-        String username     = intent.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-        String accountType  = getIntent().getStringExtra(ARG_ACCOUNT_TYPE);
-
-        Account[] accounts = mAccountManager.getAccountsByType(SigninActivity.ACCOUNT_TYPE);
-        Account currentAccount = null;
-        if (accounts.length != 0) {
-            currentAccount = getStoredAccount(accounts, username);
-        }
-
-        if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, false) || currentAccount == null) {
-            // Creating the account on the device and setting the auth token we got
-            // (Not setting the auth token will cause another call to the server to authenticate the user)
-            final Account account = new Account(username, accountType);
-            mAccountManager.addAccountExplicitly(account, null, null);
-            mAccountManager.setAuthToken(account, mAuthTokenType, authtoken);
-        }
-
-
-        Bundle data = new Bundle();
-        data.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType);
-        data.putString(AccountManager.KEY_ACCOUNT_NAME, username);
-        data.putString(AccountManager.KEY_AUTHTOKEN, authtoken);
-
-        Intent res = new Intent();
-        res.putExtras(data);
-        setAccountAuthenticatorResult(res.getExtras());
-        setResult(RESULT_OK, res);
-        finish();
+    private void finishLogin(String userName, String jwt) {
+        getTokenForAccountCreateIfNeeded(ACCOUNT_TYPE, AUTHTOKEN_TYPE_FULL_ACCESS, userName, jwt);
     }
 
-    private Account getStoredAccount(Account[] accounts, String userName) {
-        for(Account a : accounts) {
-            if(a.name.equalsIgnoreCase(userName)) {
-                return a;
-            }
-        }
-        return null;
+    private void getTokenForAccountCreateIfNeeded(String accountType, String authTokenType, String username, String authtoken) {
+        final AccountManagerFuture<Bundle> future = mAccountManager.getAuthTokenByFeatures(accountType, authTokenType, null, this, null, null,
+                future1 -> {
+
+                    final Account account = new Account(username, accountType);
+                    if (getIntent().getBooleanExtra(ARG_IS_ADDING_NEW_ACCOUNT, false)) {
+                        mAccountManager.addAccountExplicitly(account, null, null);
+                    }
+                    mAccountManager.setAuthToken(account, mAuthTokenType, authtoken);
+
+                    Intent res = new Intent();
+                    res.putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType);
+                    res.putExtra(AccountManager.KEY_ACCOUNT_NAME, username);
+                    res.putExtra(AccountManager.KEY_AUTHTOKEN, authtoken);
+                    setResult(RESULT_OK, res);
+                    finish();
+
+                }
+                , null);
     }
+
 
 }

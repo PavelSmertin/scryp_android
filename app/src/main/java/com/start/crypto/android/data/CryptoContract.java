@@ -5,12 +5,9 @@ import android.provider.BaseColumns;
 
 public final class CryptoContract {
 
-    public static final int LOADER_PORTFOLIOS       = 101;
     public static final int LOADER_COINS            = 102;
-    public static final int LOADER_TRANSACTIONS     = 103;
     public static final int LOADER_EXCHANGES        = 104;
     public static final int LOADER_PORTFOLIO_COINS  = 105;
-    public static final int LOADER_NOTIFICATIONS    = 106;
 
     public static final String AUTHORITY = "com.start.crypto.android.sync";
 

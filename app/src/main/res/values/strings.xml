@@ -2,6 +2,7 @@
     <string name="app_name">CryptoPie</string>
     <string name="all_next">Next</string>
     <string name="all_ok">Ok</string>
+    <string name="all_cancel">Cancel</string>
     <string name="all_clear_text">Clear</string>
     <string name="all_loading">Loading</string>
 
@@ -18,6 +19,7 @@
     <string name="account_last_name">Last name</string>
     <string name="account_gallery_denied">To change avatar you have to grant external storage permission</string>
     <string name="account_gallery_explanation">To change avatar it need access to gallery</string>
+    <string name="account_logout">Logout</string>
 
 
     <string name="title_activity_auth">Sign in</string>
@@ -69,8 +71,8 @@
     <string name="portfolio_coin_buy_price">Buy price</string>
     <string name="portfolio_coin_current_value">Current value</string>
     <string name="portfolio_coin_total_cost">Total cost</string>
-    <string name="portfolio_coin_acqusition_cost">Acqusition cost</string>
-    <string name="portfolio_coin_24h_change">24h change</string>
+    <string name="portfolio_coin_price">Price</string>
+    <string name="portfolio_coin_24h_change">Coin 24h change</string>
 
     <string name="transaction_amount_error">You can\'t sell more of a position than %f</string>
     <string name="transaction_amount_error_parse">Amount is not correct</string>
@@ -83,6 +85,7 @@
     <string name="transition_user_logo">TRANSITION:USER_LOGO</string>
     <string name="transition_autocomplete_coin">TRANSITION:AUTOCOMLETE_COIN</string>
     <string name="transition_autocomplete_clear">TRANSITION:AUTOCOMLETE_CLEAR</string>
+    <string name="fab_dialog_transition_name">transition.fab</string>
 
 
     <string name="portfolio_coin_edit">Edit</string>

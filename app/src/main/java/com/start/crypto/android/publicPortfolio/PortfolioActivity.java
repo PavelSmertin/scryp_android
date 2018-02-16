@@ -164,6 +164,7 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     private void refreshPrices() {
 
         if(mCoins.size() == 0) {
+            mSwipeRefresh.setRefreshing(false);
             return;
         }
 
@@ -183,7 +184,7 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
                 this::updatePrices)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(success -> updatePortfolio())
+                .subscribe(success -> updatePortfolio(), e -> mSwipeRefresh.setRefreshing(false))
         );
     }
 

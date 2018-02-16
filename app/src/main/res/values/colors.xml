@@ -27,4 +27,7 @@
     <color name="button_alfa_pressed">#4415be0f</color>
     <color name="button_alfa_disabled">#224f4f4f</color>
 
+    <color name="immersive_background">#88000000</color>
+    <color name="dialog_background">#FF888888</color>
+
 </resources>

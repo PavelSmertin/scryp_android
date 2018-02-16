@@ -11,6 +11,7 @@ import com.start.crypto.android.api.model.Transaction;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
+import com.start.crypto.android.utils.KeyboardHelper;
 
 import java.util.Locale;
 
@@ -66,15 +67,31 @@ public class TransactionEditActivity extends TransactionAddActivity {
     protected void onPortofolioCoinLoaded(Cursor data) {
         data.moveToFirst();
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
-        mPortfolioCoinOriginal = data.getDouble(columnsMap.mColumnOriginal);
+        mPortfolioCoinOriginal      = data.getDouble(columnsMap.mColumnOriginal);
+
+        // init price
+        double portfolioCoinPriceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
+        mPricePerCoin = portfolioCoinPriceOriginal;
+        mPriceInTotal = portfolioCoinPriceOriginal * mPortfolioCoinOriginal;
+        if(mPriceSwitch.isChecked()) {
+            mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+        } else {
+            mPriceView.setText(KeyboardHelper.format(mPriceInTotal));
+        }
+
+
+        // init amount
         mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
 
+        // init coin
         ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
         setCoin(new Coin(
                 data.getLong(columnsCoinMap.mColumnId),
                 data.getString(columnsCoinMap.mColumnSymbol),
                 data.getString(columnsCoinMap.mColumnName))
         );
+        mCoinComplete.setEnabled(false);
+
     }
 
     @Override

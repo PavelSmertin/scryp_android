@@ -1,6 +1,6 @@
 package com.start.crypto.android.account;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.ViewGroup;
@@ -20,9 +20,9 @@ public class UserActivity extends BaseActivity {
     private Router mRouter;
 
 
-    public static void start(Context context) {
-        Intent starter = new Intent(context, UserActivity.class);
-        context.startActivity(starter);
+    public static void start(Activity activity, int request) {
+        Intent starter = new Intent(activity, UserActivity.class);
+        activity.startActivityForResult(starter, request);
     }
 
     @Override

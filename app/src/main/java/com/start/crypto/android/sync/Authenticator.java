@@ -54,7 +54,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
         return null;
     }
 
-    // Getting an authentication token is not supported
+    // Getting an authentication token
     @Override
     public Bundle getAuthToken(
             AccountAuthenticatorResponse response,
@@ -119,4 +119,5 @@ public class Authenticator extends AbstractAccountAuthenticator {
         Account account, String[] strings) throws NetworkErrorException {
         throw new UnsupportedOperationException();
     }
+
 }

@@ -119,4 +119,5 @@ public class PagerController extends BaseController {
         }
         super.onDestroyView(view);
     }
+
 }
