@@ -10,7 +10,6 @@ import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.api.model.Transaction;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
-import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.utils.KeyboardHelper;
 
 import java.util.Locale;
@@ -57,9 +56,9 @@ public class TransactionEditActivity extends TransactionAddActivity {
 
     @Override
     protected void initLoaderManager() {
-        getSupportLoaderManager().restartLoader(CryptoContract.LOADER_PORTFOLIO_COINS, null, this);
-        getSupportLoaderManager().restartLoader(CryptoContract.LOADER_COINS, null, this);
-        getSupportLoaderManager().restartLoader(CryptoContract.LOADER_EXCHANGES, null, this);
+        getSupportLoaderManager().restartLoader(LOADER_PORTFOLIO_COINS, null, this);
+        getSupportLoaderManager().restartLoader(LOADER_COINS, null, this);
+        getSupportLoaderManager().restartLoader(LOADER_EXCHANGES, null, this);
     }
 
 

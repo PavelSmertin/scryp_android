@@ -23,6 +23,8 @@ public class Transaction {
 
     private double basePrice;
 
+    private double coinPrice;
+
     @SerializedName("created_at")
     private String createdAt;
 
@@ -47,7 +49,7 @@ public class Transaction {
         this.basePrice = basePrice;
     }
 
-    public Transaction(long portfolioCoinId, long pairId, double amount, double price, long date, String description, double basePrice) {
+    public Transaction(long portfolioCoinId, long pairId, double amount, double price, long date, String description, double basePrice, double coinPrice) {
         this.portfolioCoinId = portfolioCoinId;
         this.pairId = pairId;
         this.amount = amount;
@@ -55,6 +57,7 @@ public class Transaction {
         this.date = date;
         this.description = description;
         this.basePrice = basePrice;
+        this.coinPrice = coinPrice;
     }
 
 
@@ -84,6 +87,10 @@ public class Transaction {
         return basePrice;
     }
 
+    public double getCoinPrice() {
+        return coinPrice;
+    }
+
     public String getCreatedAt() {
         return createdAt;
     }
@@ -103,5 +110,7 @@ public class Transaction {
     public void setPortfolioCoinId(long portfolioCoinId) {
         this.portfolioCoinId = portfolioCoinId;
     }
+
+
 
 }

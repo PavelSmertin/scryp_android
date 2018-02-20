@@ -42,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bluelinelabs.conductor.rxlifecycle2.ControllerEvent;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -455,6 +456,11 @@ public class PortfolioController extends BaseController implements LoaderManager
         String exchange;
         mPieData = new HashMap<>();
 
+        if (data == null || data.getCount() <= 0) {
+            Crashlytics.logException(new Exception("Empty coins"));
+            return;
+        }
+
         while (data.moveToNext()) {
             double original = data.getDouble(columnsMap.mColumnOriginal);
             double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
@@ -479,7 +485,12 @@ public class PortfolioController extends BaseController implements LoaderManager
             mPieData.put(data.getString(columnsCoinsMap.mColumnSymbol), original * priceNow);
         }
 
-        if (Double.isInfinite(valueHoldings)) {
+        if (Double.isInfinite(valueHoldings) || Double.isInfinite(value24h) || Double.isInfinite(valueAll)) {
+            Crashlytics.logException(new Exception(String.format("Illegal values valueHoldings: %s, value24h: %s, valueAll: %s, coins count: %s",
+                    valueHoldings,
+                    value24h,
+                    valueAll,
+                    data.getCount())));
             return;
         }
 
@@ -551,7 +562,16 @@ public class PortfolioController extends BaseController implements LoaderManager
                     this::updatePrices)
                 .compose(bindUntilEvent(ControllerEvent.DETACH))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(success -> mSwipeRefresh.setRefreshing(false), e -> mSwipeRefresh.setRefreshing(false))
+                .subscribe(success -> {
+                    if(mSwipeRefresh != null ) {
+                        mSwipeRefresh.setRefreshing(false);
+                    }
+                },
+                e -> {
+                    if (mSwipeRefresh != null) {
+                        mSwipeRefresh.setRefreshing(false);
+                    }
+                })
         );
     }
 
@@ -960,14 +980,10 @@ public class PortfolioController extends BaseController implements LoaderManager
         new Thread(() -> {
             try {
                 Bundle bnd = future.getResult();
-
                 final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
                 mAccountManager.invalidateAuthToken(account.type, authtoken);
-                Toast.makeText(getActivity(), account.name + " invalidated", Toast.LENGTH_SHORT).show();
-
             } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                 Crashlytics.logException(new Exception(e.getMessage()));
             }
         }).start();
     }

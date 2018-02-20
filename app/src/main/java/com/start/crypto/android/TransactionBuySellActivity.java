@@ -32,8 +32,6 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
     private double mPortfolioCoinPriceOriginal;
     private double mAmountMax;
 
-
-
     public static void start(Context context, long portfolioId, long portfolioCoinId, long exchangeId) {
         Intent starter = new Intent(context, TransactionBuySellActivity.class);
         starter.putExtra(EXTRA_PORTFOLIO_ID, portfolioId);
@@ -100,7 +98,8 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
                             getPrice(),
                             mDate,
                             mDescription,
-                            mBasePrice
+                            mBasePrice,
+                            mCoinPrice
                     )
             );
 

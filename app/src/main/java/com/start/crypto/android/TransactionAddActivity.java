@@ -61,6 +61,10 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     public static final String  DEFAULT_EXCHANGE         = "CCCAGG";
     private static final int MAX_DESCRIPTION_LENGTH      = 160;
 
+    protected static final int LOADER_PORTFOLIO_COINS      = 10001;
+    protected static final int LOADER_COINS                = 10002;
+    protected static final int LOADER_EXCHANGES            = 10003;
+
     @BindView(R.id.scroll_container)        View mScrollContainer;
     @BindView(R.id.currentey_complete)      EditText mCurrenteyComplete;
     @BindView(R.id.clear_coin_button)       ImageView mClearCoinButton;
@@ -99,6 +103,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     protected double    mPricePerCoin;
     protected double    mPriceInTotal;
     protected double    mBasePrice = 1;
+    protected double    mCoinPrice = 1;
+
     protected long      mDate;
     protected String    mDescription;
 
@@ -376,15 +382,15 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        if (id == CryptoContract.LOADER_PORTFOLIO_COINS) {
+        if (id == LOADER_PORTFOLIO_COINS) {
             return getPortfolioCoinsLoader();
         }
 
-        if (id == CryptoContract.LOADER_COINS) {
+        if (id == LOADER_COINS) {
             return getCoinsLoader();
         }
 
-        if (id == CryptoContract.LOADER_EXCHANGES) {
+        if (id == LOADER_EXCHANGES) {
             return getExchangesLoader();
         }
 
@@ -394,13 +400,15 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        if (loader.getId() == CryptoContract.LOADER_PORTFOLIO_COINS) { // Пара по умолчанию
-            onPortofolioCoinLoaded(data);
+        if (loader.getId() == LOADER_PORTFOLIO_COINS) { // Пара по умолчанию
+            if(data != null && data.getCount() > 0) {
+                onPortofolioCoinLoaded(data);
+            }
             return;
         }
 
-        if (loader.getId() == CryptoContract.LOADER_COINS) { // Пара по умолчанию
-            if(data.getCount() > 0) {
+        if (loader.getId() == LOADER_COINS) { // Пара по умолчанию
+            if(data != null && data.getCount() > 0) {
                 if(mCurrenteyId > 0) {
                     return;
                 }
@@ -414,7 +422,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             return;
         }
 
-        if (loader.getId() == CryptoContract.LOADER_EXCHANGES) {
+        if (loader.getId() == LOADER_EXCHANGES) {
             if(data.getCount() > 0) {
                 data.moveToFirst();
                 int idColumnIndex = data.getColumnIndexOrThrow(CryptoContract.CryptoExchanges._ID);
@@ -490,8 +498,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     }
 
     protected void initLoaderManager() {
-        getSupportLoaderManager().restartLoader(CryptoContract.LOADER_COINS, null, this);
-        getSupportLoaderManager().restartLoader(CryptoContract.LOADER_EXCHANGES, null, this);
+        getSupportLoaderManager().restartLoader(LOADER_COINS, null, this);
+        getSupportLoaderManager().restartLoader(LOADER_EXCHANGES, null, this);
     }
 
     protected Loader<Cursor> getPortfolioCoinsLoader() {
@@ -570,18 +578,69 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
 
     private void retrivePrice() {
         startProgressDialog();
-        if(Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
-            RestClientMinApi.INSTANCE.getClient().prices(
-                    mCurrenteySymbol,
-                    mCurrenteySymbol.equals(DEFAULT_SYMBOL) ? mCoinSymbol : mCoinSymbol + "," + DEFAULT_SYMBOL,
+
+
+        String fromSymbol = DEFAULT_SYMBOL;
+        String toSymbol = mCoinSymbol + "," + mCurrenteySymbol;
+
+        if( mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            stopProgressDialog();
+            return;
+        }
+
+        if(mCoinSymbol.equals(DEFAULT_SYMBOL)) {
+            toSymbol = mCurrenteySymbol;
+        }
+
+        if(mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            toSymbol = mCoinSymbol;
+        }
+
+        String fromSymbolRef = null;
+        String toSymbolRef = null;
+
+        if( !mCoinSymbol.equals(DEFAULT_SYMBOL) && !mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            fromSymbolRef = mCurrenteySymbol;
+            toSymbolRef = mCoinSymbol;
+        }
+
+
+        if(fromSymbolRef == null && toSymbolRef == null) {
+            if (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
+                RestClientMinApi.INSTANCE.getClient().prices(
+                        fromSymbol,
+                        toSymbol,
+                        null
+                )
+                        .compose(bindUntilEvent(ActivityEvent.PAUSE))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                prices -> {
+                                    stopProgressDialog();
+                                    setRetrievedPrice(prices);
+                                },
+                                e -> {
+                                    stopProgressDialog();
+                                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                        );
+                return;
+            }
+
+            RestClientMinApi.INSTANCE.getClient().pricesHistorical(
+                    fromSymbol,
+                    toSymbol,
+                    Long.toString(mDate),
                     null
             )
                     .compose(bindUntilEvent(ActivityEvent.PAUSE))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            prices -> {
+                            response -> {
                                 stopProgressDialog();
+                                HashMap<String, Double> prices = response.get(mCurrenteySymbol);
                                 setRetrievedPrice(prices);
                             },
                             e -> {
@@ -589,37 +648,93 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                                 Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                     );
-            return;
-        }
+        } else {
+            if (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
 
-        RestClientMinApi.INSTANCE.getClient().pricesHistorical(
-                mCurrenteySymbol,
-                mCurrenteySymbol.equals(DEFAULT_SYMBOL) ? mCoinSymbol : mCoinSymbol + "," + DEFAULT_SYMBOL,
-                Long.toString(mDate),
-                null
-        )
-                .compose(bindUntilEvent(ActivityEvent.PAUSE))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        response -> {
-                            stopProgressDialog();
-                            HashMap<String, Double> prices = response.get(mCurrenteySymbol);
-                            setRetrievedPrice(prices);
-                        },
-                        e -> {
-                            stopProgressDialog();
-                            Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                Observable<HashMap<String, Double>> pricesObservable =
+                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbol, toSymbol, null)
+                                .subscribeOn(Schedulers.io());
+                Observable<HashMap<String, Double>> pricesRefsObservable =
+                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbolRef, toSymbolRef, null)
+                                .subscribeOn(Schedulers.io());
+
+                compositeDisposable.add(Observable.combineLatest(
+                        pricesObservable,
+                        pricesRefsObservable,
+                        this::setRetrievedPrice)
+                        .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                success -> stopProgressDialog(),
+                                e -> stopProgressDialog())
                 );
+
+            } else {
+                Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
+                        RestClientMinApi.INSTANCE.getClient().pricesHistorical(fromSymbol, toSymbol, Long.toString(mDate), null)
+                                .subscribeOn(Schedulers.io());
+
+                Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalRefsObservable =
+                        RestClientMinApi.INSTANCE.getClient().pricesHistorical(fromSymbol, toSymbol, Long.toString(mDate), null)
+                                .subscribeOn(Schedulers.io());
+
+                String finalFromSymbolRef = fromSymbolRef;
+                compositeDisposable.add(Observable.combineLatest(
+                        pricesHistoricalObservable,
+                        pricesHistoricalRefsObservable,
+                        (prices, pricesRef) -> setRetrievedPrice(prices.get(finalFromSymbolRef), pricesRef.get(finalFromSymbolRef)))
+                        .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                success -> stopProgressDialog(),
+                                e -> stopProgressDialog())
+                );
+            }
+
+        }
 
     }
 
     private void setRetrievedPrice(HashMap<String, Double> prices) {
-        mPricePerCoin = 1/prices.get(mCoinSymbol);
+
         if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            mBasePrice = prices.get(DEFAULT_SYMBOL);
+            mBasePrice = 1 / prices.get(mCurrenteySymbol);
         }
+
+        if(!mCoinSymbol.equals(DEFAULT_SYMBOL)) {
+            mCoinPrice = 1 / prices.get(mCoinSymbol);
+        }
+
+        if(mCoinSymbol.equals(DEFAULT_SYMBOL)) {
+            mPricePerCoin = 1/prices.get(mCurrenteySymbol);
+            if(mPriceSwitch.isChecked()) {
+                if(mPricePerCoin != 0 ) {
+                    mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+                } else {
+                    mPriceView.setText(null);
+                }
+            }
+        }
+
+        if(mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            mPricePerCoin = 1/prices.get(mCoinSymbol);
+            if(mPriceSwitch.isChecked()) {
+                if(mPricePerCoin != 0 ) {
+                    mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
+                } else {
+                    mPriceView.setText(null);
+                }
+            }
+        }
+
+
+    }
+
+    private boolean setRetrievedPrice(HashMap<String, Double> prices, HashMap<String, Double> pricesRef) {
+        mBasePrice = 1 / prices.get(mCurrenteySymbol);
+        mCoinPrice = 1 / prices.get(mCoinSymbol);
+
+        mPricePerCoin = 1/pricesRef.get(mCoinSymbol);
         if(mPriceSwitch.isChecked()) {
             if(mPricePerCoin != 0 ) {
                 mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
@@ -627,6 +742,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 mPriceView.setText(null);
             }
         }
+        return true;
     }
 
     protected void setPrice(double price) {

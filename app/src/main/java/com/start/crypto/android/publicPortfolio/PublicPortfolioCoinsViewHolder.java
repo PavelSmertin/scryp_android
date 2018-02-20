@@ -67,6 +67,8 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         ));
         if(profit24h < 0) {
             coinPriceView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        } else {
+            coinPriceView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
         if(Double.isInfinite(profit24h)) {
@@ -83,6 +85,8 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
         if(priceDeltaAll < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        } else {
+            coinProfitView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
         if(price24h > 0) {
