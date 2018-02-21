@@ -584,132 +584,120 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     }
 
     private void retrivePrice() {
-        startProgressDialog();
-
-
-        String fromSymbol = DEFAULT_SYMBOL;
-        String toSymbol = mCoinSymbol + "," + mCurrenteySymbol;
 
         if( mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            stopProgressDialog();
             return;
         }
 
-        if(mCoinSymbol.equals(DEFAULT_SYMBOL)) {
-            toSymbol = mCurrenteySymbol;
+        if (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
+            retriveCurrentPrice();
+            return;
         }
 
-        if(mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            toSymbol = mCoinSymbol;
+        retriveHistoricalPrice();
+
+    }
+
+    private void retriveCurrentPrice() {
+
+        startProgressDialog();
+
+        String fromSymbol = null;
+        if(!mCoinSymbol.equals(DEFAULT_SYMBOL)) {
+            fromSymbol = mCoinSymbol;
+        }
+        if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL) && !mCoinSymbol.equals(DEFAULT_SYMBOL)) {
+            fromSymbol = "," + mCurrenteySymbol;
         }
 
-        String fromSymbolRef = null;
-        String toSymbolRef = null;
+        Observable<HashMap<String, Double>> pricesObservable =
+                RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, mCurrenteySymbol, mExchangeComplete.getText().toString().trim())
+                        .subscribeOn(Schedulers.io());
 
-        if( !mCoinSymbol.equals(DEFAULT_SYMBOL) && !mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            fromSymbolRef = mCurrenteySymbol;
-            toSymbolRef = mCoinSymbol;
-        }
+        Observable<HashMap<String, HashMap<String, Double>>> pricesBaseObservable;
 
-
-        if(fromSymbolRef == null && toSymbolRef == null) {
-            if (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
-                RestClientMinApi.INSTANCE.getClient().prices(
-                        fromSymbol,
-                        toSymbol,
-                        mExchangeComplete.getText().toString().trim()
-                )
-                        .compose(bindUntilEvent(ActivityEvent.PAUSE))
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                prices -> {
-                                    stopProgressDialog();
-                                    setRetrievedPrice(prices);
-                                },
-                                e -> {
-                                    stopProgressDialog();
-                                    Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
-                                    switchDefaultExchange();
-                                }
-                        );
-                return;
-            }
-
-            RestClientMinApi.INSTANCE.getClient().pricesHistorical(
-                    fromSymbol,
-                    toSymbol,
-                    Long.toString(mDate),
-                    mExchangeComplete.getText().toString().trim()
-            )
-                    .compose(bindUntilEvent(ActivityEvent.PAUSE))
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            response -> {
-                                stopProgressDialog();
-                                HashMap<String, Double> prices = response.get(mCurrenteySymbol);
-                                setRetrievedPrice(prices);
-                            },
-                            e -> {
-                                stopProgressDialog();
-                                Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
-                                switchDefaultExchange();
-                            }
-                    );
+        // Чтобы не отправлять два идентичных запроса
+        if(!mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            pricesBaseObservable = Observable.just(new HashMap<String, HashMap<String, Double>>());
         } else {
-            if (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
-
-                Observable<HashMap<String, Double>> pricesObservable =
-                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbol, toSymbol, mExchangeComplete.getText().toString().trim())
-                                .subscribeOn(Schedulers.io());
-                Observable<HashMap<String, Double>> pricesRefsObservable =
-                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbolRef, toSymbolRef, mExchangeComplete.getText().toString().trim())
-                                .subscribeOn(Schedulers.io());
-
-                compositeDisposable.add(Observable.combineLatest(
-                        pricesObservable,
-                        pricesRefsObservable,
-                        this::setRetrievedPrice)
-                        .compose(bindUntilEvent(ActivityEvent.DESTROY))
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                success -> stopProgressDialog(),
-                                e -> {
-                                    stopProgressDialog();
-                                    Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
-                                    switchDefaultExchange();
-                                })
-                );
-
-            } else {
-                Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
-                        RestClientMinApi.INSTANCE.getClient().pricesHistorical(fromSymbol, toSymbol, Long.toString(mDate), null)
-                                .subscribeOn(Schedulers.io());
-
-                Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalRefsObservable =
-                        RestClientMinApi.INSTANCE.getClient().pricesHistorical(fromSymbol, toSymbol, Long.toString(mDate), null)
-                                .subscribeOn(Schedulers.io());
-
-                String finalFromSymbolRef = fromSymbolRef;
-                compositeDisposable.add(Observable.combineLatest(
-                        pricesHistoricalObservable,
-                        pricesHistoricalRefsObservable,
-                        (prices, pricesRef) -> setRetrievedPrice(prices.get(finalFromSymbolRef), pricesRef.get(finalFromSymbolRef)))
-                        .compose(bindUntilEvent(ActivityEvent.DESTROY))
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(
-                                success -> stopProgressDialog(),
-                                e -> {
-                                    stopProgressDialog();
-                                    Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
-                                    switchDefaultExchange();
-                                })
-                );
-            }
-
+            pricesBaseObservable =
+                    RestClientMinApi.INSTANCE.getClient().priceMulti(fromSymbol, DEFAULT_SYMBOL, null)
+                            .subscribeOn(Schedulers.io());
         }
 
+        compositeDisposable.add(Observable.combineLatest(
+                pricesObservable,
+                pricesBaseObservable,
+                this::setRetrievedPrice)
+                .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        success -> {
+                            stopProgressDialog();
+                            bindPriceView();
+                        },
+                        e -> {
+                            stopProgressDialog();
+                            Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+
+                            switchDefaultExchange();
+                        })
+        );
+
+    }
+
+    private void retriveHistoricalPrice() {
+        startProgressDialog();
+
+        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
+                RestClientMinApi.INSTANCE.getClient().pricesHistorical(mCoinSymbol, mCurrenteySymbol, Long.toString(mDate), mExchangeComplete.getText().toString().trim())
+                        .subscribeOn(Schedulers.io());
+
+        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalBaseCoinObservable;
+        if (mCoinSymbol.equals(DEFAULT_SYMBOL) || mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            pricesHistoricalBaseCoinObservable = Observable.just(new HashMap<String, HashMap<String, Double>>());
+        } else {
+            pricesHistoricalBaseCoinObservable =
+                    RestClientMinApi.INSTANCE.getClient().pricesHistorical(mCoinSymbol, DEFAULT_SYMBOL, Long.toString(mDate), null)
+                            .subscribeOn(Schedulers.io());
+        }
+
+        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalBasePairObservable;
+        if (mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            pricesHistoricalBasePairObservable = Observable.just(new HashMap<String, HashMap<String, Double>>());
+        } else {
+            pricesHistoricalBasePairObservable =
+                    RestClientMinApi.INSTANCE.getClient().pricesHistorical(mCurrenteySymbol, DEFAULT_SYMBOL, Long.toString(mDate), null)
+                            .subscribeOn(Schedulers.io());
+        }
+
+        compositeDisposable.add(Observable.combineLatest(
+                pricesHistoricalObservable,
+                pricesHistoricalBaseCoinObservable,
+                pricesHistoricalBasePairObservable,
+                (prices, pricesBaseCoin, pricesBasePair) -> {
+                    HashMap<String, HashMap<String, Double>> pricesBase = new HashMap<>();
+                    if(pricesBaseCoin.containsKey(mCoinSymbol)) {
+                        pricesBase.put(mCoinSymbol, pricesBaseCoin.get(mCoinSymbol));
+                    }
+                    if(pricesBasePair.containsKey(mCurrenteySymbol)) {
+                        pricesBase.put(mCurrenteySymbol, pricesBasePair.get(mCurrenteySymbol));
+                    }
+                    return setRetrievedPrice(prices.get(mCoinSymbol), pricesBase);
+                })
+                .compose(bindUntilEvent(ActivityEvent.DESTROY))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        success -> {
+                            stopProgressDialog();
+                            bindPriceView();
+                        },
+                        e -> {
+                            stopProgressDialog();
+                            Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+                            switchDefaultExchange();
+                        })
+        );
     }
 
     private void switchDefaultExchange() {
@@ -717,55 +705,28 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         getSupportLoaderManager().restartLoader(LOADER_EXCHANGES, null, this);
     }
 
-
-    private void setRetrievedPrice(HashMap<String, Double> prices) {
-
-        if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            mBasePrice = 1 / prices.get(mCurrenteySymbol);
+    private boolean setRetrievedPrice(HashMap<String, Double> prices, HashMap<String, HashMap<String, Double>> pricesBase) {
+        if(pricesBase.containsKey(mCoinSymbol)) {
+            mCoinPrice = pricesBase.get(mCoinSymbol).get(DEFAULT_SYMBOL);
+        }
+        if(pricesBase.containsKey(mCurrenteySymbol)) {
+            mBasePrice = pricesBase.get(mCurrenteySymbol).get(DEFAULT_SYMBOL);
         }
 
-        if(!mCoinSymbol.equals(DEFAULT_SYMBOL)) {
-            mCoinPrice = 1 / prices.get(mCoinSymbol);
+        if(prices.containsKey(mCurrenteySymbol)) {
+            mPricePerCoin = prices.get(mCurrenteySymbol);
         }
-
-        if(mCoinSymbol.equals(DEFAULT_SYMBOL)) {
-            mPricePerCoin = 1/prices.get(mCurrenteySymbol);
-            if(mPriceSwitch.isChecked()) {
-                if(mPricePerCoin != 0 ) {
-                    mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
-                } else {
-                    mPriceView.setText(null);
-                }
-            }
-        }
-
-        if(mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
-            mPricePerCoin = 1/prices.get(mCoinSymbol);
-            if(mPriceSwitch.isChecked()) {
-                if(mPricePerCoin != 0 ) {
-                    mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
-                } else {
-                    mPriceView.setText(null);
-                }
-            }
-        }
-
-
+        return true;
     }
 
-    private boolean setRetrievedPrice(HashMap<String, Double> prices, HashMap<String, Double> pricesRef) {
-        mBasePrice = 1 / prices.get(mCurrenteySymbol);
-        mCoinPrice = 1 / prices.get(mCoinSymbol);
-
-        mPricePerCoin = 1/pricesRef.get(mCoinSymbol);
-        if(mPriceSwitch.isChecked()) {
-            if(mPricePerCoin != 0 ) {
+    private void bindPriceView() {
+        if (mPriceSwitch.isChecked()) {
+            if (mPricePerCoin != 0) {
                 mPriceView.setText(KeyboardHelper.format(mPricePerCoin));
             } else {
                 mPriceView.setText(null);
             }
         }
-        return true;
     }
 
     protected void setPrice(double price) {

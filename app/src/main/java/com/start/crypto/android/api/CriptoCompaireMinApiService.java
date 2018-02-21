@@ -25,6 +25,13 @@ public interface CriptoCompaireMinApiService {
           @Query("e") String market
   );
 
+  @GET("pricemulti")
+  Observable<HashMap<String, HashMap<String, Double>>> priceMulti(
+          @Query("fsyms") String fromSymbol,
+          @Query("tsyms") String toSymbols,
+          @Query("e") String market
+  );
+
 
   @GET("all/coinlist")
   Observable<CoinsResponse> coins();
