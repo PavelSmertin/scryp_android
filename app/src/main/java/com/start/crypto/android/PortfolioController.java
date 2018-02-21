@@ -373,6 +373,8 @@ public class PortfolioController extends BaseController implements LoaderManager
         super.onDestroy();
         compositeDisposable.dispose();
 
+        ((AppCompatActivity)getActivity()).getSupportLoaderManager().destroyLoader(LOADER_PORTFOLIO_COINS_ID);
+
         mSocket.disconnect();
         mSocket.off("SubAdd", onSubAdd);
 
@@ -598,8 +600,9 @@ public class PortfolioController extends BaseController implements LoaderManager
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, 1/currency.getValue());
-            getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
-            Log.d("DEBUG_INFO", "price of " + currency.getKey() + ": " + 1/currency.getValue());
+            if(getActivity() != null) {
+                getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
+            }
         }
 
     }
@@ -608,9 +611,9 @@ public class PortfolioController extends BaseController implements LoaderManager
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
             ContentValues values = new ContentValues();
             values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1/currency.getValue());
-            getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
-            Log.d("DEBUG_INFO", "price24 of " + currency.getKey() + ": " + 1/currency.getValue());
-
+            if(getActivity() != null) {
+                getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
+            }
         }
 
     }
@@ -957,8 +960,7 @@ public class PortfolioController extends BaseController implements LoaderManager
                 mAuthButtonSubject.onNext(false);
 
             } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                Crashlytics.logException(new Exception(e.getMessage()));
             }
         }).start();
     }

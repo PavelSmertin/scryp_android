@@ -361,6 +361,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
+
+        getSupportLoaderManager().destroyLoader(LOADER_PORTFOLIO_COINS);
+        getSupportLoaderManager().destroyLoader(LOADER_COINS);
+        getSupportLoaderManager().destroyLoader(LOADER_EXCHANGES);
+
     }
 
     @Override
