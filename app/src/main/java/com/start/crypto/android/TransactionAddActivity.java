@@ -607,7 +607,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             fromSymbol = mCoinSymbol;
         }
         if(!mCurrenteySymbol.equals(DEFAULT_SYMBOL) && !mCoinSymbol.equals(DEFAULT_SYMBOL)) {
-            fromSymbol = "," + mCurrenteySymbol;
+            fromSymbol += "," + mCurrenteySymbol;
         }
 
         Observable<HashMap<String, Double>> pricesObservable =
