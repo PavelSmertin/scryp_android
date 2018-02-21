@@ -117,8 +117,6 @@ public class PortfolioController extends BaseController implements LoaderManager
     private static final boolean DUMP_DB = false;
 
     public static final int REQUEST_USER_ACCOUNT = 301;
-    public static final int RESULT_LOGOUT = 91;
-    private static final int REQUEST_USER_SIGNIN = 302;
 
 
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;

@@ -107,6 +107,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
 
     protected long      mDate;
     protected String    mDescription;
+    protected String    mExchangeName;
 
     BehaviorSubject<Long> mCoinFieldObservable              = BehaviorSubject.create();
     BehaviorSubject<Long> mPairFieldObservable              = BehaviorSubject.create();
@@ -434,6 +435,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 argExchangeId = data.getLong(idColumnIndex);
                 int nameColumnIndex = data.getColumnIndexOrThrow(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME);
                 mExchangeComplete.setText(data.getString(nameColumnIndex));
+                mExchangeComplete.clearFocus();
                 mExchangesFieldObservable.onNext(argExchangeId);
             }
             return;
@@ -615,7 +617,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 RestClientMinApi.INSTANCE.getClient().prices(
                         fromSymbol,
                         toSymbol,
-                        null
+                        mExchangeComplete.getText().toString().trim()
                 )
                         .compose(bindUntilEvent(ActivityEvent.PAUSE))
                         .subscribeOn(Schedulers.io())
@@ -627,7 +629,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                                 },
                                 e -> {
                                     stopProgressDialog();
-                                    Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+                                    switchDefaultExchange();
                                 }
                         );
                 return;
@@ -637,7 +640,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                     fromSymbol,
                     toSymbol,
                     Long.toString(mDate),
-                    null
+                    mExchangeComplete.getText().toString().trim()
             )
                     .compose(bindUntilEvent(ActivityEvent.PAUSE))
                     .subscribeOn(Schedulers.io())
@@ -650,17 +653,18 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                             },
                             e -> {
                                 stopProgressDialog();
-                                Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+                                switchDefaultExchange();
                             }
                     );
         } else {
             if (Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == myCalendar.get(Calendar.DAY_OF_YEAR)) {
 
                 Observable<HashMap<String, Double>> pricesObservable =
-                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbol, toSymbol, null)
+                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbol, toSymbol, mExchangeComplete.getText().toString().trim())
                                 .subscribeOn(Schedulers.io());
                 Observable<HashMap<String, Double>> pricesRefsObservable =
-                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbolRef, toSymbolRef, null)
+                        RestClientMinApi.INSTANCE.getClient().prices(fromSymbolRef, toSymbolRef, mExchangeComplete.getText().toString().trim())
                                 .subscribeOn(Schedulers.io());
 
                 compositeDisposable.add(Observable.combineLatest(
@@ -671,7 +675,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 success -> stopProgressDialog(),
-                                e -> stopProgressDialog())
+                                e -> {
+                                    stopProgressDialog();
+                                    Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+                                    switchDefaultExchange();
+                                })
                 );
 
             } else {
@@ -692,13 +700,23 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 success -> stopProgressDialog(),
-                                e -> stopProgressDialog())
+                                e -> {
+                                    stopProgressDialog();
+                                    Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+                                    switchDefaultExchange();
+                                })
                 );
             }
 
         }
 
     }
+
+    private void switchDefaultExchange() {
+        argExchangeId = 0;
+        getSupportLoaderManager().restartLoader(LOADER_EXCHANGES, null, this);
+    }
+
 
     private void setRetrievedPrice(HashMap<String, Double> prices) {
 

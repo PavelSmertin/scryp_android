@@ -75,6 +75,7 @@
     <string name="portfolio_coin_24h_change">Coin 24h change</string>
 
     <string name="transaction_amount_error">You can\'t sell more of a position than %f</string>
+    <string name="transaction_pair_not_found">Pair not found for that exchange</string>
     <string name="transaction_amount_error_parse">Amount is not correct</string>
     <string name="transaction_menu_done">Done</string>
     <string name="transaction_description_error">Descriptions length restricted by 160 characters</string>
