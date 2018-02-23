@@ -1,4 +1,4 @@
-package com.start.crypto.android;
+package com.start.crypto.android.publicPortfolio;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import com.bluelinelabs.conductor.Conductor;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
+import com.start.crypto.android.BaseActivity;
+import com.start.crypto.android.R;
 
 import butterknife.BindView;
 

@@ -1,4 +1,4 @@
-package com.start.crypto.android;
+package com.start.crypto.android.publicPortfolio;
 
 import android.content.Context;
 import android.support.constraint.ConstraintLayout;
@@ -7,8 +7,9 @@ import android.widget.ImageView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.jakewharton.rxbinding2.view.RxView;
+import com.start.crypto.android.R;
+import com.start.crypto.android.TransactionBuySellActivity;
 import com.start.crypto.android.api.model.PortfolioCoinResponse;
-import com.start.crypto.android.publicPortfolio.PublicPortfolioCoinsViewHolder;
 
 import butterknife.BindView;
 

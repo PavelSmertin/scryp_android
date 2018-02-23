@@ -1,4 +1,4 @@
-package com.start.crypto.android;
+package com.start.crypto.android.publicPortfolio;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -20,6 +20,13 @@ import android.widget.TextView;
 import com.bluelinelabs.conductor.ControllerChangeHandler;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
+import com.start.crypto.android.BaseController;
+import com.start.crypto.android.DialogController;
+import com.start.crypto.android.DialogView;
+import com.start.crypto.android.R;
+import com.start.crypto.android.TransactionAddActivity;
+import com.start.crypto.android.TransactionEditActivity;
+import com.start.crypto.android.TransactionsListAdapter;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;

@@ -1,4 +1,4 @@
-package com.start.crypto.android;
+package com.start.crypto.android.publicPortfolio;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.start.crypto.android.CursorRecyclerViewAdapter;
+import com.start.crypto.android.R;
 import com.start.crypto.android.api.model.PortfolioCoinResponse;
 
-class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder>  {
+class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;

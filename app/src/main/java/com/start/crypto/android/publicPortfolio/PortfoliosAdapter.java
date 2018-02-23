@@ -1,4 +1,4 @@
-package com.start.crypto.android;
+package com.start.crypto.android.publicPortfolio;
 
 
 import android.app.Activity;
@@ -10,10 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.start.crypto.android.R;
 import com.start.crypto.android.api.model.Portfolio;
-import com.start.crypto.android.publicPortfolio.PortfolioActivity;
-import com.start.crypto.android.publicPortfolio.PortfolioHeaderViewHolder;
-import com.start.crypto.android.publicPortfolio.PortfolioViewHolder;
 
 import java.util.LinkedList;
 import java.util.List;

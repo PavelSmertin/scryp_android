@@ -1,4 +1,4 @@
-package com.start.crypto.android;
+package com.start.crypto.android.publicPortfolio;
 
 
 import android.Manifest;
@@ -47,6 +47,11 @@ import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jakewharton.rxbinding2.view.RxView;
+import com.start.crypto.android.BaseController;
+import com.start.crypto.android.ControllerPageTitle;
+import com.start.crypto.android.CryptoApp;
+import com.start.crypto.android.R;
+import com.start.crypto.android.TransactionAddActivity;
 import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.account.UserActivity;
 import com.start.crypto.android.api.MainApiService;

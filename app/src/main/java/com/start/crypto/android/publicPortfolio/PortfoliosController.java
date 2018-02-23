@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.bluelinelabs.conductor.rxlifecycle2.ControllerEvent;
 import com.start.crypto.android.BaseController;
 import com.start.crypto.android.ControllerPageTitle;
-import com.start.crypto.android.PortfoliosAdapter;
 import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
