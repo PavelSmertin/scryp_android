@@ -44,14 +44,14 @@ public class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
         coinSymbolView.setText(coinSymbol);
 
-        double priceDelta24h = 0;
+        double priceDeltaPercent24h = 0;
         if(price24h > 0) {
-            priceDelta24h = (priceNow - price24h) * 100 / price24h;
+            priceDeltaPercent24h = (priceNow - price24h) * 100 / price24h;
         }
 
-        double priceDeltaAll = 0;
+        double priceDeltaPercentAll = 0;
         if(priceOriginal > 0) {
-            priceDeltaAll = (priceNow - priceOriginal) * 100 / priceOriginal;
+            priceDeltaPercentAll = (priceNow - priceOriginal) * 100 / priceOriginal;
         }
 
         if(!Double.isNaN(coinHolding) && !Double.isInfinite(coinHolding) && coinHolding > 0) {
@@ -72,22 +72,22 @@ public class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
             coinPriceView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
-        if(!Double.isNaN(priceOriginal) && !Double.isInfinite(priceOriginal) && priceOriginal > 0) {
-            if(priceDeltaAll < 1000D) {
-                coinProfitView.setText(String.format(Locale.US, "%.2f%%", priceDeltaAll));
+        if(!Double.isNaN(priceDeltaPercentAll) && !Double.isInfinite(priceDeltaPercentAll) && priceDeltaPercentAll > 0) {
+            if(priceDeltaPercentAll < 1000D) {
+                coinProfitView.setText(String.format(Locale.US, "%.2f%%", priceDeltaPercentAll));
             } else {
-                coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(priceDeltaAll)));
+                coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(priceDeltaPercentAll)));
             }
         }
 
-        if(priceDeltaAll < 0) {
+        if(priceDeltaPercentAll < 0) {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         } else {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
-        if(!Double.isNaN(priceDelta24h) && !Double.isInfinite(priceDelta24h) && priceDelta24h > 0) {
-            coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDelta24h));
+        if(!Double.isNaN(priceDeltaPercent24h) && !Double.isInfinite(priceDeltaPercent24h) && priceDeltaPercent24h > 0) {
+            coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDeltaPercent24h));
         } else {
             coinHoldingsView.setText(context.getString(R.string.portfolio_coin_24h_change_unknown));
         }
