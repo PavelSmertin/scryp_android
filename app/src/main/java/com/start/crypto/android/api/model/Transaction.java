@@ -83,11 +83,11 @@ public class Transaction {
     }
 
 
-    public double getBasePrice() {
+    public double getPairBasePrice() {
         return basePrice;
     }
 
-    public double getCoinPrice() {
+    public double getCoinBasePrice() {
         return coinPrice;
     }
 

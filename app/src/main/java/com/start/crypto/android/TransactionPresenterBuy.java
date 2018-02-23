@@ -28,7 +28,7 @@ public class TransactionPresenterBuy extends TransactionPresenterBase {
     @Override
     protected double getPortfolioCoinPrice() {
         double totalOriginal = mPortfolioCoin.getTotalOriginal(); // in base currency
-        double transactionSum = mTransaction.getAmount() * mTransaction.getPrice() * mTransaction.getBasePrice(); // in base currency
+        double transactionSum = mTransaction.getAmount() * mTransaction.getPrice() * mTransaction.getPairBasePrice(); // in base currency
         return (totalOriginal + transactionSum) / (mPortfolioCoin.getOriginal() + mTransaction.getAmount());
     }
 

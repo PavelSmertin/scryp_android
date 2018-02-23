@@ -27,7 +27,7 @@ public class TransactionPresenterEdit extends TransactionPresenterBase {
 
     @Override
     protected double getPortfolioCoinPrice() {
-        return mTransaction.getPrice() * mTransaction.getBasePrice(); // in base currency
+        return mTransaction.getPrice() * mTransaction.getPairBasePrice(); // in base currency
     }
 
 }

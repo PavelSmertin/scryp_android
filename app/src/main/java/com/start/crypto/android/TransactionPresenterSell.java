@@ -56,10 +56,10 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID, portfolioCoin.getCoinId());
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PORTFOLIO_ID, portfolioCoin.getPortfolioId());
         values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_EXCHANGE_ID, portfolioCoin.getExchangeId());
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL, mTransaction.getPrice());
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, mTransaction.getBasePrice());
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, mTransaction.getBasePrice());
-        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, mTransaction.getAmount() * mTransaction.getCoinPrice() / mTransaction.getPrice());
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_ORIGINAL, mTransaction.getAmount() * mTransaction.getPrice());
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, mTransaction.getPairBasePrice());
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, mTransaction.getPairBasePrice());
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL, mTransaction.getCoinBasePrice() / mTransaction.getPrice());
         Uri uri = mContentResolver.insert(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values);
 
         return selectId(uri);
