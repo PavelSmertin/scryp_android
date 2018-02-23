@@ -467,6 +467,18 @@ public class PortfolioController extends BaseController implements LoaderManager
             double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
             double price24h = data.getDouble(columnsMap.mColumnPrice24h);
 
+            if (Double.isInfinite(priceOriginal) || Double.isNaN(priceOriginal)) {
+                priceOriginal = 0;
+            }
+
+            if (Double.isInfinite(priceNow) || Double.isNaN(priceNow)) {
+                priceNow = 0;
+            }
+
+            if (Double.isInfinite(price24h) || Double.isNaN(price24h)) {
+                price24h = 0;
+            }
+
             valueAll += original * priceOriginal;
             value24h += original * price24h;
             valueHoldings += original * priceNow;
@@ -607,11 +619,17 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     private void write24hPrices(HashMap<String, Double> prices) {
         for (Map.Entry<String, Double> currency : prices.entrySet()) {
+
+            if(currency.getValue() <= 0) {
+                continue;
+            }
+
             ContentValues values = new ContentValues();
-            values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1/currency.getValue());
+            values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1 / currency.getValue());
             if(getActivity() != null) {
                 getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
             }
+
         }
 
     }

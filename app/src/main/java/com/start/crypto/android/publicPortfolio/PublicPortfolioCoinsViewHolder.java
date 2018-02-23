@@ -12,24 +12,21 @@ import com.start.crypto.android.utils.KeyboardHelper;
 
 import java.util.Locale;
 
-class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
-    private TextView coinOriginalView;
+public class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
-    private TextView         coinSymbolView;
-    private TextView         coinPriceView;
-    private TextView         coinProfitView;
-    private TextView         coinHoldingsView;
-    private TextView         coinProfitValueView;
+    @BindView(R.id.coin_original)       TextView coinOriginalView;
+    @BindView(R.id.coin_symbol)         TextView coinSymbolView;
+    @BindView(R.id.coin_price)          TextView coinPriceView;
+    @BindView(R.id.coin_profit)         TextView coinProfitView;
+    @BindView(R.id.coin_holdings)       TextView coinHoldingsView;
+    @BindView(R.id.coin_profit_value)   TextView coinProfitValueView;
 
     public PublicPortfolioCoinsViewHolder(View itemView) {
         super(itemView);
-        coinSymbolView          = itemView.findViewById(R.id.coin_symbol);
-        coinOriginalView        = itemView.findViewById(R.id.coin_original);
-        coinPriceView           = itemView.findViewById(R.id.coin_price);
-        coinProfitView          = itemView.findViewById(R.id.coin_profit);
-        coinHoldingsView        = itemView.findViewById(R.id.coin_holdings);
-        coinProfitValueView     = itemView.findViewById(R.id.coin_profit_value);
+        ButterKnife.bind(this, itemView);
     }
 
     public void bindData(Context context, PortfolioCoinResponse portfolioCoin) {
@@ -39,8 +36,8 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         double priceNow         = portfolioCoin.getPriceNow();
         double price24h         = portfolioCoin.getPrice24h();
 
-        String exchangeName = portfolioCoin.getExchangeName();
         String coinSymbol = portfolioCoin.getSymbol();
+
 
         double profit24h = original * (priceNow - price24h);
         double coinHolding = original * priceNow;
@@ -57,25 +54,25 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
             priceDeltaAll = (priceNow - priceOriginal) * 100 / priceOriginal;
         }
 
-        coinOriginalView.setText(String.format(Locale.US, "Value %s %s",
-                KeyboardHelper.cut(coinHolding),
-                TransactionAddActivity.DEFAULT_SYMBOL
-        ));
+        if(!Double.isNaN(coinHolding) && !Double.isInfinite(coinHolding) && coinHolding > 0) {
+            coinOriginalView.setText(String.format(Locale.US, "Value %s %s",
+                    KeyboardHelper.cut(coinHolding),
+                    TransactionAddActivity.DEFAULT_SYMBOL
+            ));
+        }
 
-        coinPriceView.setText(String.format(Locale.US, "%s",
-                KeyboardHelper.format(priceNow)
-        ));
+        if(!Double.isNaN(priceNow) && !Double.isInfinite(priceNow) && priceNow > 0) {
+            coinPriceView.setText(String.format(Locale.US, "%s",
+                    KeyboardHelper.format(priceNow)
+            ));
+        }
         if(profit24h < 0) {
             coinPriceView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         } else {
             coinPriceView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
-        if(Double.isInfinite(profit24h)) {
-            return;
-        }
-
-        if(priceOriginal > 0) {
+        if(!Double.isNaN(priceOriginal) && !Double.isInfinite(priceOriginal) && priceOriginal > 0) {
             if(priceDeltaAll < 1000D) {
                 coinProfitView.setText(String.format(Locale.US, "%.2f%%", priceDeltaAll));
             } else {
@@ -89,8 +86,10 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
             coinProfitView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
-        if(price24h > 0) {
+        if(!Double.isNaN(priceDelta24h) && !Double.isInfinite(priceDelta24h) && priceDelta24h > 0) {
             coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDelta24h));
+        } else {
+            coinHoldingsView.setText(context.getString(R.string.portfolio_coin_24h_change_unknown));
         }
 
         double deltaValueAll = 0;
@@ -100,6 +99,5 @@ class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         coinProfitValueView.setText(String.format(Locale.US, "%s", KeyboardHelper.cut(deltaValueAll)));
 
     }
-
 
 }

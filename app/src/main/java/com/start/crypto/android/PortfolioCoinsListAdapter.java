@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.start.crypto.android.api.model.PortfolioCoinResponse;
+
 class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<RecyclerView.ViewHolder>  {
 
     private static final int TYPE_HEADER = 0;
@@ -43,7 +45,9 @@ class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<RecyclerView.V
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, Cursor cursor) {
         cursor.moveToPosition(cursor.getPosition());
         if(viewHolder instanceof PortfolioCoinsListViewHolder) {
-            ((PortfolioCoinsListViewHolder)viewHolder).bindData(mContext, cursor);;
+            PortfolioCoinResponse portfolioCoin = PortfolioCoinResponse.fromCursor(cursor);
+            ((PortfolioCoinsListViewHolder)viewHolder).bindData(mContext, portfolioCoin);;
+            ((PortfolioCoinsListViewHolder)viewHolder).bindActions(mContext, portfolioCoin);;
         }
     }
 
