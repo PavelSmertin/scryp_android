@@ -1,7 +1,7 @@
 package com.start.crypto.android;
 
 
-interface DialogView {
+public interface DialogView {
     void onOk();
     void onCancel();
 }

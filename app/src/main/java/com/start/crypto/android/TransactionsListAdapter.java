@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-class TransactionsListAdapter extends CursorRecyclerViewAdapter<TransactionsListViewHolder>  {
+public class TransactionsListAdapter extends CursorRecyclerViewAdapter<TransactionsListViewHolder>  {
 
     public TransactionsListAdapter(Context context, Cursor cursor) {
         super(context, cursor);
