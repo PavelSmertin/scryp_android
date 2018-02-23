@@ -60,6 +60,7 @@ import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.CoinResponse;
 import com.start.crypto.android.api.model.CoinsResponse;
 import com.start.crypto.android.api.model.ExchangeResponse;
+import com.start.crypto.android.api.model.PriceMultiFullResponse;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsExchange;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
@@ -68,9 +69,6 @@ import com.start.crypto.android.data.DBHelper;
 import com.start.crypto.android.sync.SyncPresenter;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.start.crypto.android.utils.PreferencesHelper;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -97,7 +95,6 @@ import java.util.Map;
 import java.util.Set;
 
 import butterknife.BindView;
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -119,7 +116,7 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     private static final int LOADER_PORTFOLIO_COINS_ID = 301;
 
-    private static final boolean DUMP_DB = false;
+    private static final boolean DUMP_DB = true;
 
     public static final int REQUEST_USER_ACCOUNT = 301;
 
@@ -563,80 +560,43 @@ public class PortfolioController extends BaseController implements LoaderManager
             return;
         }
 
-        Observable<HashMap<String, Double>> pricesObservable =
-                RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), null)
-                .subscribeOn(Schedulers.io());
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_YEAR, -1);
-        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
-                RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoinsForRefresh), Long.toString(cal.getTimeInMillis()), null)
-                .subscribeOn(Schedulers.io());
-
-        compositeDisposable.add(Observable.combineLatest(
-                    pricesObservable,
-                    pricesHistoricalObservable,
-                    this::updatePrices)
+        RestClientMinApi.INSTANCE.getClient().priceMultiFull(implode(mCoinsForRefresh), TransactionAddActivity.DEFAULT_SYMBOL, null)
                 .compose(bindUntilEvent(ControllerEvent.DETACH))
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(success -> {
-                    if(mSwipeRefresh != null ) {
-                        mSwipeRefresh.setRefreshing(false);
-                    }
-                },
-                e -> {
-                    if (mSwipeRefresh != null) {
-                        mSwipeRefresh.setRefreshing(false);
-                    }
-                })
-        );
+                .subscribe(
+                        response -> {
+                            if(mSwipeRefresh != null ) {
+                                mSwipeRefresh.setRefreshing(false);
+                            }
+                            updatePrices(response);
+                        },
+                        e -> {
+                            if (mSwipeRefresh != null) {
+                                mSwipeRefresh.setRefreshing(false);
+                            }
+                        });
+
     }
 
-    private boolean updatePrices(HashMap<String, Double> prices, HashMap<String, HashMap<String, Double>> pricesHistorical) {
-        writePrices(prices);
-        write24hPrices(pricesHistorical.get(TransactionAddActivity.DEFAULT_SYMBOL));
+    private boolean updatePrices(PriceMultiFullResponse response) {
+        HashMap<String, HashMap<String, PriceMultiFullResponse.RawCoin>> prices = response.getRaw();
+        for (Map.Entry<String, HashMap<String, PriceMultiFullResponse.RawCoin>> rawCoin : prices.entrySet()) {
+            for (Map.Entry<String, PriceMultiFullResponse.RawCoin> currency : rawCoin.getValue().entrySet()) {
+                ContentValues values = new ContentValues();
+                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, currency.getValue().getPrice());
+                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H, currency.getValue().getChange24Hour());
+                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H, currency.getValue().getChangePct24Hour());
+                if (getActivity() != null) {
+                    getActivity().getContentResolver().update(
+                            CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values,
+                            CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(rawCoin.getKey()),
+                            null
+                    );
+                }
+            }
+        }
         return true;
-    }
-
-    private void writePrices(HashMap<String, Double> prices) {
-        String message = "0~Poloniex~BTC~USD";
-
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put("subs", message);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        mSocket.emit("SubAdd", obj);
-
-        //start();
-
-        for (Map.Entry<String, Double> currency : prices.entrySet()) {
-            ContentValues values = new ContentValues();
-            values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, 1/currency.getValue());
-            if(getActivity() != null) {
-                getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
-            }
-        }
-
-    }
-
-    private void write24hPrices(HashMap<String, Double> prices) {
-        for (Map.Entry<String, Double> currency : prices.entrySet()) {
-
-            if(currency.getValue() <= 0) {
-                continue;
-            }
-
-            ContentValues values = new ContentValues();
-            values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H, 1 / currency.getValue());
-            if(getActivity() != null) {
-                getActivity().getContentResolver().update(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_COIN_ID + " = " + mCoinsForRefresh.get(currency.getKey()), null);
-            }
-
-        }
-
     }
     //endregion
 

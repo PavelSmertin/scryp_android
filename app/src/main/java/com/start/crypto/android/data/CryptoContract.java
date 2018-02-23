@@ -89,6 +89,8 @@ public final class CryptoContract {
                     CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL + REAL_TYPE + REAL_TYPE_DEFAULT + COMMA_SEP +
                     CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H + REAL_TYPE + REAL_TYPE_DEFAULT  + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H + REAL_TYPE + REAL_TYPE_DEFAULT  + COMMA_SEP +
+                    CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H + REAL_TYPE + REAL_TYPE_DEFAULT  + COMMA_SEP +
                     CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + INTEGER_TYPE + CURRENT_TIMESTAMP + COMMA_SEP +
                     CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT + INTEGER_TYPE + INTEGER_TYPE_DEFAULT +
                     " )";
@@ -224,6 +226,10 @@ public final class CryptoContract {
         public static final String COLUMN_NAME_PRICE_NOW        = "price_now";
         public static final String COLUMN_NAME_PRICE_ORIGINAL   = "price_original";
         public static final String COLUMN_NAME_PRICE_24H        = "price_24h";
+        public static final String COLUMN_NAME_CHANGE_24H       = "change_24h";
+        public static final String COLUMN_NAME_CHANGE_PCT_24H   = "change_pct_24h";
+
+
 
         public static final String COLUMN_NAME_CREATED_AT       = "created_at";
         public static final String COLUMN_NAME_UPDATED_AT       = "updated_at";
@@ -238,6 +244,8 @@ public final class CryptoContract {
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H,
+                CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H,
 
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
                 CryptoPortfolioCoins.TABLE_NAME + "." + CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT
@@ -252,6 +260,9 @@ public final class CryptoContract {
                 CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW,
                 CryptoPortfolioCoins.COLUMN_NAME_PRICE_ORIGINAL,
                 CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
+                CryptoPortfolioCoins.COLUMN_NAME_PRICE_24H,
+                CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H,
+                CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H,
 
                 CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT,
                 CryptoPortfolioCoins.COLUMN_NAME_UPDATED_AT

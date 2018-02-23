@@ -15,9 +15,11 @@ public class ColumnsPortfolioCoin {
     private static final int COLUMN_PRICE_NOW       = 7;
     private static final int COLUMN_PRICE_ORIGINAL  = 8;
     private static final int COLUMN_PRICE_24H       = 9;
+    private static final int COLUMN_CHANGE_24H      = 10;
+    private static final int COLUMN_CHANGE_PCT_24H  = 11;
 
-    private static final int COLUMN_CREATED_AT      = 10;
-    private static final int COLUMN_UPDATED_AT      = 11;
+    private static final int COLUMN_CREATED_AT      = 12;
+    private static final int COLUMN_UPDATED_AT      = 13;
 
     public static final int CACHE_SIZE          = 50;
 
@@ -34,6 +36,8 @@ public class ColumnsPortfolioCoin {
         public int mColumnPriceNow;
         public int mColumnPriceOriginal;
         public int mColumnPrice24h;
+        public int mColumnChange24h;
+        public int mColumnChangePct24h;
         public int mColumnCreatedAt;
         public int mColumnUpdatedAt;
 
@@ -48,6 +52,8 @@ public class ColumnsPortfolioCoin {
             mColumnPriceNow         = COLUMN_PRICE_NOW;
             mColumnPriceOriginal    = COLUMN_PRICE_ORIGINAL;
             mColumnPrice24h         = COLUMN_PRICE_24H;
+            mColumnChange24h        = COLUMN_CHANGE_24H;
+            mColumnChangePct24h     = COLUMN_CHANGE_PCT_24H;
 
             mColumnCreatedAt        = COLUMN_CREATED_AT;
             mColumnUpdatedAt        = COLUMN_UPDATED_AT;
@@ -111,6 +117,17 @@ public class ColumnsPortfolioCoin {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
 
+            try {
+                mColumnChange24h = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnChangePct24h = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
 
             try {
                 mColumnCreatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT);

@@ -17,12 +17,12 @@ import butterknife.ButterKnife;
 
 public class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
-    @BindView(R.id.coin_original)       TextView coinOriginalView;
-    @BindView(R.id.coin_symbol)         TextView coinSymbolView;
-    @BindView(R.id.coin_price)          TextView coinPriceView;
-    @BindView(R.id.coin_profit)         TextView coinProfitView;
-    @BindView(R.id.coin_holdings)       TextView coinHoldingsView;
-    @BindView(R.id.coin_profit_value)   TextView coinProfitValueView;
+    @BindView(R.id.coin_original)       TextView mValueView;
+    @BindView(R.id.coin_symbol)         TextView mSymbolView;
+    @BindView(R.id.coin_price)          TextView mPriceNowView;
+    @BindView(R.id.coin_profit)         TextView mChangePercentAllView;
+    @BindView(R.id.coin_holdings)       TextView mChangePercent24hView;
+    @BindView(R.id.coin_profit_value)   TextView mChangeAllView;
 
     public PublicPortfolioCoinsViewHolder(View itemView) {
         super(itemView);
@@ -31,72 +31,40 @@ public class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
 
     public void bindData(Context context, PortfolioCoinResponse portfolioCoin) {
 
-        double original         = portfolioCoin.getOriginal();
-        double priceOriginal    = portfolioCoin.getPriceOriginal();
+        String coinSymbol       = portfolioCoin.getSymbol();
+
         double priceNow         = portfolioCoin.getPriceNow();
-        double price24h         = portfolioCoin.getPrice24h();
+        double change24h        = portfolioCoin.getChange24h();
+        double changePercent24h = portfolioCoin.getChangePercent24h();
+        double value            = portfolioCoin.getValue();
+        double changePercentAll = portfolioCoin.getChangePercentAll();
+        double changeAll        = portfolioCoin.getChangeAll();
 
-        String coinSymbol = portfolioCoin.getSymbol();
+        mSymbolView.setText(coinSymbol);
+        mValueView.setText(String.format(Locale.US, "Value %s %s", KeyboardHelper.cut(value), TransactionAddActivity.DEFAULT_SYMBOL));
+        mPriceNowView.setText(String.format(Locale.US, "%s", KeyboardHelper.format(priceNow)));
+        mChangePercent24hView.setText(String.format(Locale.US, "24h: %.2f%%", changePercent24h));
+        mChangeAllView.setText(String.format(Locale.US, "%s", KeyboardHelper.cut(changeAll)));
 
-
-        double profit24h = original * (priceNow - price24h);
-        double coinHolding = original * priceNow;
-
-        coinSymbolView.setText(coinSymbol);
-
-        double priceDeltaPercent24h = 0;
-        if(price24h > 0) {
-            priceDeltaPercent24h = (priceNow - price24h) * 100 / price24h;
-        }
-
-        double priceDeltaPercentAll = 0;
-        if(priceOriginal > 0) {
-            priceDeltaPercentAll = (priceNow - priceOriginal) * 100 / priceOriginal;
-        }
-
-        if(!Double.isNaN(coinHolding) && !Double.isInfinite(coinHolding) && coinHolding > 0) {
-            coinOriginalView.setText(String.format(Locale.US, "Value %s %s",
-                    KeyboardHelper.cut(coinHolding),
-                    TransactionAddActivity.DEFAULT_SYMBOL
-            ));
-        }
-
-        if(!Double.isNaN(priceNow) && !Double.isInfinite(priceNow) && priceNow > 0) {
-            coinPriceView.setText(String.format(Locale.US, "%s",
-                    KeyboardHelper.format(priceNow)
-            ));
-        }
-        if(profit24h < 0) {
-            coinPriceView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        if(changePercentAll < 1000D) {
+            mChangePercentAllView.setText(String.format(Locale.US, "%.2f%%", changePercentAll));
         } else {
-            coinPriceView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
+            mChangePercentAllView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(changePercentAll)));
         }
 
-        if(!Double.isNaN(priceDeltaPercentAll) && !Double.isInfinite(priceDeltaPercentAll) && priceDeltaPercentAll > 0) {
-            if(priceDeltaPercentAll < 1000D) {
-                coinProfitView.setText(String.format(Locale.US, "%.2f%%", priceDeltaPercentAll));
-            } else {
-                coinProfitView.setText(String.format(Locale.US, "%s%%", KeyboardHelper.cut(priceDeltaPercentAll)));
-            }
-        }
 
-        if(priceDeltaPercentAll < 0) {
-            coinProfitView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
+        // positive/negative colors
+        if(change24h < 0) {
+            mPriceNowView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         } else {
-            coinProfitView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
+            mPriceNowView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
 
-        if(!Double.isNaN(priceDeltaPercent24h) && !Double.isInfinite(priceDeltaPercent24h) && priceDeltaPercent24h > 0) {
-            coinHoldingsView.setText(String.format(Locale.US, "24h: %.2f%%", priceDeltaPercent24h));
+        if(changePercentAll < 0) {
+            mChangePercentAllView.setTextColor(context.getResources().getColor(R.color.colorDownValue));
         } else {
-            coinHoldingsView.setText(context.getString(R.string.portfolio_coin_24h_change_unknown));
+            mChangePercentAllView.setTextColor(context.getResources().getColor(R.color.colorUpValue));
         }
-
-        double deltaValueAll = 0;
-        if(priceNow > 0) {
-            deltaValueAll = (priceNow - priceOriginal) * original;
-        }
-        coinProfitValueView.setText(String.format(Locale.US, "%s", KeyboardHelper.cut(deltaValueAll)));
 
     }
 

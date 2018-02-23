@@ -6,6 +6,8 @@ import com.google.gson.annotations.SerializedName;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 
+
+/* RESPONSE from Main server */
 public class PortfolioCoinResponse {
 
     @SerializedName("portfolio_coin_id")
@@ -49,23 +51,32 @@ public class PortfolioCoinResponse {
     @SerializedName("updated_at")
     private String updatedAt;
 
-    private PortfolioCoinResponse(long portfolioId,
-                                 long portfolioCoinId,
-                                 long exchangeId,
-                                 String coinSymbol,
-                                 double original,
-                                 double priceNow,
-                                 double price24h,
-                                 double priceOriginal) {
+    @SerializedName("change_24h")
+    private double change24h;
 
-        this.portfolioId    = portfolioId;
-        this.id             = portfolioCoinId;
-        this.exchangeId     = exchangeId;
-        this.symbol         = coinSymbol;
-        this.original       = original;
-        this.priceNow       = priceNow;
-        this.price24h       = price24h;
-        this.priceOriginal  = priceOriginal;
+    @SerializedName("change_percent_24h")
+    private double changePercent24h;
+
+
+    private PortfolioCoinResponse(long portfolioId,
+                                  long portfolioCoinId,
+                                  long exchangeId,
+                                  String coinSymbol,
+                                  double original,
+                                  double priceNow,
+                                  double change24h,
+                                  double changePercent24h,
+                                  double priceOriginal) {
+
+        this.portfolioId        = portfolioId;
+        this.id                 = portfolioCoinId;
+        this.exchangeId         = exchangeId;
+        this.symbol             = coinSymbol;
+        this.original           = original;
+        this.priceNow           = priceNow;
+        this.change24h          = change24h;
+        this.changePercent24h   = changePercent24h;
+        this.priceOriginal      = priceOriginal;
 
     }
 
@@ -95,7 +106,10 @@ public class PortfolioCoinResponse {
     }
 
     public double getPriceNow() {
-        return priceNow;
+        if(!Double.isNaN(priceNow) && !Double.isInfinite(priceNow)) {
+            return priceNow;
+        }
+        return 0D;
     }
 
     public double getPriceOriginal() {
@@ -130,6 +144,19 @@ public class PortfolioCoinResponse {
         return symbol;
     }
 
+    public double getChange24h() {
+        if(!Double.isNaN(change24h) && !Double.isInfinite(change24h)) {
+            return change24h;
+        }
+        return 0D;
+    }
+
+    public double getChangePercent24h() {
+        if(!Double.isNaN(changePercent24h) && !Double.isInfinite(changePercent24h)) {
+            return changePercent24h;
+        }
+        return 0D;
+    }
 
     public void setPriceNow(double priceNow) {
         this.priceNow = priceNow;
@@ -155,10 +182,46 @@ public class PortfolioCoinResponse {
                 cursor.getString(columnsCoinsMap.mColumnSymbol),
                 cursor.getDouble(columnsMap.mColumnOriginal),
                 cursor.getDouble(columnsMap.mColumnPriceNow),
-                cursor.getDouble(columnsMap.mColumnPrice24h),
+                cursor.getDouble(columnsMap.mColumnChange24h),
+                cursor.getDouble(columnsMap.mColumnChangePct24h),
                 cursor.getDouble(columnsMap.mColumnPriceOriginal)
         );
 
 
+    }
+
+
+    public double getValue() {
+        double value = original * priceNow;
+        if(!Double.isNaN(value) && !Double.isInfinite(value)) {
+            return value;
+        }
+        return 0D;
+    }
+
+    public double getChangePercentAll() {
+        double changePercentAll = 0;
+        if(priceOriginal > 0) {
+            changePercentAll = (priceNow - priceOriginal) * 100 / priceOriginal;
+        }
+
+        if(!Double.isNaN(changePercentAll) && !Double.isInfinite(changePercentAll)) {
+            return changePercentAll;
+        }
+
+        return 0D;
+    }
+
+    public double getChangeAll() {
+        double changeAll = 0;
+        if(priceNow > 0) {
+            changeAll = (priceNow - priceOriginal) * original;
+        }
+
+        if(!Double.isNaN(changeAll) && !Double.isInfinite(changeAll)) {
+            return changeAll;
+        }
+
+        return 0D;
     }
 }

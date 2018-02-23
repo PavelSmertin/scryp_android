@@ -1,6 +1,7 @@
 package com.start.crypto.android.api;
 
 import com.start.crypto.android.api.model.CoinsResponse;
+import com.start.crypto.android.api.model.PriceMultiFullResponse;
 
 import java.util.HashMap;
 
@@ -32,6 +33,12 @@ public interface CriptoCompaireMinApiService {
           @Query("e") String market
   );
 
+  @GET("pricemultifull")
+  Observable<PriceMultiFullResponse> priceMultiFull(
+          @Query("fsyms") String fromSymbol,
+          @Query("tsyms") String toSymbols,
+          @Query("e") String market
+  );
 
   @GET("all/coinlist")
   Observable<CoinsResponse> coins();
