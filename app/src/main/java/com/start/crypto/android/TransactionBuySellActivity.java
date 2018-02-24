@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.view.RxView;
-import com.start.crypto.android.api.model.Coin;
+import com.start.crypto.android.api.model.AutocompleteItem;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.api.model.Transaction;
 import com.start.crypto.android.data.ColumnsCoin;
@@ -122,7 +122,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
         mAmountMax = mPortfolioCoinOriginal;
 
         ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
-        setCoin(new Coin(
+        setCoin(new AutocompleteItem(
                 data.getLong(columnsPortfolioCoinMap.mColumnCoinId),
                 data.getString(columnsCoinMap.mColumnSymbol),
                 data.getString(columnsCoinMap.mColumnName))
@@ -141,7 +141,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
     }
 
     @Override
-    protected void setCoin(Coin coin) {
+    protected void setCoin(AutocompleteItem coin) {
         super.setCoin(coin);
         mBuyTransactionButton.setText(String.format(Locale.getDefault(), getString(R.string.transaction_buy_button), coin.getSymbol()));
         mSellTransactionButton.setText(String.format(Locale.getDefault(), getString(R.string.transaction_sell_button), coin.getSymbol()));

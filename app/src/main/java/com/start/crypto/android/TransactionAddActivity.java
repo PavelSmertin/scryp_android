@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -26,10 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jakewharton.rxbinding2.view.RxView;
-import com.jakewharton.rxbinding2.widget.RxAutoCompleteTextView;
 import com.jakewharton.rxbinding2.widget.RxTextView;
 import com.start.crypto.android.api.RestClientMinApi;
-import com.start.crypto.android.api.model.Coin;
+import com.start.crypto.android.api.model.AutocompleteItem;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.api.model.Transaction;
 import com.start.crypto.android.data.CryptoContract;
@@ -73,7 +71,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @BindView(R.id.scroll_container)        View mScrollContainer;
     @BindView(R.id.currentey_complete)      EditText mCurrenteyComplete;
     @BindView(R.id.clear_coin_button)       ImageView mClearCoinButton;
-    @BindView(R.id.exchange_complete)       AutoCompleteTextView mExchangeComplete;
+    @BindView(R.id.exchange_complete)       EditText mExchangeComplete;
     @BindView(R.id.clear_exchange_button)   ImageView mClearExchangeButton;
     @BindView(R.id.amount)                  EditText mAmountView;
     @BindView(R.id.amount_symbol)           TextView mAmountSymbolView;
@@ -87,8 +85,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @BindView(R.id.price_switch)            Switch mPriceSwitch;
 
     @Nullable @BindView(R.id.add_transaction)         Button mTransactionButton;
-
-    private AutoTextExchangeAdapter mAdapterExchangeComplete;
 
     private Calendar myCalendar;
 
@@ -112,7 +108,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
 
     protected long      mDate;
     protected String    mDescription;
-    protected String    mExchangeName;
 
     BehaviorSubject<Long> mCoinFieldObservable              = BehaviorSubject.create();
     BehaviorSubject<Long> mPairFieldObservable              = BehaviorSubject.create();
@@ -186,22 +181,20 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         // Exchange
         argExchangeId = getIntent().getLongExtra(EXTRA_EXCHANGE_ID, 0);
 
-        mAdapterExchangeComplete = new AutoTextExchangeAdapter(this);
-        mExchangeComplete.setAdapter(mAdapterExchangeComplete);
-        compositeDisposable.add(RxAutoCompleteTextView.itemClickEvents(mExchangeComplete)
-                .retry()
-                .subscribe(item -> {
-                    argExchangeId = item.id();
-                    mExchangesFieldObservable.onNext(item.id());
-                })
-        );
-        compositeDisposable.add(RxView.clicks(mClearExchangeButton)
-                .subscribe(o -> {
-                    argExchangeId = 0;
+        mExchangeComplete.setFocusable(false);
+        RxView.clicks(mExchangeComplete)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> {
                     mExchangeComplete.setText("");
-                    mExchangesFieldObservable.onNext(0L);
-                })
-        );
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this,
+                                Pair.create(mExchangeComplete, getString(R.string.transition_autocomplete_coin)),
+                                Pair.create(mClearExchangeButton, getString(R.string.transition_autocomplete_clear)));
+                        CoinAutocompleteActivity.start(this, options, CoinAutocompleteActivity.REQUEST_EXCHANGE);
+                    } else {
+                        CoinAutocompleteActivity.start(this, CoinAutocompleteActivity.REQUEST_EXCHANGE);
+                    }
+                });
         compositeDisposable.add(RxView.focusChanges(mExchangeComplete)
                 .debounce(500, TimeUnit.MILLISECONDS)
                 .subscribe(focus -> {
@@ -379,14 +372,20 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == CoinAutocompleteActivity.REQUEST_COIN && resultCode == RESULT_OK) {
-            Coin coin = data.getParcelableExtra(CoinAutocompleteActivity.EXTRA_COIN);
+            AutocompleteItem coin = data.getParcelableExtra(CoinAutocompleteActivity.EXTRA_COIN);
             setCoin(coin);
         }
 
         if(requestCode == CoinAutocompleteActivity.REQUEST_CURRENTEY && resultCode == RESULT_OK) {
-            Coin coin = data.getParcelableExtra(CoinAutocompleteActivity.EXTRA_COIN);
+            AutocompleteItem coin = data.getParcelableExtra(CoinAutocompleteActivity.EXTRA_COIN);
             setPair(coin);
-            mPriceSymbolView.setText(coin.getSymbol());
+        }
+
+        if(requestCode == CoinAutocompleteActivity.REQUEST_EXCHANGE && resultCode == RESULT_OK) {
+            AutocompleteItem exchange = data.getParcelableExtra(CoinAutocompleteActivity.EXTRA_EXCHANGE);
+            argExchangeId = exchange.getId();
+            mExchangeComplete.setText(exchange.getName());
+            mExchangesFieldObservable.onNext(exchange.getId());
         }
     }
 
@@ -428,7 +427,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 long defaultCoinId = data.getLong(itemColumnIndex);
                 itemColumnIndex = data.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_NAME);
                 String defaultCoinName = data.getString(itemColumnIndex);
-                setPair(new Coin(defaultCoinId, DEFAULT_SYMBOL, defaultCoinName));
+                setPair(new AutocompleteItem(defaultCoinId, DEFAULT_SYMBOL, defaultCoinName));
             }
             return;
         }
@@ -556,7 +555,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         }
     }
 
-    protected void setCoin(Coin coin) {
+    protected void setCoin(AutocompleteItem coin) {
         mCoinId = coin.getId();
         mCoinComplete.setText(coin.getSymbol());
         mCoinSymbol = coin.getSymbol();
@@ -572,7 +571,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         return price;
     }
 
-    protected void setPair(Coin coin) {
+    protected void setPair(AutocompleteItem coin) {
         mCurrenteyId = coin.getId();
         mCurrenteyComplete.setText(coin.getSymbol());
         mCurrenteySymbol = coin.getSymbol();

@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 
 import com.jakewharton.rxbinding2.view.RxView;
-import com.start.crypto.android.api.model.Coin;
+import com.start.crypto.android.api.model.AutocompleteItem;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.api.model.Transaction;
 import com.start.crypto.android.data.ColumnsCoin;
@@ -90,7 +90,7 @@ public class TransactionEditActivity extends TransactionAddActivity {
 
         // init coin
         ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
-        setCoin(new Coin(
+        setCoin(new AutocompleteItem(
                 data.getLong(columnsPortfolioCoinMap.mColumnCoinId),
                 data.getString(columnsCoinMap.mColumnSymbol),
                 data.getString(columnsCoinMap.mColumnName))

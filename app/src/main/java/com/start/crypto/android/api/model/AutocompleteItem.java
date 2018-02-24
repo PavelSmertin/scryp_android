@@ -3,15 +3,20 @@ package com.start.crypto.android.api.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Coin implements Parcelable {
+public class AutocompleteItem implements Parcelable {
 
     private long id;
     private String symbol;
     private String name;
 
-    public Coin(long id, String symbol, String name) {
+    public AutocompleteItem(long id, String symbol, String name) {
         this.id = id;
         this.symbol = symbol;
+        this.name = name;
+    }
+
+    public AutocompleteItem(long id, String name) {
+        this.id = id;
         this.name = name;
     }
 
@@ -40,18 +45,18 @@ public class Coin implements Parcelable {
         dest.writeString(this.name);
     }
 
-    public static final Parcelable.Creator<Coin> CREATOR
-            = new Parcelable.Creator<Coin>() {
-        public Coin createFromParcel(Parcel in) {
-            return new Coin(in);
+    public static final Parcelable.Creator<AutocompleteItem> CREATOR
+            = new Parcelable.Creator<AutocompleteItem>() {
+        public AutocompleteItem createFromParcel(Parcel in) {
+            return new AutocompleteItem(in);
         }
 
-        public Coin[] newArray(int size) {
-            return new Coin[size];
+        public AutocompleteItem[] newArray(int size) {
+            return new AutocompleteItem[size];
         }
     };
 
-    private Coin(Parcel in) {
+    private AutocompleteItem(Parcel in) {
         this.id     = in.readLong();
         this.symbol = in.readString();
         this.name   = in.readString();
