@@ -458,54 +458,51 @@ public class PortfolioController extends BaseController implements LoaderManager
         String exchange;
         mPieData = new HashMap<>();
 
-        if (data == null || data.getCount() <= 0) {
-            Crashlytics.logException(new Exception("Empty coins"));
-            return;
-        }
+        if (data != null && data.getCount() > 0) {
+            while (data.moveToNext()) {
+                double original = data.getDouble(columnsMap.mColumnOriginal);
+                double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
+                double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
+                double price24h = data.getDouble(columnsMap.mColumnPrice24h);
 
-        while (data.moveToNext()) {
-            double original = data.getDouble(columnsMap.mColumnOriginal);
-            double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
-            double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
-            double price24h = data.getDouble(columnsMap.mColumnPrice24h);
+                if (Double.isInfinite(priceOriginal) || Double.isNaN(priceOriginal)) {
+                    priceOriginal = 0;
+                }
 
-            if (Double.isInfinite(priceOriginal) || Double.isNaN(priceOriginal)) {
-                priceOriginal = 0;
+                if (Double.isInfinite(priceNow) || Double.isNaN(priceNow)) {
+                    priceNow = 0;
+                }
+
+                if (Double.isInfinite(price24h) || Double.isNaN(price24h)) {
+                    price24h = 0;
+                }
+
+                valueAll += original * priceOriginal;
+                value24h += original * price24h;
+                valueHoldings += original * priceNow;
+
+                symbol = data.getString(columnsCoinsMap.mColumnSymbol);
+                long coinId = data.getLong(columnsMap.mColumnCoinId);
+                if (!mCoinsForRefresh.containsKey(symbol)) {
+                    mCoinsForRefresh.put(symbol, coinId);
+                }
+
+                exchange = data.getString(columnsExchangeMap.mColumnName);
+                if (!mExchangesForRefresh.contains(exchange)) {
+                    mExchangesForRefresh.add(exchange);
+                }
+
+                mPieData.put(data.getString(columnsCoinsMap.mColumnSymbol), original * priceNow);
             }
 
-            if (Double.isInfinite(priceNow) || Double.isNaN(priceNow)) {
-                priceNow = 0;
+            if (Double.isInfinite(valueHoldings) || Double.isInfinite(value24h) || Double.isInfinite(valueAll)) {
+                Crashlytics.logException(new Exception(String.format("Illegal values valueHoldings: %s, value24h: %s, valueAll: %s, coins count: %s",
+                        valueHoldings,
+                        value24h,
+                        valueAll,
+                        data.getCount())));
+                return;
             }
-
-            if (Double.isInfinite(price24h) || Double.isNaN(price24h)) {
-                price24h = 0;
-            }
-
-            valueAll += original * priceOriginal;
-            value24h += original * price24h;
-            valueHoldings += original * priceNow;
-
-            symbol = data.getString(columnsCoinsMap.mColumnSymbol);
-            long coinId = data.getLong(columnsMap.mColumnCoinId);
-            if (!mCoinsForRefresh.containsKey(symbol)) {
-                mCoinsForRefresh.put(symbol, coinId);
-            }
-
-            exchange = data.getString(columnsExchangeMap.mColumnName);
-            if (!mExchangesForRefresh.contains(exchange)) {
-                mExchangesForRefresh.add(exchange);
-            }
-
-            mPieData.put(data.getString(columnsCoinsMap.mColumnSymbol), original * priceNow);
-        }
-
-        if (Double.isInfinite(valueHoldings) || Double.isInfinite(value24h) || Double.isInfinite(valueAll)) {
-            Crashlytics.logException(new Exception(String.format("Illegal values valueHoldings: %s, value24h: %s, valueAll: %s, coins count: %s",
-                    valueHoldings,
-                    value24h,
-                    valueAll,
-                    data.getCount())));
-            return;
         }
 
         double profit24h = valueHoldings - value24h;
