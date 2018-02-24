@@ -57,6 +57,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     public static final String EXTRA_EXCHANGE_ID                = "exchange_id";
 
     public static final String  DEFAULT_SYMBOL           = "USDT";
+    private static final String SYMBOL_USD               = "USD";
+
     public static final int     DEFAULT_COIN_ID          = 171986;
     public static final String  DEFAULT_EXCHANGE         = "CCCAGG";
     private static final int MAX_DESCRIPTION_LENGTH      = 160;
@@ -610,12 +612,24 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             fromSymbol += "," + mCurrenteySymbol;
         }
 
-        Observable<HashMap<String, Double>> pricesObservable =
+
+        Observable<HashMap<String, Double>> pricesUSDTObservable =
                 RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, mCurrenteySymbol, mExchangeComplete.getText().toString().trim())
-                        .subscribeOn(Schedulers.io());
+                        .subscribeOn(Schedulers.io())
+                        .onErrorReturnItem(new HashMap<>());
+
+        Observable<HashMap<String, Double>> pricesUSDObservable;
+        if(mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            pricesUSDObservable =
+                    RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, SYMBOL_USD, mExchangeComplete.getText().toString().trim())
+                            .subscribeOn(Schedulers.io())
+                            .onErrorReturnItem(new HashMap<>());
+        } else {
+            pricesUSDObservable = Observable.just(new HashMap<String, Double>());
+        }
+
 
         Observable<HashMap<String, HashMap<String, Double>>> pricesBaseObservable;
-
         // Чтобы не отправлять два идентичных запроса
         if(!mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
             pricesBaseObservable = Observable.just(new HashMap<String, HashMap<String, Double>>());
@@ -626,7 +640,8 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         }
 
         compositeDisposable.add(Observable.combineLatest(
-                pricesObservable,
+                pricesUSDTObservable,
+                pricesUSDObservable,
                 pricesBaseObservable,
                 this::setRetrievedPrice)
                 .compose(bindUntilEvent(ActivityEvent.DESTROY))
@@ -638,9 +653,10 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         },
                         e -> {
                             stopProgressDialog();
-                            Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
-
-                            switchDefaultExchange();
+                            if (e instanceof PairNotFoundException){
+                                Toast.makeText(this, getString(R.string.transaction_pair_not_found), Toast.LENGTH_SHORT).show();
+                                switchDefaultExchange();
+                            }
                         })
         );
 
@@ -683,7 +699,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                     if(pricesBasePair.containsKey(mCurrenteySymbol)) {
                         pricesBase.put(mCurrenteySymbol, pricesBasePair.get(mCurrenteySymbol));
                     }
-                    return setRetrievedPrice(prices.get(mCoinSymbol), pricesBase);
+                    return setRetrievedPrice(prices.get(mCoinSymbol), new HashMap<>(), pricesBase);
                 })
                 .compose(bindUntilEvent(ActivityEvent.DESTROY))
                 .observeOn(AndroidSchedulers.mainThread())
@@ -705,7 +721,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         getSupportLoaderManager().restartLoader(LOADER_EXCHANGES, null, this);
     }
 
-    private boolean setRetrievedPrice(HashMap<String, Double> prices, HashMap<String, HashMap<String, Double>> pricesBase) {
+    private boolean setRetrievedPrice(HashMap<String, Double> prices, HashMap<String, Double> pricesUSD, HashMap<String, HashMap<String, Double>> pricesBase) {
         if(pricesBase.containsKey(mCoinSymbol)) {
             mCoinPrice = pricesBase.get(mCoinSymbol).get(DEFAULT_SYMBOL);
         }
@@ -713,9 +729,20 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             mBasePrice = pricesBase.get(mCurrenteySymbol).get(DEFAULT_SYMBOL);
         }
 
+        mPricePerCoin = 0;
         if(prices.containsKey(mCurrenteySymbol)) {
             mPricePerCoin = prices.get(mCurrenteySymbol);
+            return true;
         }
+
+        if(pricesUSD.containsKey(SYMBOL_USD)) {
+            mPricePerCoin = pricesUSD.get(SYMBOL_USD);
+        }
+
+        if(mPricePerCoin == 0) {
+            throw new PairNotFoundException();
+        }
+
         return true;
     }
 
