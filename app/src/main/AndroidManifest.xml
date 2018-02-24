@@ -28,6 +28,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,55 +45,94 @@
         <activity
             android:name=".TransactionAddActivity"
             android:windowSoftInputMode="adjustResize"
-            android:label="@string/title_activity_transaction" />
+            android:label="@string/title_activity_transaction"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".TransactionBuySellActivity"
             android:windowSoftInputMode="adjustResize"
-            android:label="@string/title_activity_buy_sell_transaction" />
+            android:label="@string/title_activity_buy_sell_transaction"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".TransactionEditActivity"
             android:windowSoftInputMode="adjustResize"
-            android:label="@string/title_activity_edit_transaction" />
+            android:label="@string/title_activity_edit_transaction"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".CoinAutocompleteActivity"
             android:label="@string/title_activity_autocomplete"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
         />
 
         <activity
             android:name=".PieActivity"
-            android:label="@string/title_activity_pie" />
+            android:label="@string/title_activity_pie"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".NotificationsActivity"
-            android:label="@string/title_notifications" />
+            android:label="@string/title_notifications"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".NotificationFormActivity"
             android:label="@string/title_activity_notification"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
 
         <activity
             android:name=".account.SigninActivity"
             android:label="@string/title_activity_auth"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".account.SignupActivity"
             android:label="@string/title_activity_signup"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".account.RestoreRequestActivity"
             android:label="@string/title_activity_restore"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".account.RestorePasswordActivity"
             android:label="@string/title_activity_restore"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity android:name=".publicPortfolio.PortfolioCoinActivity" />
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
+        <activity android:name=".publicPortfolio.PortfolioCoinActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".publicPortfolio.PortfolioActivity"
             android:label="@string/title_activity_portfolios"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             />
         <activity
             android:name=".account.UserActivity"
             android:label="@string/account_edit"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             />
 
 
