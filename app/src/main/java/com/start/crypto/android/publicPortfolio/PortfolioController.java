@@ -116,7 +116,7 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     private static final int LOADER_PORTFOLIO_COINS_ID = 301;
 
-    private static final boolean DUMP_DB = true;
+    private static final boolean DUMP_DB = false;
 
     public static final int REQUEST_USER_ACCOUNT = 301;
 
