@@ -60,6 +60,13 @@
         <item name="android:paddingLeft">@dimen/button_padding_right_left</item>
     </style>
 
+    <style name="AppHeader" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_14</item>
+        <item name="android:textColor">@color/colorTextPrimary</item>
+        <item name="android:textAllCaps" tools:targetApi="ice_cream_sandwich">true</item>
+    </style>
 
     <style name="AppRedButton" parent="AppButton">
         <item name="android:background">@drawable/button_coin_sell</item>

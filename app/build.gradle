@@ -62,12 +62,6 @@ dependencies {
         exclude group: 'com.android.support'
     }
 
-
-
-
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
-
     compile('io.socket:socket.io-client:0.8.3') {
         exclude group: 'org.json', module: 'json'
     }

@@ -1,13 +1,13 @@
 package com.start.crypto.android.publicPortfolio;
 
 import android.app.ActivityOptions;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,12 +20,13 @@ import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.PortfolioCoinResponse;
+import com.start.crypto.android.api.model.PriceMultiFullResponse;
+import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.imageLoader.GlideApp;
 import com.start.crypto.android.utils.KeyboardHelper;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
-import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
@@ -168,64 +168,53 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
             return;
         }
 
-        Observable<HashMap<String, Double>> pricesObservable =
-                RestClientMinApi.INSTANCE.getClient().prices(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), null)
-                        .subscribeOn(Schedulers.io());
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_YEAR, -1);
-        Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
-                RestClientMinApi.INSTANCE.getClient().pricesHistorical(TransactionAddActivity.DEFAULT_SYMBOL, implode(mCoins), Long.toString(cal.getTimeInMillis()), null)
-                        .subscribeOn(Schedulers.io());
-
-        compositeDisposable.add(Observable.combineLatest(
-                pricesObservable,
-                pricesHistoricalObservable,
-                this::updatePrices)
+        RestClientMinApi.INSTANCE.getClient().priceMultiFull(implode(mCoins), TransactionAddActivity.DEFAULT_SYMBOL, null)
                 .compose(bindUntilEvent(ActivityEvent.PAUSE))
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(success -> updatePortfolio(), e -> mSwipeRefresh.setRefreshing(false))
-        );
+                .subscribe(
+                        response -> {
+                            mSwipeRefresh.setRefreshing(false);
+                            updatePrices(response);
+                            updatePortfolio();
+                        },
+                        e -> {
+                            mSwipeRefresh.setRefreshing(false);
+                        });
+
     }
 
     private void updatePortfolio() {
         mAdapter.update(mCoins);
         calculatePortfolioValues();
-        mSwipeRefresh.setRefreshing(false);
     }
 
-    private boolean updatePrices(HashMap<String, Double> prices, HashMap<String, HashMap<String, Double>> pricesHistorical) {
-        writePrices(prices);
-        write24hPrices(pricesHistorical.get(TransactionAddActivity.DEFAULT_SYMBOL));
+    private boolean updatePrices(PriceMultiFullResponse response) {
+        HashMap<String, HashMap<String, PriceMultiFullResponse.RawCoin>> prices = response.getRaw();
+        for (Map.Entry<String, HashMap<String, PriceMultiFullResponse.RawCoin>> rawCoin : prices.entrySet()) {
+            for (Map.Entry<String, PriceMultiFullResponse.RawCoin> currency : rawCoin.getValue().entrySet()) {
+                ContentValues values = new ContentValues();
+                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, currency.getValue().getPrice());
+                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H, currency.getValue().getChange24Hour());
+                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H, currency.getValue().getChangePct24Hour());
+                updateCoin(
+                        rawCoin.getKey(),
+                        currency.getValue().getPrice(),
+                        currency.getValue().getChange24Hour(),
+                        currency.getValue().getChangePct24Hour()
+                );
+
+            }
+        }
         return true;
     }
 
-    private void writePrices(HashMap<String, Double> prices) {
-        for (Map.Entry<String, Double> currency : prices.entrySet()) {
-            updateCoinPriceNow(currency.getKey(), 1/currency.getValue());
-            Log.d("DEBUG_INFO", "public price of " + currency.getKey() + ": " + 1/currency.getValue());
-        }
-    }
-
-    private void updateCoinPriceNow(String symbol, double price) {
+    private void updateCoin(String symbol, double price, double change24h, double changePercent24h) {
         for(PortfolioCoinResponse portfolioCoin : mCoins) {
             if(portfolioCoin.getSymbol().equals(symbol)) {
                 portfolioCoin.setPriceNow(price);
-            }
-        }
-    }
-
-    private void write24hPrices(HashMap<String, Double> prices) {
-        for (Map.Entry<String, Double> currency : prices.entrySet()) {
-            updateCoinPrice24h(currency.getKey(), 1/currency.getValue());
-            Log.d("DEBUG_INFO", "public price24 of " + currency.getKey() + ": " + 1/currency.getValue());
-        }
-    }
-
-    private void updateCoinPrice24h(String symbol, double price) {
-        for(PortfolioCoinResponse portfolioCoin : mCoins) {
-            if(portfolioCoin.getSymbol().equals(symbol)) {
-                portfolioCoin.setPrice24h(price);
+                portfolioCoin.setChange24h(change24h);
+                portfolioCoin.setChangePercent24h(changePercent24h);
             }
         }
     }
@@ -297,13 +286,13 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
 
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
-        mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
-        mPortfolioProfit24h.setText(KeyboardHelper.cut(profit24h));
-        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", TransactionAddActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
+        mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
+        mPortfolioProfit24h.setText(KeyboardHelper.cutForHeader(profit24h));
+        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", TransactionAddActivity.DEFAULT_SYMBOL_ICON, Math.round(profit24hPercent)));
         mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
-        mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
-        mPortfolioProfitAll.setText(KeyboardHelper.cut(profitAll));
-        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL, profitAllPercent));
+        mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
+        mPortfolioProfitAll.setText(KeyboardHelper.cutForHeader(profitAll));
+        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL_ICON, profitAllPercent));
 
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));

@@ -28,6 +28,7 @@ import com.start.crypto.android.TransactionAddActivity;
 import com.start.crypto.android.TransactionEditActivity;
 import com.start.crypto.android.TransactionsListAdapter;
 import com.start.crypto.android.data.ColumnsCoin;
+import com.start.crypto.android.data.ColumnsExchange;
 import com.start.crypto.android.data.ColumnsPortfolioCoin;
 import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.utils.BundleBuilder;
@@ -53,9 +54,8 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
     @BindView(R.id.value_total_coast)           TextView mTotalCostView;
     @BindView(R.id.value_price_)                TextView mPriceView;
     @BindView(R.id.value_24h_change)            TextView m24hChangeView;
-
-    @BindView(R.id.transactions)
-    RecyclerView mRecyclerView;
+    @BindView(R.id.value_exchange)              TextView mExchangeView;
+    @BindView(R.id.transactions)                RecyclerView mRecyclerView;
 
     private TransactionsListAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -66,6 +66,8 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
     private long mExchangeId;
     private String mCoinSymbol;
     private long mPortfolioId;
+    private String mExchange;
+
 
 
     public PortfolioCoinController(long portfolioId) {
@@ -101,6 +103,7 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setNestedScrollingEnabled(false);
 
         initLoaderManager();
 
@@ -129,12 +132,14 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
                 return;
             }
             data.moveToFirst();
-            ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
-            ColumnsCoin.ColumnsMap columnsCoinMap = new ColumnsCoin.ColumnsMap(data);
+            ColumnsPortfolioCoin.ColumnsMap columnsMap      = new ColumnsPortfolioCoin.ColumnsMap(data);
+            ColumnsCoin.ColumnsMap columnsCoinMap           = new ColumnsCoin.ColumnsMap(data);
+            ColumnsExchange.ColumnsMap columnsExchangeMap   = new ColumnsExchange.ColumnsMap(data);
 
             mCoinId = data.getLong(columnsMap.mColumnCoinId);
             mExchangeId = data.getLong(columnsMap.mColumnExchangeId);
             mCoinSymbol = data.getString(columnsCoinMap.mColumnSymbol);
+            mExchange   = data.getString(columnsExchangeMap.mColumnName);
             mPortfolioId = data.getLong(columnsMap.mColumnPortfolioId);
 
             double original             = data.getDouble(columnsMap.mColumnOriginal);
@@ -184,6 +189,8 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
 
             mBuyPriceView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal), TransactionAddActivity.DEFAULT_SYMBOL));
             mTotalCostView.setText(String.format(Locale.US, "%s %s", KeyboardHelper.format(priceOriginal * original), TransactionAddActivity.DEFAULT_SYMBOL));
+
+            mExchangeView.setText(mExchange);
 
             return;
         }

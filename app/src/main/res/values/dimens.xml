@@ -4,6 +4,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+
+
     <dimen name="toggle_width">80dp</dimen>
     <dimen name="toggle_width_x2">160dp</dimen>
     <dimen name="toggle_height">24dp</dimen>
@@ -24,5 +26,10 @@
 
     <dimen name="dialog_elevation">6dp</dimen>
     <dimen name="dialog_corners">2dp</dimen>
+
+
+    <dimen name="text_label_height">36dp</dimen>
+
+
 
 </resources>

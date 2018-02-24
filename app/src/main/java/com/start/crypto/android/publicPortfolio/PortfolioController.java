@@ -517,13 +517,13 @@ public class PortfolioController extends BaseController implements LoaderManager
 
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
-        mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
-        mPortfolioProfit24h.setText(KeyboardHelper.cut(profit24h));
-        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%s%%)", TransactionAddActivity.DEFAULT_SYMBOL, Math.round(profit24hPercent)));
+        mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
+        mPortfolioProfit24h.setText(KeyboardHelper.cutForHeader(profit24h));
+        mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL_ICON, profit24hPercent));
         mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
-        mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL);
-        mPortfolioProfitAll.setText(KeyboardHelper.cut(profitAll));
-        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL, profitAllPercent));
+        mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
+        mPortfolioProfitAll.setText(KeyboardHelper.cutForHeader(profitAll));
+        mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL_ICON, profitAllPercent));
 
         if (profit24h < 0) {
             mPortfolioProfit24h.setTextColor(getResources().getColor(R.color.colorDownValue));

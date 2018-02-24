@@ -39,13 +39,13 @@ public final class KeyboardHelper {
         //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
         if (value == Long.MIN_VALUE) return cut(Long.MIN_VALUE + 1);
         if (value < 0) return "-" + cut(-value);
-        if (value < 1000D) return format(value); //deal with easy case
+        if (value < 10000D) return format(value); //deal with easy case
 
         Map.Entry<Double, String> e = suffixes.floorEntry(value);
         Double divideBy = e.getKey();
         String suffix = e.getValue();
 
-        return formatter.format(new BigDecimal(value / divideBy).setScale(0, BigDecimal.ROUND_FLOOR).doubleValue()) + suffix;
+        return formatter.format(new BigDecimal(value / divideBy).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue()) + suffix;
     }
 
     public static String format(double value) {
@@ -55,7 +55,27 @@ public final class KeyboardHelper {
             return formatter.format(new BigDecimal(value).setScale(5, BigDecimal.ROUND_FLOOR).doubleValue());
         }
         return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
+    }
 
+
+
+
+    public static String cutForHeader(double value) {
+        //Long.MIN_VALUE == -Long.MIN_VALUE so we need an adjustment here
+        if (value == Long.MIN_VALUE) return cut(Long.MIN_VALUE + 1);
+        if (value < 0) return "-" + cut(-value);
+        if (value < 10000D) return formatForHeader(value); //deal with easy case
+
+        Map.Entry<Double, String> e = suffixes.floorEntry(value);
+        Double divideBy = e.getKey();
+        String suffix = e.getValue();
+
+        return formatter.format(new BigDecimal(value / divideBy).setScale(0, BigDecimal.ROUND_FLOOR).doubleValue()) + suffix;
+    }
+
+
+    public static String formatForHeader(double value) {
+        return formatter.format(new BigDecimal(value).setScale(2, BigDecimal.ROUND_FLOOR).doubleValue());
     }
 
 
@@ -80,4 +100,6 @@ public final class KeyboardHelper {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
+
+
 }

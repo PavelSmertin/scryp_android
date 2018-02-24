@@ -41,7 +41,7 @@ public class PublicPortfolioCoinsViewHolder extends RecyclerView.ViewHolder  {
         double changeAll        = portfolioCoin.getChangeAll();
 
         mSymbolView.setText(coinSymbol);
-        mValueView.setText(String.format(Locale.US, "Value %s %s", KeyboardHelper.cut(value), TransactionAddActivity.DEFAULT_SYMBOL));
+        mValueView.setText(String.format(Locale.US, "Value %s %s", KeyboardHelper.cut(value), TransactionAddActivity.DEFAULT_SYMBOL_ICON));
         mPriceNowView.setText(String.format(Locale.US, "%s", KeyboardHelper.format(priceNow)));
         mChangePercent24hView.setText(String.format(Locale.US, "24h: %.2f%%", changePercent24h));
         mChangeAllView.setText(String.format(Locale.US, "%s", KeyboardHelper.cut(changeAll)));

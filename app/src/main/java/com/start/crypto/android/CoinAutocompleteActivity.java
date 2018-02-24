@@ -34,7 +34,7 @@ public class CoinAutocompleteActivity extends BaseActivity implements LoaderMana
     public static final int REQUEST_CURRENTEY   = 101;
 
     private static final long DELAY_IN_MILLIS = 500;
-    public static final int MIN_LENGTH_TO_START = 1;
+    public static final int MIN_LENGTH_TO_START = 0;
 
     @BindView(R.id.coin_select)         EditText mCoinSelect;
     @BindView(R.id.clear_text_button)   ImageView mClearTextButton;
@@ -70,7 +70,7 @@ public class CoinAutocompleteActivity extends BaseActivity implements LoaderMana
 
         compositeDisposable.add(RxTextView.textChanges(mCoinSelect)
                 .debounce(DELAY_IN_MILLIS, TimeUnit.MICROSECONDS)
-                .filter(text -> text.toString().length() > MIN_LENGTH_TO_START)
+                .filter(text -> text.toString().length() >= MIN_LENGTH_TO_START)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::filter)
         );
@@ -98,7 +98,6 @@ public class CoinAutocompleteActivity extends BaseActivity implements LoaderMana
                         })
         );
 
-        getSupportLoaderManager().initLoader(0, null, this);
     }
 
 
@@ -139,10 +138,15 @@ public class CoinAutocompleteActivity extends BaseActivity implements LoaderMana
 
 
     private void filter(CharSequence constraint) {
+        if(constraint == null || constraint.length() <= MIN_LENGTH_TO_START) {
+            getSupportLoaderManager().restartLoader(0, null, this);
+            return;
+        }
+
         Cursor cursor = getContentResolver().query(
                 CryptoContract.CryptoCoins.CONTENT_URI,
                 CryptoContract.CryptoCoins.DEFAULT_PROJECTION,
-                CryptoContract.CryptoCoins.COLUMN_NAME_NAME + " LIKE '%" + (constraint != null ? constraint.toString() : "@@@@") + "%'",
+                CryptoContract.CryptoCoins.COLUMN_NAME_NAME + " LIKE '%" + constraint.toString() + "%'",
                 null,
                 null);
 

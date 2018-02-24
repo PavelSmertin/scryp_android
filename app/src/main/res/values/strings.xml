@@ -44,7 +44,7 @@
     <string name="type_of_transaction">Type of transaction</string>
     <string name="pair">Pair</string>
     <string name="price_of_coin">Price</string>
-    <string name="price_in_total">Price total</string>
+    <string name="price_in_total">Total price</string>
     <string name="price_per_coin">Per coin</string>
     <string name="amount">Amount</string>
     <string name="description">Description</string>
@@ -73,7 +73,7 @@
     <string name="portfolio_coin_total_cost">Total cost</string>
     <string name="portfolio_coin_price">Price</string>
     <string name="portfolio_coin_24h_change">Coin 24h change</string>
-
+    <string name="portfolio_coin_exchange">Exchange</string>
 
     <string name="transaction_amount_error">You can\'t sell more of a position than %f</string>
     <string name="transaction_pair_not_found">Pair not found for that exchange</string>
@@ -82,6 +82,8 @@
     <string name="transaction_description_error">Descriptions length restricted by 160 characters</string>
     <string name="transaction_buy_button">Buy %s</string>
     <string name="transaction_sell_button">Sell %s</string>
+    <string name="transaction_description">Description</string>
+    <string name="transaction_header">Transactions</string>
 
 
     <string name="transition_user_logo">TRANSITION:USER_LOGO</string>

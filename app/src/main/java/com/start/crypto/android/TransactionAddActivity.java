@@ -57,10 +57,13 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     public static final String EXTRA_EXCHANGE_ID                = "exchange_id";
 
     public static final String  DEFAULT_SYMBOL           = "USDT";
+    public static final String  DEFAULT_SYMBOL_ICON      = "$";
     private static final String SYMBOL_USD               = "USD";
 
     public static final int     DEFAULT_COIN_ID          = 171986;
-    public static final String  DEFAULT_EXCHANGE         = "CCCAGG";
+    public static final String  DEFAULT_EXCHANGE         = "Global average";
+    public static final String  DEFAULT_EXCHANGE_ALIAS   = "CCCAGG";
+
     private static final int MAX_DESCRIPTION_LENGTH      = 160;
 
     protected static final int LOADER_PORTFOLIO_COINS      = 10001;
@@ -612,16 +615,20 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             fromSymbol += "," + mCurrenteySymbol;
         }
 
+        String exchange = mExchangeComplete.getText().toString().trim();
+        if(exchange.equals(DEFAULT_EXCHANGE)) {
+            exchange = DEFAULT_EXCHANGE_ALIAS;
+        }
 
         Observable<HashMap<String, Double>> pricesUSDTObservable =
-                RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, mCurrenteySymbol, mExchangeComplete.getText().toString().trim())
+                RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, mCurrenteySymbol, exchange)
                         .subscribeOn(Schedulers.io())
                         .onErrorReturnItem(new HashMap<>());
 
         Observable<HashMap<String, Double>> pricesUSDObservable;
         if(mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
             pricesUSDObservable =
-                    RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, SYMBOL_USD, mExchangeComplete.getText().toString().trim())
+                    RestClientMinApi.INSTANCE.getClient().prices(mCoinSymbol, SYMBOL_USD, exchange)
                             .subscribeOn(Schedulers.io())
                             .onErrorReturnItem(new HashMap<>());
         } else {
@@ -665,8 +672,12 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     private void retriveHistoricalPrice() {
         startProgressDialog();
 
+        String exchange = mExchangeComplete.getText().toString().trim();
+        if(exchange.equals(DEFAULT_EXCHANGE)) {
+            exchange = DEFAULT_EXCHANGE_ALIAS;
+        }
         Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalObservable =
-                RestClientMinApi.INSTANCE.getClient().pricesHistorical(mCoinSymbol, mCurrenteySymbol, Long.toString(mDate), mExchangeComplete.getText().toString().trim())
+                RestClientMinApi.INSTANCE.getClient().pricesHistorical(mCoinSymbol, mCurrenteySymbol, Long.toString(mDate), exchange)
                         .subscribeOn(Schedulers.io());
 
         Observable<HashMap<String, HashMap<String, Double>>> pricesHistoricalBaseCoinObservable;

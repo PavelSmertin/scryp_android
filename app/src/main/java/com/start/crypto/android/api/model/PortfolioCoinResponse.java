@@ -158,39 +158,6 @@ public class PortfolioCoinResponse {
         return 0D;
     }
 
-    public void setPriceNow(double priceNow) {
-        this.priceNow = priceNow;
-    }
-
-    public void setPrice24h(double price24h) {
-        this.price24h = price24h;
-    }
-
-    public void setPrice7d(double price7d) {
-        this.price7d = price7d;
-    }
-
-    public static PortfolioCoinResponse fromCursor(Cursor cursor) {
-
-        ColumnsPortfolioCoin.ColumnsMap columnsMap      = new ColumnsPortfolioCoin.ColumnsMap(cursor);
-        ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(cursor);
-
-        return new PortfolioCoinResponse(
-                cursor.getLong(columnsMap.mColumnPortfolioId),
-                cursor.getLong(columnsMap.mColumnId),
-                cursor.getLong(columnsMap.mColumnExchangeId),
-                cursor.getString(columnsCoinsMap.mColumnSymbol),
-                cursor.getDouble(columnsMap.mColumnOriginal),
-                cursor.getDouble(columnsMap.mColumnPriceNow),
-                cursor.getDouble(columnsMap.mColumnChange24h),
-                cursor.getDouble(columnsMap.mColumnChangePct24h),
-                cursor.getDouble(columnsMap.mColumnPriceOriginal)
-        );
-
-
-    }
-
-
     public double getValue() {
         double value = original * priceNow;
         if(!Double.isNaN(value) && !Double.isInfinite(value)) {
@@ -224,4 +191,51 @@ public class PortfolioCoinResponse {
 
         return 0D;
     }
+
+
+
+
+
+    public void setPriceNow(double priceNow) {
+        this.priceNow = priceNow;
+    }
+
+    public void setPrice24h(double price24h) {
+        this.price24h = price24h;
+    }
+
+    public void setPrice7d(double price7d) {
+        this.price7d = price7d;
+    }
+
+    public void setChange24h(double change24h) {
+        this.change24h = change24h;
+    }
+
+    public void setChangePercent24h(double changePercent24h) {
+        this.changePercent24h = changePercent24h;
+    }
+
+    public static PortfolioCoinResponse fromCursor(Cursor cursor) {
+
+        ColumnsPortfolioCoin.ColumnsMap columnsMap      = new ColumnsPortfolioCoin.ColumnsMap(cursor);
+        ColumnsCoin.ColumnsMap columnsCoinsMap          = new ColumnsCoin.ColumnsMap(cursor);
+
+        return new PortfolioCoinResponse(
+                cursor.getLong(columnsMap.mColumnPortfolioId),
+                cursor.getLong(columnsMap.mColumnId),
+                cursor.getLong(columnsMap.mColumnExchangeId),
+                cursor.getString(columnsCoinsMap.mColumnSymbol),
+                cursor.getDouble(columnsMap.mColumnOriginal),
+                cursor.getDouble(columnsMap.mColumnPriceNow),
+                cursor.getDouble(columnsMap.mColumnChange24h),
+                cursor.getDouble(columnsMap.mColumnChangePct24h),
+                cursor.getDouble(columnsMap.mColumnPriceOriginal)
+        );
+
+
+    }
+
+
+
 }
