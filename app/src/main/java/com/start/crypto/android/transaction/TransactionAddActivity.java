@@ -592,7 +592,9 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
 
     private void retrivePrice() {
 
-        if( mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+        if( mCoinSymbol.equals(mCurrenteySymbol)) {
+            mPricePerCoin = 1;
+            bindPriceView();
             return;
         }
 
@@ -638,14 +640,15 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         }
 
 
+        //  Запрос базовых цен
         Observable<HashMap<String, HashMap<String, Double>>> pricesBaseObservable;
-        // Чтобы не отправлять два идентичных запроса
-        if(!mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+        if(mCoinSymbol.equals(DEFAULT_SYMBOL) || mCurrenteySymbol.equals(DEFAULT_SYMBOL)) { // Чтобы не отправлять дополнительных запросов
             pricesBaseObservable = Observable.just(new HashMap<String, HashMap<String, Double>>());
         } else {
             pricesBaseObservable =
                     RestClientMinApi.INSTANCE.getClient().priceMulti(fromSymbol, DEFAULT_SYMBOL, null)
-                            .subscribeOn(Schedulers.io());
+                            .subscribeOn(Schedulers.io())
+                            .onErrorReturnItem(new HashMap<>());
         }
 
         compositeDisposable.add(Observable.combineLatest(
