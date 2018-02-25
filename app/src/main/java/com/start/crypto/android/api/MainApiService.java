@@ -56,7 +56,10 @@ public interface MainApiService {
   Observable<List<Portfolio>> portfolios();
 
   @GET("public_portfolio/{user_id}/{portfolio_id}")
-  Observable<List<PortfolioCoinResponse>> publicPortfolio(@Path("user_id") String userId, @Path("portfolio_id") String portfolioId);
+  Observable<List<PortfolioCoinResponse>> publicPortfolio(
+          @Path("user_id") String userId,
+          @Path("portfolio_id") String portfolioId
+  );
 
   @GET("sync")
   Observable<ResponseBody> syncDownload();
