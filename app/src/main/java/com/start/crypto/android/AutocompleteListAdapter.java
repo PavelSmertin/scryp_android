@@ -36,12 +36,12 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
     @Override
     public void onBindViewHolder(AutocompleteListViewHolder viewHolder, Cursor cursor) {
 
-        if(mListType == CoinAutocompleteActivity.LOADER_COINS) {
+        if(mListType == AutocompleteActivity.LOADER_COINS) {
             viewHolder.bindData(bindCoin(viewHolder, cursor));
             return;
         }
 
-        if(mListType == CoinAutocompleteActivity.LOADER_EXCHANGES) {
+        if(mListType == AutocompleteActivity.LOADER_EXCHANGES) {
             viewHolder.bindData(bindExchange(viewHolder, cursor));
             return;
         }

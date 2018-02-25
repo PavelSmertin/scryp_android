@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
-import com.start.crypto.android.publicPortfolio.PortfolioController;
+import com.start.crypto.android.portfolio.PortfolioController;
 
 import butterknife.BindView;
 

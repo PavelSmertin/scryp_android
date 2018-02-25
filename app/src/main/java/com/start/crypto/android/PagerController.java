@@ -12,7 +12,8 @@ import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
 import com.bluelinelabs.conductor.RouterTransaction;
 import com.bluelinelabs.conductor.support.RouterPagerAdapter;
-import com.start.crypto.android.publicPortfolio.PortfoliosController;
+import com.start.crypto.android.notification.NotificationsController;
+import com.start.crypto.android.portfolio.PortfoliosController;
 import com.start.crypto.android.views.PreventSwipeViewPager;
 
 import java.util.Arrays;

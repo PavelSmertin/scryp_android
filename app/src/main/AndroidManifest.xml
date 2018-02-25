@@ -43,28 +43,28 @@
             android:value="4d97e2d44e4bae844d86c4d8ab033d9347b8d054" />
 
         <activity
-            android:name=".TransactionAddActivity"
+            android:name=".transaction.TransactionAddActivity"
             android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_transaction"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".TransactionBuySellActivity"
+            android:name=".transaction.TransactionBuySellActivity"
             android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_buy_sell_transaction"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".TransactionEditActivity"
+            android:name=".transaction.TransactionEditActivity"
             android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_edit_transaction"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".CoinAutocompleteActivity"
+            android:name=".AutocompleteActivity"
             android:label="@string/title_activity_autocomplete"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
@@ -77,13 +77,13 @@
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".NotificationsActivity"
+            android:name=".notification.NotificationsActivity"
             android:label="@string/title_notifications"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".NotificationFormActivity"
+            android:name=".notification.NotificationFormActivity"
             android:label="@string/title_activity_notification"
             android:windowSoftInputMode="stateVisible|adjustResize"
             android:configChanges="orientation"
@@ -118,12 +118,12 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
-        <activity android:name=".publicPortfolio.PortfolioCoinActivity"
+        <activity android:name=".portfolio.PortfolioCoinActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             />
         <activity
-            android:name=".publicPortfolio.PortfolioActivity"
+            android:name=".portfolio.PortfolioActivity"
             android:label="@string/title_activity_portfolios"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
