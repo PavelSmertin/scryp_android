@@ -1,5 +1,6 @@
 package com.start.crypto.android.portfolio;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -258,7 +259,7 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
                 );
                 return true;
             case R.id.portfolio_coin_remove:
-                DialogController dialogController = new DialogController("Are you sure?", "");
+                DialogController dialogController = new DialogController(getResources().getString(R.string.all_clear_text), "");
                 dialogController.setTargetController(this);
 
                 ControllerChangeHandler pushHandler = new FadeChangeHandler(false);
@@ -281,21 +282,16 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
 
     @Override
     public void onOk() {
-        getActivity().getContentResolver().delete(
+        ContentValues values = new ContentValues();
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_REMOVED, true);
+
+        getActivity().getContentResolver().update(
                 CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                values,
                 CryptoContract.CryptoPortfolioCoins._ID + "=" + argPortfolioCoinId,
                 null
         );
-        getActivity().getContentResolver().delete(
-                CryptoContract.CryptoTransactions.CONTENT_URI,
-                CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID + "=" + argPortfolioCoinId,
-                null
-        );
-        getActivity().getContentResolver().delete(
-                CryptoContract.CryptoNotifications.CONTENT_URI,
-                CryptoContract.CryptoNotifications.COLUMN_NAME_COIN_ID + "=" + mCoinId,
-                null
-        );
+
         getActivity().finish();
     }
 

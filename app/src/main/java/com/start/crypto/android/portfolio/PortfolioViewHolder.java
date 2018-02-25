@@ -53,6 +53,8 @@ public class PortfolioViewHolder extends RecyclerView.ViewHolder  {
                     .override(AVATAR_IMAGE_WIDTH, AVATAR_IMAGE_HEIGHT)
                     .apply(RequestOptions.circleCropTransform())
                     .into(mAvatar);
+        } else {
+            mAvatar.setImageResource(R.drawable.ic_user_default);
         }
 
         mUserName.setText(portfolio.getUserName());

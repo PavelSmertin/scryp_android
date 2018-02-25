@@ -256,17 +256,17 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     private void calculatePortfolioValues() {
 
         double valueAll = 0;
-        double value24h = 0;
+        double profit24h = 0;
         double valueHoldings = 0;
 
         for (PortfolioCoinResponse portfolioCoin : mCoins) {
             double original = portfolioCoin.getOriginal();
             double priceOriginal = portfolioCoin.getPriceOriginal();
             double priceNow = portfolioCoin.getPriceNow();
-            double price24h = portfolioCoin.getPrice24h();
+            double change24h = portfolioCoin.getChange24h();
 
             valueAll += original * priceOriginal;
-            value24h += original * price24h;
+            profit24h += original * change24h;
             valueHoldings += original * priceNow;
         }
 
@@ -274,16 +274,19 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
             return;
         }
 
-        double profit24h = valueHoldings - value24h;
+        double value24h = valueHoldings - profit24h;
         double profitAll = valueHoldings - valueAll;
 
         double profit24hPercent = 0;
         double profitAllPercent = 0;
-        if(valueHoldings > 0) {
-            profit24hPercent = (valueHoldings - value24h) * 100 / valueHoldings;
-            profitAllPercent = (valueHoldings - valueAll) * 100 / valueHoldings;
+
+        if(value24h > 0) {
+            profit24hPercent = (valueHoldings - value24h) * 100 / value24h;
         }
 
+        if(valueAll > 0) {
+            profitAllPercent = (valueHoldings - valueAll) * 100 / valueAll;
+        }
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
         mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);

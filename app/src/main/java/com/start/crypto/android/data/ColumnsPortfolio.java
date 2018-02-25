@@ -7,22 +7,23 @@ import android.util.Log;
 public class ColumnsPortfolio {
 
 
-    private static final int COLUMN_ID                 = 1;
-    private static final int COLUMN_BASE_COIN_ID       = 2;
-    private static final int COLUMN_BALANCE            = 3;
-    private static final int COLUMN_ORIGINAL           = 4;
-    private static final int COLUMN_PRICE_NOW          = 5;
-    private static final int COLUMN_PRICE_ORIGINAL     = 6;
-    private static final int COLUMN_PRICE_24H          = 7;
+    private static final int COLUMN_ID                  = 1;
+    private static final int COLUMN_BASE_COIN_ID        = 2;
+    private static final int COLUMN_BALANCE             = 3;
+    private static final int COLUMN_ORIGINAL            = 4;
+    private static final int COLUMN_PRICE_NOW           = 5;
+    private static final int COLUMN_PRICE_ORIGINAL      = 6;
+    private static final int COLUMN_PRICE_24H           = 7;
 
     private static final int COLUMN_COINS_COUNT         = 8;
     private static final int COLUMN_USER_ID             = 9;
     private static final int COLUMN_USERNAME            = 10;
     private static final int COLUMN_PROFIT24H           = 11;
     private static final int COLUMN_PROFIT7D            = 12;
+    private static final int COLUMN_REMOVED             = 13;
 
-    private static final int COLUMN_CREATED_AT          = 13;
-    private static final int COLUMN_UPDATED_AT          = 14;
+    private static final int COLUMN_CREATED_AT          = 14;
+    private static final int COLUMN_UPDATED_AT          = 15;
 
 
 
@@ -45,6 +46,7 @@ public class ColumnsPortfolio {
         public int mColumnUsername;
         public int mColumnProfit24h;
         public int mColumnProfit7d;
+        public int mColumnRemoved;
 
         public int mColumnCreatedAt;
         public int mColumnUpdatedAt;
@@ -64,6 +66,7 @@ public class ColumnsPortfolio {
             mColumnUsername         = COLUMN_USERNAME;
             mColumnProfit24h        = COLUMN_PROFIT24H;
             mColumnProfit7d         = COLUMN_PROFIT7D;
+            mColumnRemoved          = COLUMN_REMOVED;
 
             mColumnCreatedAt        = COLUMN_CREATED_AT;
             mColumnUpdatedAt        = COLUMN_UPDATED_AT;
@@ -148,6 +151,11 @@ public class ColumnsPortfolio {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
 
+            try {
+                mColumnRemoved = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_REMOVED);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
 
             try {
                 mColumnCreatedAt = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolios.COLUMN_NAME_CREATED_AT);

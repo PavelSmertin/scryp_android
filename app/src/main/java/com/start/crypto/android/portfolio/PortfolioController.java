@@ -198,7 +198,7 @@ public class PortfolioController extends BaseController implements LoaderManager
             }
         });
 
-        ((AppCompatActivity)getActivity()).getSupportLoaderManager().initLoader(LOADER_PORTFOLIO_COINS_ID, null, this);
+        initLoaderManager();
 
         long portfolioId = DUMP_DB ? 1 : selectPortfolioId();
 
@@ -337,7 +337,14 @@ public class PortfolioController extends BaseController implements LoaderManager
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if(id == LOADER_PORTFOLIO_COINS_ID) {
-            return new CursorLoader(getActivity(), CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC");
+            return new CursorLoader(
+                    getActivity(),
+                    CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                    null,
+                    CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_REMOVED + " != 1 ",
+                    null,
+                    CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC"
+            );
         }
         throw new IllegalArgumentException("no id handled!");
 
@@ -414,10 +421,6 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
     }
 
-    private void resetMenu() {
-        getActivity().invalidateOptionsMenu();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -438,32 +441,33 @@ public class PortfolioController extends BaseController implements LoaderManager
         inflater.inflate(R.menu.main, menu);
     }
 
+    private void initLoaderManager() {
+        ((AppCompatActivity) getActivity()).getSupportLoaderManager().initLoader(LOADER_PORTFOLIO_COINS_ID, null, this);
+    }
+
+    private void resetMenu() {
+        getActivity().invalidateOptionsMenu();
+    }
+
     // Вызывается при изменении локальных данных(обновление цен, добавление удаление монеты и т.д.)
     // Расчитывает параметры портфолио
     private void calculatePortfolioValues(Cursor data) {
 
         ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
-        ColumnsCoin.ColumnsMap columnsCoinsMap = new ColumnsCoin.ColumnsMap(data);
-        ColumnsExchange.ColumnsMap columnsExchangeMap = new ColumnsExchange.ColumnsMap(data);
 
         double valueAll = 0;
-        double value24h = 0;
+        double profit24h = 0;
         double valueHoldings = 0;
 
         mCoinsForRefresh = new HashMap<>();
         mExchangesForRefresh = new ArrayList<>();
-
-
-        String symbol;
-        String exchange;
-        mPieData = new HashMap<>();
 
         if (data != null && data.getCount() > 0) {
             while (data.moveToNext()) {
                 double original = data.getDouble(columnsMap.mColumnOriginal);
                 double priceOriginal = data.getDouble(columnsMap.mColumnPriceOriginal);
                 double priceNow = data.getDouble(columnsMap.mColumnPriceNow);
-                double price24h = data.getDouble(columnsMap.mColumnPrice24h);
+                double change24h = data.getDouble(columnsMap.mColumnChange24h);
 
                 if (Double.isInfinite(priceOriginal) || Double.isNaN(priceOriginal)) {
                     priceOriginal = 0;
@@ -473,48 +477,38 @@ public class PortfolioController extends BaseController implements LoaderManager
                     priceNow = 0;
                 }
 
-                if (Double.isInfinite(price24h) || Double.isNaN(price24h)) {
-                    price24h = 0;
+                if (Double.isInfinite(change24h) || Double.isNaN(change24h)) {
+                    change24h = 0;
                 }
 
                 valueAll += original * priceOriginal;
-                value24h += original * price24h;
+                profit24h += original * change24h;
                 valueHoldings += original * priceNow;
-
-                symbol = data.getString(columnsCoinsMap.mColumnSymbol);
-                long coinId = data.getLong(columnsMap.mColumnCoinId);
-                if (!mCoinsForRefresh.containsKey(symbol)) {
-                    mCoinsForRefresh.put(symbol, coinId);
-                }
-
-                exchange = data.getString(columnsExchangeMap.mColumnName);
-                if (!mExchangesForRefresh.contains(exchange)) {
-                    mExchangesForRefresh.add(exchange);
-                }
-
-                mPieData.put(data.getString(columnsCoinsMap.mColumnSymbol), original * priceNow);
             }
 
-            if (Double.isInfinite(valueHoldings) || Double.isInfinite(value24h) || Double.isInfinite(valueAll)) {
-                Crashlytics.logException(new Exception(String.format("Illegal values valueHoldings: %s, value24h: %s, valueAll: %s, coins count: %s",
+            if (Double.isInfinite(valueHoldings) || Double.isInfinite(profit24h) || Double.isInfinite(valueAll)) {
+                Crashlytics.logException(new Exception(String.format("Illegal values valueHoldings: %s, profit24h: %s, valueAll: %s, coins count: %s",
                         valueHoldings,
-                        value24h,
+                        profit24h,
                         valueAll,
                         data.getCount())));
                 return;
             }
         }
 
-        double profit24h = valueHoldings - value24h;
+        double value24h = valueHoldings - profit24h;
         double profitAll = valueHoldings - valueAll;
 
         double profit24hPercent = 0;
         double profitAllPercent = 0;
-        if(valueHoldings > 0) {
-            profit24hPercent = (valueHoldings - value24h) * 100 / valueHoldings;
-            profitAllPercent = (valueHoldings - valueAll) * 100 / valueHoldings;
+
+        if(value24h > 0) {
+            profit24hPercent = (valueHoldings - value24h) * 100 / value24h;
         }
 
+        if(valueAll > 0) {
+            profitAllPercent = (valueHoldings - valueAll) * 100 / valueAll;
+        }
 
         mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
         mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
@@ -542,13 +536,46 @@ public class PortfolioController extends BaseController implements LoaderManager
         }
     }
 
+    private void collectForRefresh(Cursor data) {
+
+        ColumnsPortfolioCoin.ColumnsMap columnsMap = new ColumnsPortfolioCoin.ColumnsMap(data);
+        ColumnsCoin.ColumnsMap columnsCoinsMap = new ColumnsCoin.ColumnsMap(data);
+        ColumnsExchange.ColumnsMap columnsExchangeMap = new ColumnsExchange.ColumnsMap(data);
+
+        mCoinsForRefresh = new HashMap<>();
+        mExchangesForRefresh = new ArrayList<>();
+
+        String symbol;
+        String exchange;
+
+        if (data != null && data.getCount() > 0) {
+            while (data.moveToNext()) {
+                symbol = data.getString(columnsCoinsMap.mColumnSymbol);
+                long coinId = data.getLong(columnsMap.mColumnCoinId);
+                if (!mCoinsForRefresh.containsKey(symbol)) {
+                    mCoinsForRefresh.put(symbol, coinId);
+                }
+                exchange = data.getString(columnsExchangeMap.mColumnName);
+                if (!mExchangesForRefresh.contains(exchange)) {
+                    mExchangesForRefresh.add(exchange);
+                }
+            }
+        }
+    }
+
     //region prices
     private void refreshPrices() {
 
-        Cursor cursor = getActivity().getContentResolver().query(CryptoContract.CryptoPortfolioCoins.CONTENT_URI, null, null, null, CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC");
+        Cursor cursor = getActivity().getContentResolver().query(
+                CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                null,
+                CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_REMOVED + " != 1 ",
+                null,
+                CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CREATED_AT + " ASC"
+        );
 
         if(cursor != null) {
-            calculatePortfolioValues(cursor);
+            collectForRefresh(cursor);
             cursor.close();
         }
 

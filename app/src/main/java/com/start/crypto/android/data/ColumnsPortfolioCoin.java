@@ -17,9 +17,10 @@ public class ColumnsPortfolioCoin {
     private static final int COLUMN_PRICE_24H       = 9;
     private static final int COLUMN_CHANGE_24H      = 10;
     private static final int COLUMN_CHANGE_PCT_24H  = 11;
+    private static final int COLUMN_REMOVED         = 12;
 
-    private static final int COLUMN_CREATED_AT      = 12;
-    private static final int COLUMN_UPDATED_AT      = 13;
+    private static final int COLUMN_CREATED_AT      = 13;
+    private static final int COLUMN_UPDATED_AT      = 14;
 
     public static final int CACHE_SIZE          = 50;
 
@@ -38,6 +39,8 @@ public class ColumnsPortfolioCoin {
         public int mColumnPrice24h;
         public int mColumnChange24h;
         public int mColumnChangePct24h;
+        public int mColumnRemoved;
+
         public int mColumnCreatedAt;
         public int mColumnUpdatedAt;
 
@@ -54,6 +57,7 @@ public class ColumnsPortfolioCoin {
             mColumnPrice24h         = COLUMN_PRICE_24H;
             mColumnChange24h        = COLUMN_CHANGE_24H;
             mColumnChangePct24h     = COLUMN_CHANGE_PCT_24H;
+            mColumnRemoved          = COLUMN_REMOVED;
 
             mColumnCreatedAt        = COLUMN_CREATED_AT;
             mColumnUpdatedAt        = COLUMN_UPDATED_AT;
@@ -125,6 +129,12 @@ public class ColumnsPortfolioCoin {
 
             try {
                 mColumnChangePct24h = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnRemoved = cursor.getColumnIndexOrThrow(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_REMOVED);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }

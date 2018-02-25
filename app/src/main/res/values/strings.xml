@@ -5,6 +5,7 @@
     <string name="all_cancel">Cancel</string>
     <string name="all_clear_text">Clear</string>
     <string name="all_loading">Loading</string>
+    <string name="all_confirm">Are you sure?</string>
 
 
     <string name="account_email">Email</string>

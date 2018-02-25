@@ -18,9 +18,10 @@ public class ColumnsTransaction {
     private static final int COLUMN_PRICE                   = 10;
     private static final int COLUMN_DATETIME                = 11;
     private static final int COLUMN_DESCRIPTION             = 12;
+    private static final int COLUMN_TYPE                    = 13;
 
-    private static final int COLUMN_CREATED_AT              = 13;
-    private static final int COLUMN_UPDATED_AT              = 14;
+    private static final int COLUMN_CREATED_AT              = 14;
+    private static final int COLUMN_UPDATED_AT              = 15;
 
 
     public static final int CACHE_SIZE         = 50;
@@ -41,6 +42,7 @@ public class ColumnsTransaction {
         public int mColumnPrice;
         public int mColumnDatetime;
         public int mColumnDescription;
+        public int mColumnType;
         public int mColumnCreatedAt;
         public int mColumnUpdatedAt;
 
@@ -58,6 +60,7 @@ public class ColumnsTransaction {
             mColumnPrice                = COLUMN_PRICE;
             mColumnDatetime             = COLUMN_DATETIME;
             mColumnDescription          = COLUMN_DESCRIPTION;
+            mColumnType                 = COLUMN_TYPE;
             mColumnCreatedAt            = COLUMN_CREATED_AT;
             mColumnUpdatedAt            = COLUMN_UPDATED_AT;
         }
@@ -134,6 +137,12 @@ public class ColumnsTransaction {
 
             try {
                 mColumnDescription = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_DESCRIPTION);
+            } catch (IllegalArgumentException e) {
+                if (DEBUG) Log.w(TAG, e.getMessage());
+            }
+
+            try {
+                mColumnType = cursor.getColumnIndexOrThrow(CryptoContract.CryptoTransactions.COLUMN_NAME_TYPE);
             } catch (IllegalArgumentException e) {
                 if (DEBUG) Log.w(TAG, e.getMessage());
             }
