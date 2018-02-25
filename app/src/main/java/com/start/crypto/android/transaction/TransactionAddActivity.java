@@ -735,17 +735,17 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     }
 
     private boolean setRetrievedPrice(HashMap<String, Double> prices, HashMap<String, Double> pricesUSD, HashMap<String, HashMap<String, Double>> pricesBase) {
-        if(pricesBase.containsKey(mCoinSymbol)) {
-            mCoinPrice = pricesBase.get(mCoinSymbol).get(DEFAULT_SYMBOL);
-        }
-        if(pricesBase.containsKey(mCurrenteySymbol)) {
-            mBasePrice = pricesBase.get(mCurrenteySymbol).get(DEFAULT_SYMBOL);
-        }
+        setRetrievedPricePerCoin(prices, pricesUSD);
+        setRetrievedBasePrices(pricesBase);
 
+        return true;
+    }
+
+    private void setRetrievedPricePerCoin(HashMap<String, Double> prices, HashMap<String, Double> pricesUSD) {
         mPricePerCoin = 0;
         if(prices.containsKey(mCurrenteySymbol)) {
             mPricePerCoin = prices.get(mCurrenteySymbol);
-            return true;
+            return;
         }
 
         if(pricesUSD.containsKey(SYMBOL_USD)) {
@@ -755,8 +755,24 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         if(mPricePerCoin == 0) {
             throw new PairNotFoundException();
         }
+    }
+    private void setRetrievedBasePrices(HashMap<String, HashMap<String, Double>> pricesBase) {
+        if(!mCoinSymbol.equals(DEFAULT_SYMBOL) && mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            mCoinPrice = mPricePerCoin;
+            return;
+        }
 
-        return true;
+        if(mCoinSymbol.equals(DEFAULT_SYMBOL) && !mCurrenteySymbol.equals(DEFAULT_SYMBOL)) {
+            mBasePrice = mPricePerCoin;
+            return;
+        }
+
+        if(pricesBase.containsKey(mCoinSymbol)) {
+            mCoinPrice = pricesBase.get(mCoinSymbol).get(DEFAULT_SYMBOL);
+        }
+        if(pricesBase.containsKey(mCurrenteySymbol)) {
+            mBasePrice = pricesBase.get(mCurrenteySymbol).get(DEFAULT_SYMBOL);
+        }
     }
 
     private void bindPriceView() {
