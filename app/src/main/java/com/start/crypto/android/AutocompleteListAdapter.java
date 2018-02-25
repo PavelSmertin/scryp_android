@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import com.start.crypto.android.api.model.AutocompleteItem;
 import com.start.crypto.android.data.ColumnsCoin;
 import com.start.crypto.android.data.ColumnsExchange;
-import com.start.crypto.android.data.CryptoContract;
 
 import io.reactivex.subjects.PublishSubject;
 
@@ -37,50 +36,37 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
     public void onBindViewHolder(AutocompleteListViewHolder viewHolder, Cursor cursor) {
 
         if(mListType == AutocompleteActivity.LOADER_COINS) {
-            viewHolder.bindData(bindCoin(viewHolder, cursor));
-            return;
+            AutocompleteItem autocompleteItem = createCoinItem(cursor);
+            bind(viewHolder, autocompleteItem);
         }
 
         if(mListType == AutocompleteActivity.LOADER_EXCHANGES) {
-            viewHolder.bindData(bindExchange(viewHolder, cursor));
-            return;
+            AutocompleteItem autocompleteItem = createExchangeItem(cursor);
+            bind(viewHolder, autocompleteItem);
         }
     }
 
-    private String bindCoin(AutocompleteListViewHolder viewHolder, Cursor cursor) {
-        cursor.moveToPosition(cursor.getPosition());
+    private void bind(AutocompleteListViewHolder viewHolder, AutocompleteItem autocompleteItem) {
         viewHolder.itemView.setOnClickListener(v -> {
-            long coinId = getItemId(viewHolder.getAdapterPosition());
-            int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_SYMBOL);
-            String coinSymbol = cursor.getString(itemColumnIndex);
-
-            itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoCoins.COLUMN_NAME_NAME);
-            String coinName = cursor.getString(itemColumnIndex);
-
-            mSubject.onNext(new AutocompleteItem(coinId, coinSymbol, coinName));
+            mSubject.onNext(autocompleteItem);
         });
+        viewHolder.bindData(autocompleteItem.getName());
+    }
 
+    private AutocompleteItem createCoinItem(Cursor cursor) {
         ColumnsCoin.ColumnsMap columnsMap = new ColumnsCoin.ColumnsMap(cursor);
-        return cursor.getString(columnsMap.mColumnName);
+        long coinId = cursor.getLong(columnsMap.mColumnId);
+        String coinSymbol = cursor.getString(columnsMap.mColumnSymbol);
+        String coinName = cursor.getString(columnsMap.mColumnName);
+        return new AutocompleteItem(coinId, coinSymbol, coinName);
     }
 
-
-    private String bindExchange(AutocompleteListViewHolder viewHolder, Cursor cursor) {
-
-        cursor.moveToPosition(cursor.getPosition());
-
-        viewHolder.itemView.setOnClickListener(v -> {
-            int itemColumnIndex = cursor.getColumnIndexOrThrow(CryptoContract.CryptoExchanges.COLUMN_NAME_NAME);
-            String exchangeName = cursor.getString(itemColumnIndex);
-            mSubject.onNext(new AutocompleteItem(getItemId(viewHolder.getAdapterPosition()), exchangeName));
-        });
-
+    private AutocompleteItem createExchangeItem( Cursor cursor) {
         ColumnsExchange.ColumnsMap columnsMap = new ColumnsExchange.ColumnsMap(cursor);
-        return cursor.getString(columnsMap.mColumnName);
+        long exchangeId = columnsMap.mColumnId;
+        String exchangeName = cursor.getString(columnsMap.mColumnName);
+        return new AutocompleteItem(exchangeId, exchangeName);
     }
-
-
-
 
 
 }

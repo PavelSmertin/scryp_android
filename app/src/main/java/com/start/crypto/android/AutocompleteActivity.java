@@ -195,7 +195,7 @@ public class AutocompleteActivity extends BaseActivity implements LoaderManager.
 
     private void filter(CharSequence constraint) {
         mSelection = null;
-        if(constraint != null && constraint.length() <= MIN_LENGTH_TO_START) {
+        if(constraint != null && constraint.length() > MIN_LENGTH_TO_START) {
             if (argLoaderId == LOADER_COINS){
                 mSelection = CryptoContract.CryptoCoins.COLUMN_NAME_NAME + " LIKE '%" + constraint.toString() + "%'";
             }
