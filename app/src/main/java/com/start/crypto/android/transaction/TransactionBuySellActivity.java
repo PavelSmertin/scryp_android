@@ -77,8 +77,13 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
         });
 
         RxView.clicks(mSellTransactionButton).subscribe(v -> {
-            if(!(mAmount > 0 && (mAmount <= mAmountMax || mAmountMax <= 0))) {
+            if (mAmount > mAmountMax) {
                 Toast.makeText(getBaseContext(), String.format(Locale.US, getString(R.string.transaction_amount_error), mAmountMax), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (mAmount <= 0) {
+                Toast.makeText(getBaseContext(), getString(R.string.transaction_amount_error_zero), Toast.LENGTH_SHORT).show();
                 return;
             }
 

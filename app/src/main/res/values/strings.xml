@@ -77,6 +77,7 @@
     <string name="portfolio_coin_exchange">Exchange</string>
 
     <string name="transaction_amount_error">You can\'t sell more of a position than %f</string>
+    <string name="transaction_amount_error_zero">You can\'t sell negative or zero amount of a position</string>
     <string name="transaction_pair_not_found">Pair not found for that exchange</string>
     <string name="transaction_amount_error_parse">Amount is not correct</string>
     <string name="transaction_menu_done">Done</string>

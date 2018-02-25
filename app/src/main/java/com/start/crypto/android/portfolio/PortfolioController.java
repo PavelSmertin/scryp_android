@@ -510,11 +510,11 @@ public class PortfolioController extends BaseController implements LoaderManager
             profitAllPercent = (valueHoldings - valueAll) * 100 / valueAll;
         }
 
-        mPortfolioCurrentValue.setText(KeyboardHelper.cut(valueHoldings));
+        mPortfolioCurrentValue.setText(KeyboardHelper.cutForHeader(valueHoldings));
         mPortfolioCurrentValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
         mPortfolioProfit24h.setText(KeyboardHelper.cutForHeader(profit24h));
         mPortfolioProfit24hUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL_ICON, profit24hPercent));
-        mPortfolioOriginalValue.setText(KeyboardHelper.cut(valueAll));
+        mPortfolioOriginalValue.setText(KeyboardHelper.cutForHeader(valueAll));
         mPortfolioOriginalValueUnit.setText(TransactionAddActivity.DEFAULT_SYMBOL_ICON);
         mPortfolioProfitAll.setText(KeyboardHelper.cutForHeader(profitAll));
         mPortfolioProfitAllUnit.setText(String.format(Locale.US, "%s (%.2f%%)", TransactionAddActivity.DEFAULT_SYMBOL_ICON, profitAllPercent));

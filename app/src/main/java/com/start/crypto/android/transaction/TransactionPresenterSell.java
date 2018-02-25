@@ -4,9 +4,12 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.net.Uri;
 
+import com.crashlytics.android.Crashlytics;
 import com.start.crypto.android.api.model.PortfolioCoin;
 import com.start.crypto.android.api.model.Transaction;
 import com.start.crypto.android.data.CryptoContract;
+
+import java.util.Locale;
 
 
 public class TransactionPresenterSell extends TransactionPresenterBase {
@@ -32,6 +35,10 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
 
     @Override
     protected double getPortfolioCoinOriginal() {
+        if (mPortfolioCoin.getOriginal() - mTransaction.getAmount() < 0) {
+            Crashlytics.logException(new Exception(String.format(Locale.US, "negative sell amount: original: %f, amount: %f", mPortfolioCoin.getOriginal(), mTransaction.getAmount())));
+            return 0;
+        }
         return mPortfolioCoin.getOriginal() - mTransaction.getAmount();
     }
 
@@ -67,19 +74,13 @@ public class TransactionPresenterSell extends TransactionPresenterBase {
 
 
     private  void removeCoin() {
-        mContentResolver.delete(
+        ContentValues values = new ContentValues();
+        values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_REMOVED, true);
+
+        mContentResolver.update(
                 CryptoContract.CryptoPortfolioCoins.CONTENT_URI,
+                values,
                 CryptoContract.CryptoPortfolioCoins._ID + "=" + mTransaction.getPortfolioCoinId(),
-                null
-        );
-        mContentResolver.delete(
-                CryptoContract.CryptoTransactions.CONTENT_URI,
-                CryptoContract.CryptoTransactions.COLUMN_NAME_PORTFOLIO_COIN_ID + "=" + mTransaction.getPortfolioCoinId(),
-                null
-        );
-        mContentResolver.delete(
-                CryptoContract.CryptoNotifications.CONTENT_URI,
-                CryptoContract.CryptoNotifications.COLUMN_NAME_COIN_ID + "=" + mPortfolioCoin.getCoinId(),
                 null
         );
     }
