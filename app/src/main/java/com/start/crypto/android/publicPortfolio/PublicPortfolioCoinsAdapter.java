@@ -36,12 +36,12 @@ class PublicPortfolioCoinsAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == TYPE_HEADER) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio_coins_header, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.portfolio_list_item_coins_header, parent, false);
             return  new PortfolioCoinsHeaderViewHolder(v);
         }
 
         if(viewType == TYPE_ITEM)  {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_portfolio_coins_base, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.portfolio_list_item_coins_base, parent, false);
             return new PublicPortfolioCoinsViewHolder(v);
         }
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");

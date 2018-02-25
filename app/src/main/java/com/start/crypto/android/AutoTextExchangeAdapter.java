@@ -54,7 +54,7 @@ class AutoTextExchangeAdapter extends CursorAdapter
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
             final LayoutInflater inflater = LayoutInflater.from(context);
-            return inflater.inflate(R.layout.list_item_autocomplete_coins, parent, false);
+            return inflater.inflate(R.layout.autocomplete_list_item, parent, false);
         }
 
 

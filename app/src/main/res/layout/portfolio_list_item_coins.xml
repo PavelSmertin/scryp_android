@@ -36,7 +36,7 @@
         android:background="@drawable/bottom_border_black"
         >
 
-        <include layout="@layout/list_item_portfolio_coins_base" />
+        <include layout="@layout/portfolio_list_item_coins_base" />
 
         <ImageView
             android:layout_width="wrap_content"

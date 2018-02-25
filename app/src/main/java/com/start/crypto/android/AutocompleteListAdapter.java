@@ -29,7 +29,7 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
 
     @Override
     public AutocompleteListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_autocomplete_coins, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.autocomplete_list_item, parent, false);
         return new AutocompleteListViewHolder(v);
     }
 

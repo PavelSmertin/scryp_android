@@ -24,7 +24,7 @@ public class PieActivity extends BaseActivity {
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_pie);
+        setContentView(R.layout.pie_activity_main);
     }
 
     @Override

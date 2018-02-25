@@ -78,7 +78,7 @@ public class CoinAutocompleteActivity extends BaseActivity implements LoaderMana
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.activity_coin_autocomplete);
+        setContentView(R.layout.autocomplete_activity);
     }
 
     @Override

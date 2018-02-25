@@ -84,7 +84,7 @@ public class PortfolioCoinController extends BaseController implements LoaderMan
     @NonNull
     @Override
     protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.activity_portfolio_coin, container, false);
+        return inflater.inflate(R.layout.portfolio_activity_portfolio_coin, container, false);
     }
 
     @Override

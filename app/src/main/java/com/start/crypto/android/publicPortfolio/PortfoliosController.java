@@ -39,7 +39,7 @@ public class PortfoliosController extends BaseController implements SwipeRefresh
     @NonNull
     @Override
     protected View inflateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container) {
-        return inflater.inflate(R.layout.activity_portfolios, container, false);
+        return inflater.inflate(R.layout.portfolio_activity_list, container, false);
     }
 
     @Override

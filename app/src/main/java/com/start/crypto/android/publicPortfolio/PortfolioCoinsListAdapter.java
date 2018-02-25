@@ -23,12 +23,12 @@ class PortfolioCoinsListAdapter extends CursorRecyclerViewAdapter<RecyclerView.V
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == TYPE_HEADER) {
-            View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_portfolio_coins_header, parent, false);
+            View v = LayoutInflater.from(mContext).inflate(R.layout.portfolio_list_item_coins_header, parent, false);
             return  new PortfolioCoinsHeaderViewHolder(v);
         }
 
         if(viewType == TYPE_ITEM)  {
-            View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_portfolio_coins, parent, false);
+            View v = LayoutInflater.from(mContext).inflate(R.layout.portfolio_list_item_coins, parent, false);
             return new PortfolioCoinsListViewHolder(v);
         }
         throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
