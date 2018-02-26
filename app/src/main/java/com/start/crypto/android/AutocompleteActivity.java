@@ -10,6 +10,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -113,19 +114,30 @@ public class AutocompleteActivity extends BaseActivity implements LoaderManager.
         compositeDisposable.add(
                 mCoinPlusSubject
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(coin -> {
-                            Intent intent = new Intent();
-                            if (argLoaderId == LOADER_COINS){
-                                intent.putExtra(EXTRA_COIN, coin);
-                            }
-                            if (argLoaderId == LOADER_EXCHANGES){
-                                intent.putExtra(EXTRA_EXCHANGE, coin);
-                            }
-                            setResult(RESULT_OK, intent);
-                            finish();
+                        .subscribe(item -> {
+                            finishSuccessful(item);
                         })
         );
+        mCoinSelect.setOnEditorActionListener((v, actionId, event) -> {
+            if(actionId== EditorInfo.IME_ACTION_DONE){
+                finishSuccessful(mAdapter.getFirstItem());
+                return true;
+            }
+            return false;
+        });
 
+    }
+
+    private void finishSuccessful(AutocompleteItem item) {
+        Intent intent = new Intent();
+        if (argLoaderId == LOADER_COINS){
+            intent.putExtra(EXTRA_COIN, item);
+        }
+        if (argLoaderId == LOADER_EXCHANGES){
+            intent.putExtra(EXTRA_EXCHANGE, item);
+        }
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
 
@@ -220,4 +232,5 @@ public class AutocompleteActivity extends BaseActivity implements LoaderManager.
     public Loader<Cursor> getExchangesLoader() {
         return new CursorLoader(this, CryptoContract.CryptoExchanges.CONTENT_URI, CryptoContract.CryptoExchanges.DEFAULT_PROJECTION, mSelection, null, null);
     }
+
 }

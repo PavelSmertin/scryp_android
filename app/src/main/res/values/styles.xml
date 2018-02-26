@@ -27,6 +27,7 @@
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
         <item name="android:itemBackground">@drawable/item_menu_bg</item>
         <item name="actionBarStyle">@style/ActionBar.Solid.MyAppTheme</item>
+        <item name="android:textColorHint">@color/colorTextPrimary</item>
     </style>
 
     <style name="ActionBar.Solid.MyAppTheme" parent="@style/Widget.AppCompat.Light.ActionBar.Solid">

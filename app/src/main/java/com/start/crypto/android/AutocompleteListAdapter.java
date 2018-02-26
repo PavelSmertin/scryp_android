@@ -15,6 +15,9 @@ import io.reactivex.subjects.PublishSubject;
 
 class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteListViewHolder> {
 
+    private static final int TYPE_FIRST = 0;
+    private static final int TYPE_ITEM = 1;
+
     private final int mListType;
 
     PublishSubject<AutocompleteItem> mSubject;
@@ -28,8 +31,18 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
 
     @Override
     public AutocompleteListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.autocomplete_list_item, parent, false);
-        return new AutocompleteListViewHolder(v);
+        if(viewType == TYPE_FIRST) {
+            View v = LayoutInflater.from(mContext).inflate(R.layout.autocomplete_list_item_first, parent, false);
+            return new AutocompleteListViewHolder(v);
+        }
+
+        if(viewType == TYPE_ITEM)  {
+            View v = LayoutInflater.from(mContext).inflate(R.layout.autocomplete_list_item, parent, false);
+            return new AutocompleteListViewHolder(v);
+        }
+
+        throw new RuntimeException("there is no type that matches the type " + viewType + " + make sure your using types correctly");
+
     }
 
     @Override
@@ -45,6 +58,19 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
             bind(viewHolder, autocompleteItem);
         }
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(isPositionHeader(position)) {
+            return TYPE_FIRST;
+        }
+        return TYPE_ITEM;
+    }
+
+    private boolean isPositionHeader(int position) {
+        return position == 0;
+    }
+
 
     private void bind(AutocompleteListViewHolder viewHolder, AutocompleteItem autocompleteItem) {
         viewHolder.itemView.setOnClickListener(v -> {
@@ -68,5 +94,21 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
         return new AutocompleteItem(exchangeId, exchangeName);
     }
 
+
+    public AutocompleteItem getFirstItem() {
+        Cursor cursor = getCursor();
+
+        cursor.moveToFirst();
+        if(mListType == AutocompleteActivity.LOADER_COINS) {
+            return createCoinItem(cursor);
+        }
+
+        if(mListType == AutocompleteActivity.LOADER_EXCHANGES) {
+            return createExchangeItem(cursor);
+        }
+
+        throw new IllegalArgumentException("no id handled!");
+
+    }
 
 }

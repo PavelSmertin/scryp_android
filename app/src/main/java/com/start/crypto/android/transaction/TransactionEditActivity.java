@@ -96,7 +96,7 @@ public class TransactionEditActivity extends TransactionAddActivity {
                 data.getString(columnsCoinMap.mColumnSymbol),
                 data.getString(columnsCoinMap.mColumnName))
         );
-        mCoinComplete.setEnabled(false);
+        enableCoin(false);
 
     }
 

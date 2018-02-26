@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         style="@style/AppEditTextStyle"
 
-        android:imeOptions="actionSearch"
+        android:imeOptions="actionDone"
         android:lines="1"
         android:maxLines="1"
         tools:ignore="RtlSymmetry"

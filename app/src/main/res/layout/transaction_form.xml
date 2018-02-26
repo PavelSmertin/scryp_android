@@ -263,7 +263,7 @@
 
 
         app:layout_constraintTop_toBottomOf="@+id/exchange_label"
-        app:layout_constraintBottom_toTopOf="@+id/describtion_label"
+        app:layout_constraintBottom_toTopOf="@+id/describtion_layout"
 
         app:layout_constraintLeft_toLeftOf="@+id/exchange_label"
         app:layout_constraintRight_toRightOf="@+id/exchange_label"
@@ -309,34 +309,30 @@
         app:layout_constraintRight_toRightOf="@+id/date_label"
         />
 
-    <TextView
-        android:id="@+id/describtion_label"
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/describtion_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:labelFor="@+id/describtion"
-        android:text="@string/description"
-
         app:layout_constraintTop_toBottomOf="@+id/exchange_complete"
-        app:layout_constraintBottom_toTopOf="@+id/describtion"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        />
+        >
+        <EditText
+            android:id="@+id/describtion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="10"
+            android:lines="3"
+            android:gravity="top|left"
+            android:scrollHorizontally="false"
+            android:hint="@string/description"
 
-    <EditText
-        android:id="@+id/describtion"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:maxLines="10"
-        android:inputType="textMultiLine"
-        android:maxLength="160"
-
-        app:layout_constraintTop_toBottomOf="@+id/describtion_label"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="@+id/describtion_label"
-        app:layout_constraintRight_toRightOf="@+id/describtion_label"
-
-        />
+            android:inputType="textMultiLine"
+            android:maxLength="160"
+            />
+    </android.support.design.widget.TextInputLayout>
 </android.support.constraint.ConstraintLayout>
 
 

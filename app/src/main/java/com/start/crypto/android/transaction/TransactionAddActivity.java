@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -15,6 +16,7 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -82,6 +84,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
     @BindView(R.id.price_symbol)            TextView mPriceSymbolView;
     @BindView(R.id.date)                    EditText mDateView;
     @BindView(R.id.describtion)             EditText mDescribtionView;
+    @BindView(R.id.describtion_layout)      TextInputLayout mDescribtionLayoutView;
     @BindView(R.id.scroll_view)             ScrollView mScrollView;
     @BindView(R.id.coin_complete)           EditText mCoinComplete;
     @BindView(R.id.clear_currentey_button)  ImageView mClearCurrenteyButton;
@@ -304,8 +307,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(description -> {
                     mDescription = mDescribtionView.getText().toString();
-                    if (mDescription.length() > MAX_DESCRIPTION_LENGTH) {
-                        mDescribtionView.setError(getString(R.string.transaction_description_error));
+                    if (mDescription.length() >= MAX_DESCRIPTION_LENGTH) {
+                        mDescribtionLayoutView.setErrorEnabled(true);
+                        mDescribtionLayoutView.setError(getString(R.string.transaction_description_error));
+                    } else {
+                        mDescribtionLayoutView.setErrorEnabled(false);
                     }
                     mDescribtionFieldObservable.onNext(mDescription.length());
 
@@ -319,6 +325,17 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                     }
                 })
         );
+
+        // some hack for inner scroll in text area
+        mDescribtionView.setOnTouchListener((v, event) -> {
+            v.getParent().requestDisallowInterceptTouchEvent(true);
+            switch (event.getAction() & MotionEvent.ACTION_MASK){
+                case MotionEvent.ACTION_UP:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    break;
+            }
+            return false;
+        });
 
 
         // Retrive price
@@ -508,7 +525,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 pair > 0 &&
                 dateInMillis > 0 &&
                 price > 0 &&
-                descriptionLength < MAX_DESCRIPTION_LENGTH;
+                descriptionLength <= MAX_DESCRIPTION_LENGTH;
     }
 
     protected void initLoaderManager() {
@@ -785,6 +802,15 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             } else {
                 mPriceView.setText(null);
             }
+        }
+    }
+
+    protected void enableCoin(boolean enable) {
+        mCoinComplete.setEnabled(enable);
+        if( enable ) {
+            mClearCoinButton.setVisibility(View.VISIBLE);
+        } else {
+            mClearCoinButton.setVisibility(View.GONE);
         }
     }
 

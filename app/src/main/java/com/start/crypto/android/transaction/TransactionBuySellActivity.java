@@ -134,7 +134,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
                 data.getString(columnsCoinMap.mColumnName))
         );
 
-        mCoinComplete.setEnabled(false);
+        enableCoin(false);
 
         if(mPortfolioCoinOriginal < 0.5D) {
             mAmountView.setText(String.format(Locale.US, "%.08f", mPortfolioCoinOriginal));
