@@ -89,7 +89,7 @@ class AutocompleteListAdapter extends CursorRecyclerViewAdapter<AutocompleteList
 
     private AutocompleteItem createExchangeItem( Cursor cursor) {
         ColumnsExchange.ColumnsMap columnsMap = new ColumnsExchange.ColumnsMap(cursor);
-        long exchangeId = columnsMap.mColumnId;
+        long exchangeId = cursor.getLong(columnsMap.mColumnId);
         String exchangeName = cursor.getString(columnsMap.mColumnName);
         return new AutocompleteItem(exchangeId, exchangeName);
     }

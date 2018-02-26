@@ -363,7 +363,13 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                 mPriceFieldObservable,
                 mAmountFieldObservable,
                 mDescribtionFieldObservable,
-                this::validate)
+                (exchange, coin, pair, dateInMillis, price, amount, descriptionLength) ->
+                        exchange > 0 &&
+                        coin > 0 &&
+                        pair > 0 &&
+                        dateInMillis > 0 &&
+                        price > 0 &&
+                        descriptionLength <= MAX_DESCRIPTION_LENGTH)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onValid)
         );
@@ -517,15 +523,6 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
         }
         mTransactionButton.setEnabled(res);
         mMenu.findItem(R.id.transaction_menu_done).setEnabled(res);
-    }
-
-    protected boolean validate(long exchange, long coin, long pair, long dateInMillis, double price, double amount, int descriptionLength) {
-        return exchange > 0 &&
-                coin > 0 &&
-                pair > 0 &&
-                dateInMillis > 0 &&
-                price > 0 &&
-                descriptionLength <= MAX_DESCRIPTION_LENGTH;
     }
 
     protected void initLoaderManager() {
