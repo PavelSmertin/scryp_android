@@ -52,16 +52,6 @@
             android:orientation="horizontal"
             android:layout_gravity="end"
             >
-
-            <Button
-                android:id="@+id/dismiss"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:minWidth="64dp"
-                android:text="@string/all_cancel"
-                />
-
             <Button
                 android:id="@+id/ok"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
@@ -70,7 +60,6 @@
                 android:minWidth="64dp"
                 android:text="@string/all_ok"
                 />
-
 
         </LinearLayout>
 

@@ -21,6 +21,8 @@
     <string name="account_gallery_denied">To change avatar you have to grant external storage permission</string>
     <string name="account_gallery_explanation">To change avatar it need access to gallery</string>
     <string name="account_logout">Logout</string>
+    <string name="account_auth_error">Wrong email or password</string>
+    <string name="account_duplicate_email">Duplicate email</string>
 
 
     <string name="title_activity_auth">Sign in</string>

@@ -11,8 +11,11 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bluelinelabs.conductor.Controller;
+import com.bluelinelabs.conductor.ControllerChangeHandler;
+import com.bluelinelabs.conductor.RouterTransaction;
+import com.bluelinelabs.conductor.changehandler.FadeChangeHandler;
 
-public abstract class BaseController extends ButterKnifeController implements BaseView {
+public abstract class BaseController extends ButterKnifeController implements BaseView, DialogMessageView {
 
     protected BaseController() {}
 
@@ -60,9 +63,15 @@ public abstract class BaseController extends ButterKnifeController implements Ba
 
     @Override
     public void showError(String error) {
-        if(getActivity() != null && getActivity() instanceof BaseActivity) {
-            ((BaseActivity)getActivity()).showError(error);
-        }
+        DialogMessageController dialogMessageController = new DialogMessageController(error, "");
+        dialogMessageController.setTargetController(this);
+
+        ControllerChangeHandler pushHandler = new FadeChangeHandler(false);
+        ControllerChangeHandler popHandler = new FadeChangeHandler();
+        getRouter().pushController(RouterTransaction.with(dialogMessageController)
+                .pushChangeHandler(pushHandler)
+                .popChangeHandler(popHandler)
+        );
     }
 
     @Override
@@ -99,6 +108,11 @@ public abstract class BaseController extends ButterKnifeController implements Ba
 
     @Override
     public void stopProgress() {
+    }
+
+    @Override
+    public void onOkOk() {
+
     }
 
     @Override

@@ -51,6 +51,7 @@ import com.start.crypto.android.BaseController;
 import com.start.crypto.android.ControllerPageTitle;
 import com.start.crypto.android.CryptoApp;
 import com.start.crypto.android.R;
+import com.start.crypto.android.account.AuthView;
 import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.account.UserActivity;
 import com.start.crypto.android.api.MainApiService;
@@ -110,7 +111,10 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
-public class PortfolioController extends BaseController implements LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener, ControllerPageTitle {
+public class PortfolioController extends BaseController implements
+        LoaderManager.LoaderCallbacks<Cursor>,
+        SwipeRefreshLayout.OnRefreshListener,
+        ControllerPageTitle {
 
     private static final String STATE_DIALOG = "state_dialog";
 
@@ -144,8 +148,6 @@ public class PortfolioController extends BaseController implements LoaderManager
 
     private HashMap<String, Long> mCoinsForRefresh = new HashMap<>();
     private ArrayList<String> mExchangesForRefresh = new ArrayList<>();
-
-    private HashMap<String, Double> mPieData = new HashMap<>();
 
     private SyncPresenter mSyncPresenter;
 
@@ -190,10 +192,8 @@ public class PortfolioController extends BaseController implements LoaderManager
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (dy > 0 && addTransactionView.isShown()) {
                     addTransactionView.hide();
-                    preInsertView.hide();
                 } else if(dy < 0 && !addTransactionView.isShown()){
                     addTransactionView.show();
-                    preInsertView.show();
                 }
             }
         });
@@ -202,23 +202,18 @@ public class PortfolioController extends BaseController implements LoaderManager
 
         long portfolioId = DUMP_DB ? 1 : selectPortfolioId();
 
-        RxView.clicks(addTransactionView).subscribe(success -> TransactionAddActivity.start(getActivity(), portfolioId));
-        RxView.clicks(preInsertView).subscribe(success -> {
-            if (DUMP_DB) {
-                mSwipeRefresh.setRefreshing(true);
-                reset();
-                mSwipeRefresh.setRefreshing(false);
-            } else {
-                if (PreferencesHelper.getInstance().getLogin() == null) {
-                    getTokenForAccountCreateIfNeeded(SigninActivity.ACCOUNT_TYPE, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
-                }
-            }
-        });
-
-        if(PreferencesHelper.getInstance().getLogin() != null) {
+        if(DUMP_DB) {
+            preInsertView.setVisibility(View.VISIBLE);
+        } else {
             preInsertView.setVisibility(View.GONE);
         }
 
+        RxView.clicks(addTransactionView).subscribe(success -> TransactionAddActivity.start(getActivity(), portfolioId));
+        RxView.clicks(preInsertView).subscribe(success -> {
+            mSwipeRefresh.setRefreshing(true);
+            reset();
+            mSwipeRefresh.setRefreshing(false);
+        });
 
         mSwipeRefresh.setOnRefreshListener(this);
 
@@ -236,11 +231,6 @@ public class PortfolioController extends BaseController implements LoaderManager
                 mAuthButtonSubject.observeOn(AndroidSchedulers.mainThread())
                         .subscribe(res -> {
                             resetMenu();
-                            if(!res) {
-                                preInsertView.setVisibility(View.GONE);
-                            } else {
-                                preInsertView.setVisibility(View.VISIBLE);
-                            }
                         })
         );
 
@@ -959,7 +949,7 @@ public class PortfolioController extends BaseController implements LoaderManager
 
                 final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
                 if(authtoken == null) {
-                    Toast.makeText(getActivity(), "FAIL", Toast.LENGTH_SHORT).show();
+                    Crashlytics.log("authefication failed");
                 }
                 PreferencesHelper.getInstance().setLogin(account.name);
                 mAuthButtonSubject.onNext(false);
@@ -978,7 +968,10 @@ public class PortfolioController extends BaseController implements LoaderManager
                 invalidateAuthToken(a, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
             }
         }
-        preInsertView.setVisibility(View.VISIBLE);
+
+        AuthView target = (AuthView)getTargetController();
+        target.onLogout();
+
     }
 
     private void invalidateAuthToken(final Account account, String authTokenType) {
@@ -1024,6 +1017,7 @@ public class PortfolioController extends BaseController implements LoaderManager
 //            return;
 //        }
     };
+
 
     private class EchoWebSocketListener extends WebSocketListener {
         private static final int NORMAL_CLOSURE_STATUS = 1000;

@@ -3,20 +3,23 @@ package com.start.crypto.android.account;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.model.Auth;
+import com.start.crypto.android.data.CryptoContract;
+import com.start.crypto.android.data.DBHelper;
 
 import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.HttpException;
 
 
 public class SigninActivity extends AccountAuthenticatorActivity {
@@ -48,7 +51,7 @@ public class SigninActivity extends AccountAuthenticatorActivity {
 
     @Override
     protected void setupLayout() {
-        setContentView(R.layout.account_activity_signin);
+        setContentView(R.layout.account_controller_signin);
     }
 
     @Override
@@ -64,11 +67,15 @@ public class SigninActivity extends AccountAuthenticatorActivity {
             mEmailView.setText(accountName);
         }
 
-        mNextButton.setOnClickListener(v -> submit());
+        mNextButton.setOnClickListener(v -> {
+            clearPortfolio();
+            submit();
+        });
         mSignUpButton.setOnClickListener(v -> {
             // Since there can only be one AuthenticatorActivity, we call the sign up activity, get his results,
             // and return them in setAccountAuthenticatorResult(). See finishLogin().
             Intent signup = new Intent(this, SignupActivity.class);
+            signup.putExtra(RestoreRequestActivity.EXTRA_USER_NAME, mEmailView.getText().toString());
             startActivityForResult(signup, REQ_SIGNUP);
         });
 
@@ -100,6 +107,18 @@ public class SigninActivity extends AccountAuthenticatorActivity {
         compositeDisposable.dispose();
     }
 
+    private void clearPortfolio() {
+        SQLiteDatabase db = new DBHelper(this).getWritableDatabase();
+
+        db.execSQL(CryptoContract.SQL_DELETE_TRANSACTIONS);
+        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIO_COINS);
+        db.execSQL(CryptoContract.SQL_DELETE_NOTIFICATIONS);
+
+        db.execSQL(CryptoContract.SQL_CREATE_TRANSACTIONS);
+        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIO_COINS);
+        db.execSQL(CryptoContract.SQL_CREATE_NOTIFICATIONS);
+    }
+
     public void submit() {
 
         String userName = mEmailView.getText().toString().trim();
@@ -118,7 +137,9 @@ public class SigninActivity extends AccountAuthenticatorActivity {
                             finishLogin(intent);
                         },
                         error -> {
-                            Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                            if(error instanceof HttpException && ((HttpException)error).code() == 404) {
+                                showError(getResources().getString(R.string.account_auth_error));
+                            }
                         }
                 )
         );

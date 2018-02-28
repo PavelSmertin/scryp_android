@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.crashlytics.android.Crashlytics;
 import com.jakewharton.rxbinding2.view.RxView;
 import com.start.crypto.android.BaseActivity;
 import com.start.crypto.android.R;
@@ -17,6 +18,7 @@ import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.HttpException;
 
 public class SignupActivity extends BaseActivity {
 
@@ -39,6 +41,11 @@ public class SignupActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mUserName = getIntent().getStringExtra(RestoreRequestActivity.EXTRA_USER_NAME);
+        if(mUserName != null) {
+            mEmailView.setText(mUserName);
+        }
+
         RxView.clicks(mNextButton).subscribe(success -> {
             mNextButton.setEnabled(false);
             mUserName = mEmailView.getText().toString();
@@ -52,7 +59,11 @@ public class SignupActivity extends BaseActivity {
                                 if(mNextButton != null) {
                                     mNextButton.setEnabled(true);
                                 }
-                                showError(error.getMessage());
+                                if(error instanceof HttpException && ((HttpException)error).code() == 422) {
+                                    showAlert(R.string.account_duplicate_email);
+                                } else {
+                                    Crashlytics.logException(error);
+                                }
                             }
                     );
         });

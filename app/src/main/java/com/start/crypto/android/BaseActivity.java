@@ -63,6 +63,7 @@ public abstract class BaseActivity extends RxAppCompatActivity implements BaseVi
 
     @Override
     public void showAlert(int message) {
+        Toast.makeText(this, getResources().getString(message), Toast.LENGTH_SHORT).show();
     }
 
     @Override
