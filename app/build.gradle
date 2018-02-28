@@ -19,7 +19,7 @@ android {
         applicationId "com.start.crypto.cryptostart"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 9
+        versionCode 10
         versionName "0.2"
         vectorDrawables.useSupportLibrary = true
     }

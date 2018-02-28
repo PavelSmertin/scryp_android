@@ -504,12 +504,12 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
             return;
         }
         RxView.clicks(mTransactionButton).subscribe(v -> {
+            mTransactionButton.setEnabled(false);
             createTransaction();
         });
     }
 
     protected void createTransaction() {
-        mTransactionButton.setEnabled(false);
         mPresenter.updatePortfolioByTransaction(
                 new PortfolioCoin(argPortfolioId, mCoinId, argExchangeId),
                 new Transaction(mAmount, getPrice(), mDate, mDescription, mBasePrice)

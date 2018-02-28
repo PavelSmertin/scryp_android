@@ -41,6 +41,7 @@ public class TransactionEditActivity extends TransactionAddActivity {
             return;
         }
         RxView.clicks(mTransactionButton).subscribe(v -> {
+            mTransactionButton.setEnabled(false);
             createTransaction();
         });
     }

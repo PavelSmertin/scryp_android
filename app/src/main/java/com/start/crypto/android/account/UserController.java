@@ -96,9 +96,8 @@ public class UserController extends BaseController {
         );
 
         RxView.clicks(mNextButton).subscribe(v -> {
+            mNextButton.setEnabled(false);
             upload();
-            showAlert(R.string.account_was_updated);
-            getActivity().finish();
         });
 
         RxView.clicks(mLogoutButton).subscribe(v -> {
@@ -205,10 +204,17 @@ public class UserController extends BaseController {
                             .subscribe(
                                     user -> {
                                         mAvatarProcessView.setVisibility(View.GONE);
+                                        showAlert(R.string.account_was_updated);
+                                        if(getActivity() != null) {
+                                            getActivity().finish();
+                                        }
                                     },
                                     error -> {
                                         Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                                         mAvatarProcessView.setVisibility(View.GONE);
+                                        if(mNextButton != null) {
+                                            mNextButton.setEnabled(true);
+                                        }
                                     }
                             )
         );

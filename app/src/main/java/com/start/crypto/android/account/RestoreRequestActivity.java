@@ -50,6 +50,7 @@ public class RestoreRequestActivity extends BaseActivity {
 
         RxView.clicks(mNextButton).subscribe(success -> {
             startProgressDialog();
+            mNextButton.setEnabled(false);
 
             mUserName = mEmailView.getText().toString().trim();
 
@@ -68,6 +69,10 @@ public class RestoreRequestActivity extends BaseActivity {
                             error -> {
                                 showError(error.getMessage());
                                 startProgressDialog();
+                                if(mNextButton != null) {
+                                    mNextButton.setEnabled(true);
+                                }
+
                             }
                     );
         });

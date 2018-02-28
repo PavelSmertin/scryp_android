@@ -43,6 +43,7 @@ public class RestorePasswordActivity extends BaseActivity {
 
         RxView.clicks(mNextButton).subscribe(success -> {
             startProgressDialog();
+            mNextButton.setEnabled(false);
             MainServiceGenerator.createService(MainApiService.class, this).restorePassword(
                         argUserId,
                         mCodeView.getText().toString().trim(),
@@ -61,6 +62,9 @@ public class RestorePasswordActivity extends BaseActivity {
                             error -> {
                                 stopProgressDialog();
                                 showError(error.getMessage());
+                                if(mNextButton != null) {
+                                    mNextButton.setEnabled(true);
+                                }
                             }
                     );
         });
