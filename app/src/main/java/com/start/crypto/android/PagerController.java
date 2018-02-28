@@ -37,9 +37,6 @@ public class PagerController extends BaseController {
                     case R.id.navigation_dashboard:
                         mPager.setCurrentItem(1);
                         break;
-                    case R.id.navigation_notifications:
-                        mPager.setCurrentItem(2);
-                        break;
             }
             return false;
     };
