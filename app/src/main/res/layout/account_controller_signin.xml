@@ -1,81 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/activity_horizontal_margin"
-    tools:context="com.start.crypto.android.account.SigninActivity">
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:fitsSystemWindows="true"
+    >
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="@dimen/activity_horizontal_margin"
+        >
 
-        <TextView
-            android:id="@+id/email_label"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:labelFor="@+id/email"
-            android:text="@string/account_email"
+            android:orientation="vertical">
 
-            />
+            <TextView
+                android:id="@+id/email_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:labelFor="@+id/email"
+                android:text="@string/account_email"
 
-        <EditText
-            android:id="@+id/email"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:inputType="textEmailAddress"
-            />
+                />
 
-        <TextView
-            android:id="@+id/password_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:labelFor="@+id/password"
-            android:text="@string/account_password" />
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:inputType="textEmailAddress"
+                />
 
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:inputType="textPassword" />
+            <TextView
+                android:id="@+id/password_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:labelFor="@+id/password"
+                android:text="@string/account_password" />
 
-
-        <Button
-            android:id="@+id/next"
-            style="@style/AppButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/all_next"
-            />
-
-        <Button
-            android:id="@+id/sign_up"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/title_activity_signup"
-            android:textColor="@color/colorTextPrimary"
-            android:background="@drawable/button_bordered"
-            />
-
-        <Button
-            android:id="@+id/fogot_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/auth_forgot_password"
-            android:textColor="@color/colorTextPrimary"
-            android:background="@drawable/button_bordered"
-            android:layout_marginTop="10dp"
-            />
-
-    </LinearLayout>
-
-</ScrollView>
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:inputType="textPassword" />
 
 
+            <Button
+                android:id="@+id/next"
+                style="@style/AppButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/all_next"
+                />
 
+            <Button
+                android:id="@+id/sign_up"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/title_activity_signup"
+                android:textColor="@color/colorTextPrimary"
+                android:background="@drawable/button_bordered"
+                />
+
+            <Button
+                android:id="@+id/fogot_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/auth_forgot_password"
+                android:textColor="@color/colorTextPrimary"
+                android:background="@drawable/button_bordered"
+                android:layout_marginTop="10dp"
+                />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+
+
+
+</android.support.design.widget.CoordinatorLayout>

@@ -5,6 +5,8 @@ import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
+import android.accounts.AuthenticatorException;
+import android.accounts.OperationCanceledException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
@@ -964,10 +966,12 @@ public class PortfolioController extends BaseController implements
         PreferencesHelper.getInstance().logout();
         Account[] accounts = mAccountManager.getAccountsByType(SigninActivity.ACCOUNT_TYPE);
         if (accounts.length != 0) {
-            for(Account a : accounts) {
-                invalidateAuthToken(a, SigninActivity.AUTHTOKEN_TYPE_FULL_ACCESS);
+            for(Account account : accounts) {
+                mAccountManager.invalidateAuthToken(account.type, null);
             }
         }
+
+        mSyncPresenter.clearPortfolio(getActivity());
 
         AuthView target = (AuthView)getTargetController();
         target.onLogout();
@@ -978,13 +982,19 @@ public class PortfolioController extends BaseController implements
         final AccountManagerFuture<Bundle> future = mAccountManager.getAuthToken(account, authTokenType, null, getActivity(), null,null);
 
         new Thread(() -> {
+            Bundle bnd = null;
             try {
-                Bundle bnd = future.getResult();
-                final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
-                mAccountManager.invalidateAuthToken(account.type, authtoken);
-            } catch (Exception e) {
-                 Crashlytics.logException(new Exception(e.getMessage()));
+                bnd = future.getResult();
+            } catch (OperationCanceledException e) {
+                Crashlytics.log(e.getMessage());
+            } catch (IOException e) {
+                Crashlytics.log(e.getMessage());
+            } catch (AuthenticatorException e) {
+                Crashlytics.log(e.getMessage());
             }
+            final String authtoken = bnd.getString(AccountManager.KEY_AUTHTOKEN);
+            mAccountManager.invalidateAuthToken(account.type, authtoken);
+
         }).start();
     }
     //endregion

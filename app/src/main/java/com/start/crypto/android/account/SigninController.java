@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -19,8 +18,6 @@ import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.model.Auth;
-import com.start.crypto.android.data.CryptoContract;
-import com.start.crypto.android.data.DBHelper;
 import com.start.crypto.android.sync.SyncPresenter;
 import com.start.crypto.android.utils.PreferencesHelper;
 
@@ -64,8 +61,6 @@ public class SigninController extends BaseController {
         mSyncPresenter = new SyncPresenter(getActivity().getContentResolver());
 
         mAccountManager = AccountManager.get(getActivity());
-
-        clearPortfolio();
 
         mNextButton.setOnClickListener(v -> {
             submit();
@@ -125,32 +120,25 @@ public class SigninController extends BaseController {
 
         PreferencesHelper.getInstance().setLogin(username);
 
-        AuthView target = (AuthView)getTargetController();
-        target.onAuth();
-
         compositeDisposable.add(
                 MainServiceGenerator.createService(MainApiService.class, getActivity()).syncDownload()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
-                                response -> mSyncPresenter.restorePortfolio(response.string()),
+                                response -> {
+                                    String dump = response.string();
+                                    mSyncPresenter.restorePortfolio(dump);
+                                    AuthView target = (AuthView)getTargetController();
+                                    target.onAuth();
+                                },
                                 error -> {
                                     Crashlytics.logException(error);
+                                    AuthView target = (AuthView)getTargetController();
+                                    target.onAuth();
                                 }
                         )
         );
-    }
 
-    private void clearPortfolio() {
-        SQLiteDatabase db = new DBHelper(getActivity()).getWritableDatabase();
-
-        db.execSQL(CryptoContract.SQL_DELETE_TRANSACTIONS);
-        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIO_COINS);
-        db.execSQL(CryptoContract.SQL_DELETE_NOTIFICATIONS);
-
-        db.execSQL(CryptoContract.SQL_CREATE_TRANSACTIONS);
-        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIO_COINS);
-        db.execSQL(CryptoContract.SQL_CREATE_NOTIFICATIONS);
     }
 
     private Account getStoredAccount(Account[] accounts, String userName) {

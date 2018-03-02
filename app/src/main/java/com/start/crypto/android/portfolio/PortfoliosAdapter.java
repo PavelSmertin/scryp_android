@@ -53,7 +53,7 @@ public class PortfoliosAdapter extends RecyclerView.Adapter {
                     );
                     PortfolioActivity.start(
                             mContext,
-                            options,
+                            null,
                             mPortfolios.get(position - 1).getUserId(),
                             mPortfolios.get(position - 1).getId(),
                             mPortfolios.get(position - 1).getUserName(),

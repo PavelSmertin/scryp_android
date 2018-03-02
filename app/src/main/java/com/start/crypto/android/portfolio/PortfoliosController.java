@@ -74,10 +74,14 @@ public class PortfoliosController extends BaseController implements SwipeRefresh
             .subscribe(
                 response -> {
                     mAdapter.updatePortfolios(response);
-                    mSwipeRefresh.setRefreshing(false);
+                    if(mSwipeRefresh != null) {
+                        mSwipeRefresh.setRefreshing(false);
+                    }
                 },
                 error -> {
-                    mSwipeRefresh.setRefreshing(false);
+                    if(mSwipeRefresh != null) {
+                        mSwipeRefresh.setRefreshing(false);
+                    }
                     Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             );

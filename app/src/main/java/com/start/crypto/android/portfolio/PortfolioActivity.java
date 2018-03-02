@@ -1,7 +1,6 @@
 package com.start.crypto.android.portfolio;
 
 import android.app.ActivityOptions;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.request.RequestOptions;
+import com.crashlytics.android.Crashlytics;
 import com.start.crypto.android.BaseActivity;
 import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
@@ -20,7 +19,6 @@ import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.RestClientMinApi;
 import com.start.crypto.android.api.model.PortfolioCoinResponse;
 import com.start.crypto.android.api.model.PriceMultiFullResponse;
-import com.start.crypto.android.data.CryptoContract;
 import com.start.crypto.android.imageLoader.GlideApp;
 import com.start.crypto.android.transaction.TransactionAddActivity;
 import com.start.crypto.android.utils.KeyboardHelper;
@@ -193,10 +191,6 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
         HashMap<String, HashMap<String, PriceMultiFullResponse.RawCoin>> prices = response.getRaw();
         for (Map.Entry<String, HashMap<String, PriceMultiFullResponse.RawCoin>> rawCoin : prices.entrySet()) {
             for (Map.Entry<String, PriceMultiFullResponse.RawCoin> currency : rawCoin.getValue().entrySet()) {
-                ContentValues values = new ContentValues();
-                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, currency.getValue().getPrice());
-                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H, currency.getValue().getChange24Hour());
-                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H, currency.getValue().getChangePct24Hour());
                 updateCoin(
                         rawCoin.getKey(),
                         currency.getValue().getPrice(),
@@ -236,18 +230,26 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
     }
 
     public void retrieveCoins() {
+        mSwipeRefresh.setRefreshing(true);
         compositeDisposable.add(
                 MainServiceGenerator.createService(MainApiService.class, this).publicPortfolio(Long.toString(argUserId), Long.toString(argPortfolioId))
+                        .doOnNext(res -> mCoins = res)
+                        .flatMap(res -> RestClientMinApi.INSTANCE.getClient().priceMultiFull(implode(mCoins), TransactionAddActivity.DEFAULT_SYMBOL, null))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 response -> {
-                                    mCoins = response;
-                                    mAdapter.update(response);
-                                    calculatePortfolioValues();
+                                    if(mSwipeRefresh != null) {
+                                        mSwipeRefresh.setRefreshing(false);
+                                    }
+                                    updatePrices(response);
+                                    updatePortfolio();
                                 },
                                 error -> {
-                                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                    if(mSwipeRefresh != null) {
+                                        mSwipeRefresh.setRefreshing(false);
+                                    }
+                                    Crashlytics.log(error.getMessage());
                                 }
                         )
         );

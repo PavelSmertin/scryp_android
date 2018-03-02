@@ -60,13 +60,13 @@ public class HomeController extends BaseController implements ControllerPageTitl
     private void insertPortfolio() {
         PortfolioController portfolioController = new PortfolioController();
         portfolioController.setTargetController(this);
-        getChildRouter(mContainer).pushController(RouterTransaction.with(portfolioController));
+        getChildRouter(mContainer).replaceTopController(RouterTransaction.with(portfolioController));
     }
 
     private void insertAuth() {
         SigninController signinController = new SigninController();
         signinController.setTargetController(this);
-        getChildRouter(mContainer).pushController(RouterTransaction.with(signinController));
+        getChildRouter(mContainer).replaceTopController(RouterTransaction.with(signinController));
     }
 
 

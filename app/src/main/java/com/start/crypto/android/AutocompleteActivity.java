@@ -167,16 +167,12 @@ public class AutocompleteActivity extends BaseActivity implements LoaderManager.
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
         if (loader.getId() == LOADER_COINS) { // Пара по умолчанию
-            if(data != null && data.getCount() > 0) {
-                mAdapter.changeCursor(data);
-            }
+            mAdapter.changeCursor(data);
             return;
         }
 
         if (loader.getId() == LOADER_EXCHANGES) {
-            if(data != null && data.getCount() > 0) {
-                mAdapter.changeCursor(data);
-            }
+            mAdapter.changeCursor(data);
             return;
         }
 

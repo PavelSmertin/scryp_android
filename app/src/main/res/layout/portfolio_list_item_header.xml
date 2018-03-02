@@ -35,29 +35,29 @@
         />
 
     <TextView
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/portfolio_profit_24h"
-        android:gravity="start"
+        android:gravity="center"
         style="@style/AppLabelStyle"
         android:id="@+id/coin_holdings"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/line_2"
         app:layout_constraintLeft_toLeftOf="@+id/line_1"
         />
 
     <TextView
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/portfolio_profit_7d"
         android:id="@+id/coin_profit_value"
         style="@style/AppLabelStyle"
+        android:gravity="center"
+
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/line_3"
         app:layout_constraintLeft_toLeftOf="@+id/line_2"
         />
 

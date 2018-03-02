@@ -3,7 +3,6 @@ package com.start.crypto.android.account;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,8 +11,6 @@ import com.start.crypto.android.R;
 import com.start.crypto.android.api.MainApiService;
 import com.start.crypto.android.api.MainServiceGenerator;
 import com.start.crypto.android.api.model.Auth;
-import com.start.crypto.android.data.CryptoContract;
-import com.start.crypto.android.data.DBHelper;
 
 import butterknife.BindView;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -68,7 +65,6 @@ public class SigninActivity extends AccountAuthenticatorActivity {
         }
 
         mNextButton.setOnClickListener(v -> {
-            clearPortfolio();
             submit();
         });
         mSignUpButton.setOnClickListener(v -> {
@@ -105,18 +101,6 @@ public class SigninActivity extends AccountAuthenticatorActivity {
     protected void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
-    }
-
-    private void clearPortfolio() {
-        SQLiteDatabase db = new DBHelper(this).getWritableDatabase();
-
-        db.execSQL(CryptoContract.SQL_DELETE_TRANSACTIONS);
-        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIO_COINS);
-        db.execSQL(CryptoContract.SQL_DELETE_NOTIFICATIONS);
-
-        db.execSQL(CryptoContract.SQL_CREATE_TRANSACTIONS);
-        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIO_COINS);
-        db.execSQL(CryptoContract.SQL_CREATE_NOTIFICATIONS);
     }
 
     public void submit() {

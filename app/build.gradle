@@ -52,7 +52,7 @@ buildscript {
 
 dependencies {
     compile 'com.jakewharton:butterknife:8.8.1', { exclude group: 'com.android.support' }
-    compile('com.crashlytics.sdk.android:crashlytics:2.9.0@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
         transitive = true;
     }
     compile 'com.trello.rxlifecycle2:rxlifecycle-android:2.2.1', {

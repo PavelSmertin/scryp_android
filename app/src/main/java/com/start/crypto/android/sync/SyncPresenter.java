@@ -3,13 +3,16 @@ package com.start.crypto.android.sync;
 import android.accounts.Account;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.OperationApplicationException;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 
 import com.start.crypto.android.account.SigninActivity;
 import com.start.crypto.android.data.CryptoContract;
+import com.start.crypto.android.data.DBHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -101,5 +104,17 @@ public class SyncPresenter {
 
             operations.clear();
         }
+    }
+
+    public void clearPortfolio(Context context) {
+        SQLiteDatabase db = new DBHelper(context).getWritableDatabase();
+
+        db.execSQL(CryptoContract.SQL_DELETE_TRANSACTIONS);
+        db.execSQL(CryptoContract.SQL_DELETE_PORTFOLIO_COINS);
+        db.execSQL(CryptoContract.SQL_DELETE_NOTIFICATIONS);
+
+        db.execSQL(CryptoContract.SQL_CREATE_TRANSACTIONS);
+        db.execSQL(CryptoContract.SQL_CREATE_PORTFOLIO_COINS);
+        db.execSQL(CryptoContract.SQL_CREATE_NOTIFICATIONS);
     }
 }
