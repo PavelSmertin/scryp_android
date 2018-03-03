@@ -191,12 +191,23 @@ public class PortfolioActivity extends BaseActivity implements SwipeRefreshLayou
         HashMap<String, HashMap<String, PriceMultiFullResponse.RawCoin>> prices = response.getRaw();
         for (Map.Entry<String, HashMap<String, PriceMultiFullResponse.RawCoin>> rawCoin : prices.entrySet()) {
             for (Map.Entry<String, PriceMultiFullResponse.RawCoin> currency : rawCoin.getValue().entrySet()) {
-                updateCoin(
-                        rawCoin.getKey(),
-                        currency.getValue().getPrice(),
-                        currency.getValue().getChange24Hour(),
-                        currency.getValue().getChangePct24Hour()
-                );
+                if(rawCoin.getKey().equals(currency.getKey())){
+                    updateCoin(
+                            rawCoin.getKey(),
+                            1,
+                            0,
+                            0
+                    );
+
+                } else {
+                    updateCoin(
+                            rawCoin.getKey(),
+                            currency.getValue().getPrice(),
+                            currency.getValue().getChange24Hour(),
+                            currency.getValue().getChangePct24Hour()
+                    );
+
+                }
 
             }
         }
