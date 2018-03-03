@@ -318,8 +318,8 @@ public class PortfolioController extends BaseController implements
     }
 
     @Override
-    protected void onAttach(@NonNull View view) {
-        super.onAttach(view);
+    protected void onActivityResumed(@NonNull Activity activity) {
+        super.onActivityResumed(activity);
         mSwipeRefresh.setRefreshing(true);
         refreshPrices();
     }

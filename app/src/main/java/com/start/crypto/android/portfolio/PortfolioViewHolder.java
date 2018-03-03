@@ -12,7 +12,7 @@ import com.start.crypto.android.R;
 import com.start.crypto.android.api.model.Portfolio;
 import com.start.crypto.android.imageLoader.GlideApp;
 
-import java.math.BigDecimal;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,9 +58,9 @@ public class PortfolioViewHolder extends RecyclerView.ViewHolder  {
         }
 
         mUserName.setText(portfolio.getUserName());
-        mCoinsCount.setText(String.format("%d coins", portfolio.getCoinsCount()));
-        mProfit24h.setText(new BigDecimal(portfolio.getProfit24h()).setScale(0, BigDecimal.ROUND_FLOOR)+ "%");
-        mprofit7d.setText(new BigDecimal(portfolio.getProfit7d()).setScale(0, BigDecimal.ROUND_FLOOR) + "%");
+        mCoinsCount.setText(String.format(Locale.US, "%d coins", portfolio.getCoinsCount()));
+        mProfit24h.setText(String.format(Locale.US, "%.2f%%", portfolio.getProfit24h()));
+        mprofit7d.setText(String.format(Locale.US, "%.2f%%", portfolio.getProfit7d()));
 
         if(portfolio.getProfit24h() < 0) {
             mProfit24h.setTextColor(mDownTendColor);
