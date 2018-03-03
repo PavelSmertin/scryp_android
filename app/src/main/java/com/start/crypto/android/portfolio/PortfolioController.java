@@ -23,6 +23,7 @@ import android.os.Environment;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
@@ -130,6 +131,8 @@ public class PortfolioController extends BaseController implements
     @BindView(R.id.coins_list)                  RecyclerView mRecyclerView;
     @BindView(R.id.add_transaction)             FloatingActionButton addTransactionView;
     @BindView(R.id.pre_insert)                  FloatingActionButton preInsertView;
+    @BindView(R.id.app_bar)                     AppBarLayout mAppBarLayout;
+
 
     @BindView(R.id.swipe_refresh)               SwipeRefreshLayout mSwipeRefresh;
 
@@ -173,6 +176,13 @@ public class PortfolioController extends BaseController implements
 
         setHasOptionsMenu(true);
 
+        mAppBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+            if(verticalOffset == 0 && !addTransactionView.isShown()) {
+                addTransactionView.show();
+            } else if (verticalOffset != 0 && addTransactionView.isShown()){
+                addTransactionView.hide();
+            }
+        });
         mClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor())
                 .build();
@@ -189,17 +199,6 @@ public class PortfolioController extends BaseController implements
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
-        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (dy > 0 && addTransactionView.isShown()) {
-                    addTransactionView.hide();
-                } else if(dy < 0 && !addTransactionView.isShown()){
-                    addTransactionView.show();
-                }
-            }
-        });
-
         initLoaderManager();
 
         long portfolioId = DUMP_DB ? 1 : selectPortfolioId();
@@ -209,7 +208,6 @@ public class PortfolioController extends BaseController implements
         } else {
             preInsertView.setVisibility(View.GONE);
         }
-
         RxView.clicks(addTransactionView).subscribe(success -> TransactionAddActivity.start(getActivity(), portfolioId));
         RxView.clicks(preInsertView).subscribe(success -> {
             mSwipeRefresh.setRefreshing(true);
