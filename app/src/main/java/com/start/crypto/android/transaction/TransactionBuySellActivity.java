@@ -136,13 +136,7 @@ public class TransactionBuySellActivity extends TransactionEditActivity {
 
         enableCoin(false);
 
-        if(mPortfolioCoinOriginal < 0.5D) {
-            mAmountView.setText(String.format(Locale.US, "%.08f", mPortfolioCoinOriginal));
-        } else if(mPortfolioCoinOriginal < 1D){
-            mAmountView.setText(String.format(Locale.US, "%.05f", mPortfolioCoinOriginal));
-        } else {
-            mAmountView.setText(String.format(Locale.US, "%.02f", mPortfolioCoinOriginal));
-        }
+        mAmountView.setText(String.format(Locale.US, "%f", mPortfolioCoinOriginal));
 
     }
 

@@ -244,17 +244,11 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
 
         // Amount
         mAmountView.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus && mAmountView.getText().toString().equals("0.00")) {
+            if(hasFocus && mAmountView.getText() != null && Double.valueOf(mAmountView.getText().toString()) == 0D) {
                 mAmountView.setText(null);
             }
             if(!hasFocus && mAmountView.getText().length() == 0) {
-                if(mAmount < 0.5D) {
-                    mAmountView.setText(String.format(Locale.US, "%.08f", mAmount));
-                } else if(mAmount < 1D){
-                    mAmountView.setText(String.format(Locale.US, "%.05f", mAmount));
-                } else {
-                    mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
-                }
+                mAmountView.setText(String.format(Locale.US, "%f", mAmount));
             }
         });
 
@@ -274,7 +268,7 @@ public class TransactionAddActivity extends BaseActivity implements LoaderManage
                         mAmountFieldObservable.onNext(amountDouble);
                     }
                 });
-        mAmountView.setText(String.format(Locale.US, "%.02f", mAmount));
+        mAmountView.setText(String.format(Locale.US, "%f", mAmount));
 
 
 

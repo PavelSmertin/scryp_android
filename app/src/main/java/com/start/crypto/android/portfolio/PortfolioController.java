@@ -598,9 +598,15 @@ public class PortfolioController extends BaseController implements
         for (Map.Entry<String, HashMap<String, PriceMultiFullResponse.RawCoin>> rawCoin : prices.entrySet()) {
             for (Map.Entry<String, PriceMultiFullResponse.RawCoin> currency : rawCoin.getValue().entrySet()) {
                 ContentValues values = new ContentValues();
-                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, currency.getValue().getPrice());
-                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H, currency.getValue().getChange24Hour());
-                values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H, currency.getValue().getChangePct24Hour());
+                if(rawCoin.getKey().equals(currency.getKey())){
+                    values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, 1);
+                    values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H, 0);
+                    values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H, 0);
+                } else {
+                    values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_PRICE_NOW, currency.getValue().getPrice());
+                    values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_24H, currency.getValue().getChange24Hour());
+                    values.put(CryptoContract.CryptoPortfolioCoins.COLUMN_NAME_CHANGE_PCT_24H, currency.getValue().getChangePct24Hour());
+                }
                 if (getActivity() != null) {
                     getActivity().getContentResolver().update(
                             CryptoContract.CryptoPortfolioCoins.CONTENT_URI, values,
