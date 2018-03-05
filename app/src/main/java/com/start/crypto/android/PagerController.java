@@ -1,5 +1,6 @@
 package com.start.crypto.android;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.view.ViewPager;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.bluelinelabs.conductor.Controller;
 import com.bluelinelabs.conductor.Router;
@@ -88,6 +90,13 @@ public class PagerController extends BaseController {
 
             @Override
             public void onPageSelected(int position) {
+
+                // Hide keyboard
+                final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mPager.getWindowToken(), 0);
+
+                // replace controller
                 if (mPrevMenuItem != null) {
                     mPrevMenuItem.setChecked(false);
                 } else {

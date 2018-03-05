@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="@string/title_activity_transaction"
+            android:text="@string/transaction_menu_done"
             style="@style/AppButton"
             android:enabled="false"
             />
